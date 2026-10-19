@@ -28,26 +28,7 @@
 
 
 
-#### [TASK-05] Xây dựng generic validation middleware `validateRequest` với Zod
-- [ ] **5.1.** Cài đặt thư viện `zod`.
-- [ ] **5.2.** Xây dựng tệp `backend/src/api/middlewares/validate-request.middleware.ts`:
-  - [ ] Nhận interface cấu hình Zod schemas cho `body`, `query`, `params`.
-  - [ ] Phân tích và kiểm tra tính hợp lệ của request trước khi chuyển vào controller.
-  - [ ] Trả về mã lỗi HTTP `400 Bad Request` với cấu trúc JSON chuẩn hóa khi dữ liệu không hợp lệ:
-    ```json
-    {
-      "success": false,
-      "error": {
-        "code": "VALIDATION_ERROR",
-        "message": "Dữ liệu yêu cầu không hợp lệ",
-        "details": [{ "field": "email", "issue": "Email không đúng định dạng" }]
-      }
-    }
-    ```
-- [ ] **5.3.** Xây dựng Global Error Handler middleware `backend/src/api/middlewares/error-handler.middleware.ts` xử lý ngoại lệ tập trung.
-- [ ] **5.4.** Viết unit test cho `validateRequest` middleware kiểm thử các trường hợp dữ liệu hợp lệ và không hợp lệ.
 
----
 
 #### [TASK-06] Triển khai Module Xác thực `auth` (Đăng ký, Đăng nhập, JWT Access/Refresh tokens)
 - [ ] **6.1.** Cài đặt thư viện bảo mật: `bcryptjs`, `@types/bcryptjs`, `jsonwebtoken`, `@types/jsonwebtoken`.
@@ -113,6 +94,37 @@
 ---
 
 ### ✅ TRẠNG THÁI: DONE (ĐÃ HOÀN THÀNH)
+
+#### [TASK-05] Xây dựng generic validation middleware `validateRequest` với Zod & Global Error Handler
+- [x] **5.1.** Cài đặt thư viện `zod` (đã tích hợp vào backend dependencies).
+- [x] **5.2.** Xây dựng tệp `backend/src/api/middlewares/validate-request.middleware.ts`:
+  - [x] Định nghĩa interface `RequestValidators` cho `body`, `query`, `params`.
+  - [x] Tự động validate, coerce/strip dữ liệu và gán ngược lại `req.body`, `req.query`, `req.params`.
+  - [x] Hàm `formatZodIssues` chuyển đổi các path lồng nhau (e.g. `user.profile.age`) hoặc root refinement thành danh sách `{ field, issue }`.
+  - [x] Trả về HTTP `400 Bad Request` chuẩn hóa ngay lập tức:
+    ```json
+    {
+      "success": false,
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "message": "Dữ liệu yêu cầu không hợp lệ",
+        "details": [{ "field": "email", "issue": "Email không đúng định dạng" }]
+      }
+    }
+    ```
+- [x] **5.3.** Xây dựng tầng lỗi nghiệp vụ & Middleware xử lý ngoại lệ tập trung:
+  - [x] `backend/src/core/errors/app-error.ts`: Lớp cơ sở `AppError` kèm các lớp con `ValidationError`, `NotFoundError`, `UnauthorizedError`, `ForbiddenError`, `ConflictError`, `BadRequestError`.
+  - [x] `backend/src/api/middlewares/error-handler.middleware.ts`: Xử lý phân loại `AppError` (4xx warning, 5xx error), `ZodError` fallback, `SyntaxError` (JSON body lỗi), `Unhandled 500 Exception` (ẩn stack trace trên production).
+  - [x] Middleware `notFoundHandler` xử lý route 404 chuẩn hóa.
+  - [x] Tích hợp vào `backend/src/app.ts`.
+- [x] **5.4.** Viết trọn bộ kiểm thử tự động (Unit & Integration):
+  - [x] `validate-request.middleware.test.ts`: 11 test cases bao phủ body, query coerce, params UUID, đa mục tiêu, root errors.
+  - [x] `error-handler.middleware.test.ts`: 10 test cases bao phủ các loại AppError, ZodError, SyntaxError, 500, notFoundHandler.
+  - [x] `health.routes.test.ts`: 4 test cases tích hợp `supertest` kiểm thử end-to-end qua app Express.
+  - [x] Độ bao phủ kiểm thử đạt **95.95% Statements**, **91.30% Branches**, **90.00% Functions**, **95.95% Lines** (vượt chuẩn `testing-standards.md`).
+- [x] Merge vào `main` và push lên GitHub (commit: `672ed24`).
+
+---
 
 #### [TASK-04] Xây dựng tầng hạ tầng kết nối cơ sở dữ liệu `backend/src/infrastructure/database/db.client.ts` (`pg.Pool` Singleton)
 - [x] **4.1.** Cài đặt thư viện `pg` và `@types/pg` (đã cài ở TASK-03).
@@ -203,6 +215,8 @@
 | 19/10/2026 | [TASK-02] Docker Compose (PostgreSQL 15 + Redis 7) | **DONE** | Tạo `docker-compose.yml`, `.env.docker.example`, `scripts/test-services.ps1`; merge vào `main`; push GitHub commit `4550995`. |
 | 19/10/2026 | [TASK-03] SQL DDL Schema (9 bảng + Indexes + Triggers) | **DONE** | Tạo `001_initial_schema.sql` (9 bảng, 12 indexes, 5 partial indexes, 2 GIN, 4 triggers), `migrate.ts` runner; cài `pg@8.13.1`; TypeScript 0 lỗi; push GitHub commit `4a414ee`. |
 | 19/10/2026 | [TASK-04] Database Infrastructure (`db.client.ts` pg.Pool Singleton) | **DONE** | Tạo `db.client.ts` (query profiling, withTransaction, testConnection, shutdown hooks); cấu hình Vitest; 16/16 unit tests passed; merge main; push GitHub commit `1976537`. |
+| 19/10/2026 | [TASK-05] Request Validation & Error Handling (Zod + AppError) | **DONE** | Tạo `validateRequest` middleware, `AppError` domain hierarchy, `errorHandler` & `notFoundHandler`; 41/41 tests passed (95.95% coverage); merge main; push GitHub commit `672ed24`. |
+
 
 
 
