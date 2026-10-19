@@ -15,12 +15,18 @@ import {
   WebhookLogRepository,
   webhookLogRepository as defaultWebhookLogRepo,
 } from '../../infrastructure/repositories/webhook-log.repository.js';
+import {
+  phoneMaskingQueue as defaultPhoneMaskingQueue,
+  PhoneMaskingJobData,
+} from '../../infrastructure/queue/bullmq.client.js';
+import { Queue } from 'bullmq';
 import { ForbiddenError } from '../errors/app-error.js';
 import { logger } from '../../utils/logger.js';
 
 export class WebhookService {
   constructor(
-    private readonly webhookRepo: WebhookLogRepository = defaultWebhookLogRepo
+    private readonly webhookRepo: WebhookLogRepository = defaultWebhookLogRepo,
+    private readonly phoneQueue: Queue<PhoneMaskingJobData> = defaultPhoneMaskingQueue
   ) {}
 
   /**
@@ -76,6 +82,34 @@ export class WebhookService {
           event_type: event.eventType,
           payload:    event.payload,
         });
+        // 2. Nếu là sự kiện bình luận (comment), đẩy ngay vào hàng đợi phone-masking-queue
+        if (event.eventType === 'comment') {
+          const val = (event.payload || {}) as Record<string, unknown>;
+          const from = (val.from || {}) as Record<string, string>;
+
+          await this.phoneQueue.add(
+            'mask-phone-in-comment',
+            {
+              eventId:     event.eventId,
+              pageId:      event.pageId || '',
+              commentId:   (val.comment_id as string) || event.eventId,
+              postId:      val.post_id as string | undefined,
+              fromId:      from.id || '',
+              fromName:    from.name,
+              message:     (val.message as string) || '',
+              createdTime: val.created_time as number | undefined,
+              rawPayload:  event.payload,
+            },
+            {
+              jobId: `comment-${event.eventId}`, // Đảm bảo Idempotency không enqueue trùng
+            }
+          ).catch((queueErr) => {
+            logger.error(
+              { eventId: event.eventId, err: (queueErr as Error).message },
+              '[WebhookService] Lỗi khi đưa bình luận vào phone-masking-queue'
+            );
+          });
+        }
       } catch (err) {
         // Không để lỗi DB chặn việc phản hồi 200 OK về Meta
         logger.error(
