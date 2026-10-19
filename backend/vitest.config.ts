@@ -38,7 +38,7 @@ export default defineConfig({
     },
 
     // Hiển thị output chi tiết
-    reporter: ['verbose'],
+    reporters: ['verbose'],
 
     // Chạy test song song (pool mỗi file riêng)
     pool: 'forks',
