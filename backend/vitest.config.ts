@@ -32,6 +32,7 @@ export default defineConfig({
         'src/**/*.test.ts',
         'src/index.ts',                          // Entry point - test bằng integration test
         'src/config/**',                         // Config loaders
+        'src/core/entities/**',                  // Type & interface definitions
         'src/infrastructure/database/migrate.ts', // CLI migration runner
       ],
     },
