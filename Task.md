@@ -11,6 +11,7 @@
 2. **Cập Nhật Ngay Lập Tức (Instant Update):** Ngay sau khi hoàn thành một bước hành động (Action Item), AI Agent phải tự động cập nhật đánh dấu checkbox `[x]` và chuyển dịch trạng thái công việc tương ứng (`Todo` ➔ `In Progress` ➔ `Done`).
 3. **An Toàn Hệ Thống (Strict Safety Gate):** Tuyệt đối không thực hiện các hành động nguy hiểm (như xóa cơ sở dữ liệu, `DROP TABLE`, thay đổi cấu trúc kiến trúc gốc, `git push --force`) mà chưa ghi chú rõ ràng vào kế hoạch và nhận được sự xác nhận từ người dùng.
 4. **Chuẩn Mực Mã Nguồn (Code Quality):** Tuân thủ TypeScript Strict (`noImplicitAny`), Clean Architecture, không commit bí mật/token vào git, xác thực chữ ký Webhook HMAC-SHA256 với `timingSafeEqual`.
+5. **Quy Trình Nhánh & Triển Khai An Toàn (Task Lifecycle & Safe Deploy):** Mọi task bắt buộc phải thực hiện trên một nhánh riêng (`feature/<task-name>`). Chạy toàn bộ test suite; nếu lỗi phải tự động phân tích và sửa lỗi; nếu pass mới merge vào `main` và chạy quy trình triển khai an toàn theo [.agent/workflows/safe-deploy.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agent/workflows/safe-deploy.md) để đẩy code lên GitHub. Chi tiết xem tại [.agent/workflows/task-lifecycle.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agent/workflows/task-lifecycle.md).
 
 ---
 
@@ -187,4 +188,5 @@
 | :--- | :--- | :---: | :--- |
 | 19/10/2026 | Khởi tạo bảng kế hoạch chi tiết `Task.md` | **DONE** | Lập kế hoạch 8 hạng mục công việc lớn, chia nhỏ thành các checkbox hành động cụ thể. |
 | 19/10/2026 | [TASK-01] Khởi tạo Monorepo (`backend/` & `frontend/`) | **DONE** | Thiết lập Express Clean Architecture + Next.js 14, cài đặt dependencies, pass type-check & health check HTTP 200 OK. |
+| 19/10/2026 | Khởi tạo Git & Push Remote GitHub | **DONE** | Tạo commit đầu tiên (`chore: initial commit for ShopFlow project`), đổi nhánh sang `main` và push code thành công lên `https://github.com/MinhNguyen0106/ShopFlow`. |
 
