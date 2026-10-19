@@ -26,58 +26,7 @@
 
 ---
 
-#### [TASK-02] Khởi tạo tệp `docker-compose.yml` cho PostgreSQL 15+ và Redis 7+
-- [ ] **2.1.** Soạn thảo tệp `docker-compose.yml` tại thư mục gốc:
-  - [ ] Cấu hình service `postgres`:
-    - Image: `postgres:15-alpine`
-    - Container name: `shopflow_postgres`
-    - Volume: `pgdata:/var/lib/postgresql/data`
-    - Port mapping: `5432:5432`
-    - Environment variables: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
-    - Healthcheck: `pg_isready -U shopflow_user -d shopflow_db`
-  - [ ] Cấu hình service `redis`:
-    - Image: `redis:7-alpine`
-    - Container name: `shopflow_redis`
-    - Volume: `redisdata:/data`
-    - Port mapping: `6379:6379`
-    - Command: `redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy noeviction`
-    - Healthcheck: `redis-cli ping`
-- [ ] **2.2.** Khởi tạo tệp `.env.docker.example` chứa thông tin cấu hình mặc định an toàn cho môi trường phát triển cục bộ.
-- [ ] **2.3.** Viết script kiểm tra kết nối dịch vụ Docker `scripts/test-services.ps1`.
 
----
-
-#### [TASK-03] Thực thi tệp SQL DDL từ `docs/03_DATABASE_SCHEMA.md` khởi tạo toàn bộ 9 bảng, partial indexes và triggers
-- [ ] **3.1.** Biên soạn tệp script DDL PostgreSQL hoàn chỉnh tại `backend/src/infrastructure/database/migrations/001_initial_schema.sql`:
-  - [ ] Kích hoạt extension `uuid-ossp` (`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`).
-  - [ ] Khởi tạo Bảng 1: `users` (Tài khoản chủ shop & nhân viên).
-  - [ ] Khởi tạo Bảng 2: `facebook_accounts` (Tài khoản Facebook OAuth).
-  - [ ] Khởi tạo Bảng 3: `connected_pages` (Fanpage kết nối, token AES-256).
-  - [ ] Khởi tạo Bảng 4: `automation_rules` (Quy tắc tự động & ẩn SĐT).
-  - [ ] Khởi tạo Bảng 5: `posts_schedule` (Bài viết đặt lịch xuất bản).
-  - [ ] Khởi tạo Bảng 6: `customers` (Khách hàng CRM, SĐT, tags).
-  - [ ] Khởi tạo Bảng 7: `conversations` (Hội thoại hợp nhất Inbox/Comment, cửa sổ 24h).
-  - [ ] Khởi tạo Bảng 8: `messages_and_comments` (Chi tiết tin nhắn & bình luận).
-  - [ ] Khởi tạo Bảng 9: `webhook_logs` (Nhật ký sự kiện webhook, Idempotency).
-  - [ ] Thiết lập đầy đủ các Khóa ngoại (Foreign Keys) kèm quy tắc `ON DELETE CASCADE` / `RESTRICT`.
-  - [ ] Thiết lập các Chỉ mục (Indexes & Partial Indexes): `idx_pages_active`, `idx_conversations_open`, `idx_customers_phone`, GIN index trên các cột `JSONB`.
-  - [ ] Thiết lập Hàm và Trigger tự động cập nhật `updated_at` cho các bảng cần thiết.
-- [ ] **3.2.** Viết script migration runner `backend/src/infrastructure/database/migrate.ts` để thực thi tự động qua lệnh `npm run db:migrate`.
-
----
-
-#### [TASK-04] Xây dựng tầng hạ tầng kết nối cơ sở dữ liệu `backend/src/infrastructure/database/db.client.ts` (`pg.Pool` Singleton)
-- [ ] **4.1.** Cài đặt thư viện `pg` và `@types/pg`.
-- [ ] **4.2.** Xây dựng module `backend/src/infrastructure/database/db.client.ts`:
-  - [ ] Khởi tạo instance `pg.Pool` theo Singleton pattern, đọc cấu hình từ biến môi trường.
-  - [ ] Cấu hình Pool tối ưu: `max: 20`, `idleTimeoutMillis: 30000`, `connectionTimeoutMillis: 5000`.
-  - [ ] Cung cấp hàm `query(text, params)` có typing rõ ràng, tự động bắt lỗi và ghi log thời gian thực thi (query profiling).
-  - [ ] Cung cấp hàm `withTransaction(callback)` hỗ trợ transaction an toàn (`BEGIN`, `COMMIT`, tự động `ROLLBACK` khi có lỗi).
-  - [ ] Cung cấp hàm `testConnection()` kiểm tra trạng thái database khi khởi động server.
-  - [ ] Đăng ký hooks xử lý Graceful Shutdown (`SIGINT`, `SIGTERM`) đóng kết nối pool an toàn.
-- [ ] **4.3.** Viết unit test / integration test cho module `db.client.ts`.
-
----
 
 #### [TASK-05] Xây dựng generic validation middleware `validateRequest` với Zod
 - [ ] **5.1.** Cài đặt thư viện `zod`.
@@ -165,6 +114,68 @@
 
 ### ✅ TRẠNG THÁI: DONE (ĐÃ HOÀN THÀNH)
 
+#### [TASK-04] Xây dựng tầng hạ tầng kết nối cơ sở dữ liệu `backend/src/infrastructure/database/db.client.ts` (`pg.Pool` Singleton)
+- [x] **4.1.** Cài đặt thư viện `pg` và `@types/pg` (đã cài ở TASK-03).
+- [x] **4.2.** Xây dựng module `backend/src/infrastructure/database/db.client.ts`:
+  - [x] Khởi tạo instance `pg.Pool` theo Singleton pattern, đọc cấu hình từ biến môi trường `DATABASE_URL`.
+  - [x] Cấu hình Pool tối ưu: `max: 20`, `idleTimeoutMillis: 30000`, `connectionTimeoutMillis: 5000`, `statement_timeout: 30000`.
+  - [x] Cung cấp hàm `query<T>(text, params)` có generic typing rõ ràng, tự động bắt lỗi và ghi log profiling (cảnh báo slow query > 1 giây).
+  - [x] Cung cấp hàm `withTransaction<T>(callback)` hỗ trợ transaction an toàn (`BEGIN`, `COMMIT`, tự động `ROLLBACK` khi có ngoại lệ, giải phóng client qua `finally`).
+  - [x] Cung cấp hàm `testConnection()` kiểm tra trạng thái database khi khởi động server, tích hợp vào `src/index.ts`.
+  - [x] Đăng ký hooks xử lý Graceful Shutdown (`SIGINT`, `SIGTERM`) đóng kết nối pool an toàn.
+  - [x] Cung cấp `closePool()` và export `getPool()`.
+- [x] **4.3.** Cài đặt Vitest (`vitest@2.1.8`, `@vitest/coverage-v8@2.1.8`), viết 16 test cases bao phủ toàn diện:
+  - [x] Query happy path, typed rows, parameterized query, null rowCount, DB constraint error handling, undefined params.
+  - [x] Transaction: BEGIN -> callback -> COMMIT đúng thứ tự, tự động ROLLBACK khi callback throw lỗi, luôn release client khi có lỗi, trả về giá trị callback.
+  - [x] Test connection: phản hồi true khi kết nối thành công, false khi lỗi.
+  - [x] Close pool: đóng an toàn, xử lý lỗi khi pool.end() reject.
+  - [x] Graceful shutdown listeners: đăng ký SIGINT, SIGTERM.
+- [x] Đã kiểm thử thành công: 16/16 tests passed 100%, TypeScript type-check 0 lỗi.
+- [x] Merge vào `main` và push lên GitHub (commit: `1976537`).
+
+---
+
+#### [TASK-03] Thực thi tệp SQL DDL - Khởi tạo 9 bảng, Indexes & Triggers
+- [x] **3.1.** Biên soạn `backend/src/infrastructure/database/migrations/001_initial_schema.sql`:
+  - [x] Extension `uuid-ossp` kích hoạt.
+  - [x] 9 bảng: `users`, `facebook_accounts`, `connected_pages`, `automation_rules`, `posts_schedule`, `customers`, `conversations`, `messages_and_comments`, `webhook_logs`.
+  - [x] Foreign Keys đầy đủ với `ON DELETE CASCADE` / `SET NULL` / `RESTRICT`.
+  - [x] 12 Indexes tối ưu hóa, gồm 5 Partial Indexes: `idx_pages_active`, `idx_posts_schedule_scheduled_time`, `idx_customers_phone`, `idx_conversations_open`, `idx_webhook_logs_pending`.
+  - [x] 2 GIN Indexes cho JSONB: `idx_customers_tags_gin`, `idx_webhook_logs_payload_gin`.
+  - [x] Trigger `update_updated_at_column()` cho 4 bảng (`users`, `connected_pages`, `posts_schedule`, `automation_rules`).
+  - [x] Block `DO $$` xác nhận số bảng/index/trigger sau migration.
+  - [x] Chạy trong `BEGIN/COMMIT` Transaction — tự động rollback khi lỗi.
+- [x] **3.2.** `migrate.ts`: Migration Runner TypeScript idempotent, bảng tracking `_schema_migrations`, SHA-256 checksum per file, `npm run db:migrate`.
+- [x] Cài đặt `pg@8.13.1` và `@types/pg@8.11.10`.
+- [x] TypeScript type-check: **0 lỗi**.
+- [x] Merge vào `main` và push GitHub (commit: `4a414ee`).
+
+---
+
+#### [TASK-02] Khởi tạo tệp `docker-compose.yml` cho PostgreSQL 15+ và Redis 7+
+- [x] **2.1.** Soạn thảo tệp `docker-compose.yml` tại thư mục gốc:
+  - [x] Cấu hình service `postgres`:
+    - Image: `postgres:15-alpine`
+    - Container name: `shopflow_postgres`
+    - Volume: `pgdata:/var/lib/postgresql/data`
+    - Port mapping: `5432:5432`
+    - Environment variables: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` (với default values)
+    - Healthcheck: `pg_isready -U shopflow_user -d shopflow_db`
+    - Timezone: `Asia/Ho_Chi_Minh`
+    - Mount: `./backend/src/infrastructure/database/migrations:/docker-entrypoint-initdb.d:ro`
+  - [x] Cấu hình service `redis`:
+    - Image: `redis:7-alpine`
+    - Container name: `shopflow_redis`
+    - Volume: `redisdata:/data`
+    - Port mapping: `6379:6379`
+    - Command: `redis-server --appendonly yes --appendfsync everysec --maxmemory 256mb --maxmemory-policy noeviction --requirepass ...`
+    - Healthcheck: `redis-cli -a $REDIS_PASSWORD ping | grep PONG`
+- [x] **2.2.** Khởi tạo tệp `.env.docker.example` chứa thông tin cấu hình mặc định an toàn cho môi trường phát triển cục bộ.
+- [x] **2.3.** Viết script kiểm tra kết nối dịch vụ Docker `scripts/test-services.ps1`.
+- [x] Merge vào `main` và push lên GitHub (commit: `4550995`).
+
+---
+
 #### [TASK-01] Khởi tạo khung thư mục Monorepo chuẩn hóa (`backend/` và `frontend/`)
 - [x] **1.1.** Khởi tạo cấu hình Monorepo tại thư mục gốc (`package.json` với npm workspaces `backend`, `frontend`, tệp `.gitignore` chuẩn hóa).
 - [x] **1.2.** Thiết lập dự án `backend/` với Node.js 20+ LTS (Node v24.12.0), Express.js, TypeScript strict mode:
@@ -189,4 +200,9 @@
 | 19/10/2026 | Khởi tạo bảng kế hoạch chi tiết `Task.md` | **DONE** | Lập kế hoạch 8 hạng mục công việc lớn, chia nhỏ thành các checkbox hành động cụ thể. |
 | 19/10/2026 | [TASK-01] Khởi tạo Monorepo (`backend/` & `frontend/`) | **DONE** | Thiết lập Express Clean Architecture + Next.js 14, cài đặt dependencies, pass type-check & health check HTTP 200 OK. |
 | 19/10/2026 | Khởi tạo Git & Push Remote GitHub | **DONE** | Tạo commit đầu tiên (`chore: initial commit for ShopFlow project`), đổi nhánh sang `main` và push code thành công lên `https://github.com/MinhNguyen0106/ShopFlow`. |
+| 19/10/2026 | [TASK-02] Docker Compose (PostgreSQL 15 + Redis 7) | **DONE** | Tạo `docker-compose.yml`, `.env.docker.example`, `scripts/test-services.ps1`; merge vào `main`; push GitHub commit `4550995`. |
+| 19/10/2026 | [TASK-03] SQL DDL Schema (9 bảng + Indexes + Triggers) | **DONE** | Tạo `001_initial_schema.sql` (9 bảng, 12 indexes, 5 partial indexes, 2 GIN, 4 triggers), `migrate.ts` runner; cài `pg@8.13.1`; TypeScript 0 lỗi; push GitHub commit `4a414ee`. |
+| 19/10/2026 | [TASK-04] Database Infrastructure (`db.client.ts` pg.Pool Singleton) | **DONE** | Tạo `db.client.ts` (query profiling, withTransaction, testConnection, shutdown hooks); cấu hình Vitest; 16/16 unit tests passed; merge main; push GitHub commit `1976537`. |
+
+
 
