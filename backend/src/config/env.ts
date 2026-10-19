@@ -10,7 +10,7 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().default('http://localhost:3000'),
 
   // Database
-  DATABASE_URL: z.string().optional(),
+  DATABASE_URL: z.string().url().optional(),
 
   // Redis
   REDIS_HOST: z.string().default('localhost'),
