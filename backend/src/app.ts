@@ -5,6 +5,7 @@ import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
 import { healthRouter } from './api/routes/health.routes.js';
 import { apiV1Router } from './api/routes/index.js';
+import { errorHandler, notFoundHandler } from './api/middlewares/error-handler.middleware.js';
 
 export function createApp(): express.Application {
   const app = express();
@@ -56,27 +57,10 @@ export function createApp(): express.Application {
   app.use(env.API_PREFIX, apiV1Router);
 
   // 404 Route Not Found Handler
-  app.use((req: Request, res: Response) => {
-    res.status(404).json({
-      success: false,
-      error: {
-        code: 'NOT_FOUND',
-        message: `Đường dẫn [${req.method}] ${req.originalUrl} không tồn tại trên hệ thống.`,
-      },
-    });
-  });
+  app.use(notFoundHandler);
 
   // Global Error Handler
-  app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-    logger.error({ err }, `Unhandled Exception: ${err.message}`);
-    res.status(500).json({
-      success: false,
-      error: {
-        code: 'INTERNAL_SERVER_ERROR',
-        message: env.NODE_ENV === 'production' ? 'Đã xảy ra lỗi nội bộ máy chủ.' : err.message,
-      },
-    });
-  });
+  app.use(errorHandler);
 
   return app;
 }
