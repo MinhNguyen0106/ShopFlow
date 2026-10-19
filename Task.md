@@ -32,25 +32,7 @@
 
 
 
-#### [TASK-07] Triển khai Webhook Ingestion Router & Controller kèm HMAC-SHA256 Verifier
-- [ ] **7.1.** Xây dựng Middleware xác thực chữ ký Meta `verifyMetaSignature`:
-  - [ ] Cấu hình Express lưu lại `req.rawBody` dưới dạng Buffer khi nhận request Webhook.
-  - [ ] Trích xuất chữ ký từ header `x-hub-signature-256`.
-  - [ ] Tính toán mã hash HMAC-SHA256 bằng `crypto.createHmac('sha256', FACEBOOK_APP_SECRET)`.
-  - [ ] So sánh hai buffer chữ ký bằng `crypto.timingSafeEqual` để loại trừ hoàn toàn nguy cơ Timing Attacks.
-  - [ ] Trả về `401 Unauthorized` ngay lập tức nếu chữ ký sai lệch hoặc bị thiếu.
-- [ ] **7.2.** Triển khai Endpoint Handshake (GET `/api/v1/webhook`):
-  - [ ] Kiểm tra tham số `hub.mode === 'subscribe'` và `hub.verify_token === FACEBOOK_VERIFY_TOKEN`.
-  - [ ] Trả về giá trị `hub.challenge` dạng chuỗi thô để vượt qua vòng kiểm duyệt của Meta Graph API.
-- [ ] **7.3.** Triển khai Endpoint Ingestion (POST `/api/v1/webhook`):
-  - [ ] Nhận payload sự kiện từ Facebook (Page changes, feed comments, messenger messages).
-  - [ ] Kiểm tra trùng lặp (Idempotency) dựa trên Redis: Kiểm tra mã `event_id` / `mid` / `comment_id` với TTL 24 giờ.
-  - [ ] Ghi nhận sự kiện thô vào bảng `webhook_logs` (trạng thái `pending`).
-  - [ ] Trả về HTTP `200 OK` ngay lập tức (< 1 giây) để ngăn Meta retry dồn dập.
-  - [ ] Phân luồng sự kiện và đẩy payload vào hàng đợi BullMQ để xử lý bất đồng bộ.
-- [ ] **7.4.** Viết unit tests kiểm tra HMAC Verifier và Webhook Handshake.
 
----
 
 #### [TASK-08] Triển khai BullMQ Queue & Worker quét Regex ẩn SĐT trong < 3 giây
 - [ ] **8.1.** Cài đặt thư viện hàng đợi: `bullmq`, `ioredis`.
@@ -72,6 +54,31 @@
 ---
 
 ### ✅ TRẠNG THÁI: DONE (ĐÃ HOÀN THÀNH)
+
+#### [TASK-07] Triển khai Webhook Ingestion Router & Controller kèm HMAC-SHA256 Verifier
+- [x] **7.1.** Xây dựng Middleware xác thực chữ ký Meta `verifyMetaSignature` & `verifyWebhookSignature`:
+  - [x] Khai thác `rawBody` Buffer được giữ lại trong cấu hình body parser Express (`express.json`).
+  - [x] Trích xuất `x-hub-signature-256`, băm HMAC-SHA256 với `FACEBOOK_APP_SECRET`.
+  - [x] Dùng `crypto.timingSafeEqual` loại trừ 100% rủi ro tấn công dò thời gian (Timing Attacks).
+  - [x] Từ chối `401 Unauthorized` ngay lập tức nếu thiếu hoặc sai lệch chữ ký.
+- [x] **7.2.** Triển khai Endpoint Handshake (`GET /api/v1/webhook`):
+  - [x] Kiểm tra điều kiện `hub.mode === 'subscribe'` và `hub.verify_token === FACEBOOK_VERIFY_TOKEN`.
+  - [x] Trả về chuỗi `hub.challenge` thô (`text/plain`, HTTP 200) theo đúng tiêu chuẩn Meta Platform.
+  - [x] Trả về `403 Forbidden` nếu token không khớp.
+- [x] **7.3.** Triển khai Endpoint Ingestion (`POST /api/v1/webhook`):
+  - [x] Tiếp nhận payload Feed Comments, Messenger Messages, Page state changes.
+  - [x] Chuẩn hóa và bóc tách sự kiện (`extractWebhookEvents`) với unique `eventId` (comment_id / mid / sha256 hash).
+  - [x] Ghi nhận vào bảng `webhook_logs` với cơ chế Idempotency `ON CONFLICT (event_id) DO NOTHING`.
+  - [x] Phản hồi HTTP `200 OK` (`EVENT_RECEIVED`) ngay lập tức (< 1 giây) để ngăn Meta retry dồn dập.
+- [x] **7.4.** Kiểm thử tự động toàn diện:
+  - [x] Unit test `webhook-verifier.middleware.test.ts` (11 tests).
+  - [x] Unit test `webhook.service.test.ts` (7 tests).
+  - [x] Unit test `webhook-log.repository.test.ts` (6 tests).
+  - [x] Integration test `webhook.routes.test.ts` (5 tests với `supertest`).
+  - [x] Tổng cộng **113/113 tests passed**, Code Coverage toàn dự án đạt **95.42% Statements, 87.43% Branches, 96.36% Functions, 95.42% Lines**.
+- [x] Merge vào `main` và push lên GitHub (commit: `6e914fa`).
+
+---
 
 #### [TASK-06] Triển khai Module Xác thực `auth` (Đăng ký, Đăng nhập, JWT Access/Refresh tokens)
 - [x] **6.1.** Cài đặt thư viện bảo mật: `bcryptjs@2.4.3`, `@types/bcryptjs`, `jsonwebtoken@9.0.8`, `@types/jsonwebtoken`.
@@ -227,6 +234,8 @@
 | 19/10/2026 | [TASK-04] Database Infrastructure (`db.client.ts` pg.Pool Singleton) | **DONE** | Tạo `db.client.ts` (query profiling, withTransaction, testConnection, shutdown hooks); cấu hình Vitest; 16/16 unit tests passed; merge main; push GitHub commit `1976537`. |
 | 19/10/2026 | [TASK-05] Request Validation & Error Handling (Zod + AppError) | **DONE** | Tạo `validateRequest` middleware, `AppError` domain hierarchy, `errorHandler` & `notFoundHandler`; 41/41 tests passed (95.95% coverage); merge main; push GitHub commit `672ed24`. |
 | 19/10/2026 | [TASK-06] Authentication Module (JWT + Bcrypt + Auth Service) | **DONE** | Tạo DTOs, `auth.helper.ts`, `user.repository.ts`, `auth.service.ts`, `auth.controller.ts`, `auth.middleware.ts`, routes; 84/84 tests passed (95.99% coverage); merge main; push GitHub commit `56c0494`. |
+| 19/10/2026 | [TASK-07] Webhook Ingestion & HMAC-SHA256 Verifier | **DONE** | Tạo `verifyWebhookSignature`, `webhook.service.ts`, `webhook-log.repository.ts`, `webhook.routes.ts`; 113/113 tests passed (95.42% coverage); merge main; push GitHub commit `6e914fa`. |
+
 
 
 
