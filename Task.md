@@ -30,29 +30,7 @@
 
 
 
-#### [TASK-06] Triển khai Module Xác thực `auth` (Đăng ký, Đăng nhập, JWT Access/Refresh tokens)
-- [ ] **6.1.** Cài đặt thư viện bảo mật: `bcryptjs`, `@types/bcryptjs`, `jsonwebtoken`, `@types/jsonwebtoken`.
-- [ ] **6.2.** Xây dựng Zod Schemas tại `backend/src/api/dtos/auth.dto.ts`:
-  - [ ] `RegisterDtoSchema`: `email`, `password` (tối thiểu 8 ký tự, có số và chữ cái), `full_name`.
-  - [ ] `LoginDtoSchema`: `email`, `password`.
-  - [ ] `RefreshTokenDtoSchema`: `refreshToken`.
-- [ ] **6.3.** Xây dựng Helper JWT & Password tại `backend/src/utils/auth.helper.ts`:
-  - [ ] Hàm hash mật khẩu `hashPassword` và đối soát `verifyPassword`.
-  - [ ] Hàm tạo cặp token: Access Token (hạn 15 phút) và Refresh Token (hạn 7 ngày).
-  - [ ] Hàm xác thực và giải mã token `verifyAccessToken`, `verifyRefreshToken`.
-- [ ] **6.4.** Xây dựng Repository & Service:
-  - [ ] `backend/src/infrastructure/repositories/user.repository.ts`: Truy vấn `findByEmail`, `create`, `findById`.
-  - [ ] `backend/src/core/services/auth.service.ts`: Nghiệp vụ đăng ký, đăng nhập, cấp lại token mới.
-- [ ] **6.5.** Xây dựng Controller & Routes:
-  - [ ] `backend/src/api/controllers/auth.controller.ts`
-  - [ ] `backend/src/api/routes/auth.routes.ts`:
-    - `POST /api/v1/auth/register`
-    - `POST /api/v1/auth/login`
-    - `POST /api/v1/auth/refresh-token`
-- [ ] **6.6.** Xây dựng Middleware xác thực `authenticateToken` tại `backend/src/api/middlewares/auth.middleware.ts` để bảo vệ các endpoint nghiệp vụ.
-- [ ] **6.7.** Viết unit tests và integration tests cho luồng Auth (Đăng ký thành công, Báo lỗi trùng email, Đăng nhập sai mật khẩu, Cấp token mới).
 
----
 
 #### [TASK-07] Triển khai Webhook Ingestion Router & Controller kèm HMAC-SHA256 Verifier
 - [ ] **7.1.** Xây dựng Middleware xác thực chữ ký Meta `verifyMetaSignature`:
@@ -94,6 +72,38 @@
 ---
 
 ### ✅ TRẠNG THÁI: DONE (ĐÃ HOÀN THÀNH)
+
+#### [TASK-06] Triển khai Module Xác thực `auth` (Đăng ký, Đăng nhập, JWT Access/Refresh tokens)
+- [x] **6.1.** Cài đặt thư viện bảo mật: `bcryptjs@2.4.3`, `@types/bcryptjs`, `jsonwebtoken@9.0.8`, `@types/jsonwebtoken`.
+- [x] **6.2.** Xây dựng Zod Schemas tại `backend/src/api/dtos/auth.dto.ts`:
+  - [x] `RegisterDtoSchema`: email chuẩn hóa, password tối thiểu 8 ký tự kèm chữ + số, họ tên, role mặc định `owner`.
+  - [x] `LoginDtoSchema`: email và password.
+  - [x] `RefreshTokenDtoSchema`: refreshToken bắt buộc.
+- [x] **6.3.** Xây dựng Helper JWT & Password tại `backend/src/utils/auth.helper.ts`:
+  - [x] `hashPassword` (Bcrypt cost factor 12) & `verifyPassword`.
+  - [x] `generateTokens`: Access Token (15m, signed with `JWT_ACCESS_SECRET`) và Refresh Token (7d, signed with `JWT_REFRESH_SECRET`).
+  - [x] `verifyAccessToken` & `verifyRefreshToken` với phân loại lỗi `TokenExpiredError` vs chữ ký không hợp lệ.
+  - [x] `toSafeUser`: bóc tách loại bỏ `password_hash` an toàn trước khi gửi về client.
+- [x] **6.4.** Xây dựng Repository & Service:
+  - [x] `backend/src/infrastructure/repositories/user.repository.ts`: Thao tác bảng `users` (`findByEmail`, `findById`, `create`, `updateStatus`) qua `db.client.ts` Prepared Statements chống SQL Injection.
+  - [x] `backend/src/core/services/auth.service.ts`: Toàn bộ logic `register`, `login`, `refreshToken` hỗ trợ Dependency Injection.
+- [x] **6.5.** Xây dựng Controller & Routes:
+  - [x] `backend/src/api/controllers/auth.controller.ts`: Tiếp nhận HTTP requests, ánh xạ status code 201 Created, 200 OK.
+  - [x] `backend/src/api/routes/auth.routes.ts`: Đăng ký routes `POST /register`, `POST /login`, `POST /refresh-token`, `GET /me`.
+  - [x] Mount vào `apiV1Router` tại `backend/src/api/routes/index.ts`.
+- [x] **6.6.** Xây dựng Middleware xác thực & phân quyền tại `backend/src/api/middlewares/auth.middleware.ts`:
+  - [x] `authenticateToken`: kiểm tra Bearer token trong header Authorization, gán `req.user`.
+  - [x] `requireRole(...roles)`: RBAC role guard bảo vệ endpoint theo vai trò.
+- [x] **6.7.** Kiểm thử tự động toàn diện:
+  - [x] Unit test `auth.helper.test.ts` (10 tests).
+  - [x] Unit test `auth.service.test.ts` (8 tests).
+  - [x] Unit test `auth.middleware.test.ts` (7 tests).
+  - [x] Unit test `user.repository.test.ts` (8 tests).
+  - [x] Integration test `auth.routes.test.ts` (8 tests với `supertest`).
+  - [x] Tổng cộng **84/84 tests passed**, Code Coverage đạt **95.99%** (toàn bộ tiêu chuẩn chất lượng vượt ngưỡng).
+- [x] Merge vào `main` và push lên GitHub (commit: `56c0494`).
+
+---
 
 #### [TASK-05] Xây dựng generic validation middleware `validateRequest` với Zod & Global Error Handler
 - [x] **5.1.** Cài đặt thư viện `zod` (đã tích hợp vào backend dependencies).
@@ -216,6 +226,8 @@
 | 19/10/2026 | [TASK-03] SQL DDL Schema (9 bảng + Indexes + Triggers) | **DONE** | Tạo `001_initial_schema.sql` (9 bảng, 12 indexes, 5 partial indexes, 2 GIN, 4 triggers), `migrate.ts` runner; cài `pg@8.13.1`; TypeScript 0 lỗi; push GitHub commit `4a414ee`. |
 | 19/10/2026 | [TASK-04] Database Infrastructure (`db.client.ts` pg.Pool Singleton) | **DONE** | Tạo `db.client.ts` (query profiling, withTransaction, testConnection, shutdown hooks); cấu hình Vitest; 16/16 unit tests passed; merge main; push GitHub commit `1976537`. |
 | 19/10/2026 | [TASK-05] Request Validation & Error Handling (Zod + AppError) | **DONE** | Tạo `validateRequest` middleware, `AppError` domain hierarchy, `errorHandler` & `notFoundHandler`; 41/41 tests passed (95.95% coverage); merge main; push GitHub commit `672ed24`. |
+| 19/10/2026 | [TASK-06] Authentication Module (JWT + Bcrypt + Auth Service) | **DONE** | Tạo DTOs, `auth.helper.ts`, `user.repository.ts`, `auth.service.ts`, `auth.controller.ts`, `auth.middleware.ts`, routes; 84/84 tests passed (95.99% coverage); merge main; push GitHub commit `56c0494`. |
+
 
 
 
