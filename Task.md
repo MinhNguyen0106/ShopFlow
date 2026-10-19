@@ -23,37 +23,39 @@
 ---
 
 ### 📝 TRẠNG THÁI: TODO (CHƯA BẮT ĐẦU)
-
----
-
-
-
-
-
-
-
-
-
-#### [TASK-08] Triển khai BullMQ Queue & Worker quét Regex ẩn SĐT trong < 3 giây
-- [ ] **8.1.** Cài đặt thư viện hàng đợi: `bullmq`, `ioredis`.
-- [ ] **8.2.** Khởi tạo tầng cấu hình Queue tại `backend/src/infrastructure/queue/bullmq.client.ts`:
-  - [ ] Khởi tạo kết nối Redis cho BullMQ.
-  - [ ] Khởi tạo hàng đợi `webhook-processing-queue` và `phone-masking-queue`.
-- [ ] **8.3.** Xây dựng Service nhận diện & quét số điện thoại:
-  - [ ] Xây dựng bộ biểu thức chính quy (Regex) tối ưu chuyên biệt cho các định dạng số điện thoại tại Việt Nam (các đầu số `03`, `05`, `07`, `08`, `09`, xử lý các biến thể chứa khoảng trắng, dấu chấm, dấu gạch nối, số viết cách điệu).
-  - [ ] Hàm kiểm tra phát hiện số điện thoại trong nội dung bình luận (`extractPhoneNumbers`).
-- [ ] **8.4.** Xây dựng Worker xử lý ẩn số điện thoại `backend/src/infrastructure/queue/phone-masking.worker.ts`:
-  - [ ] Khi phát hiện bình luận có SĐT: Gọi ngay Meta Graph API (`POST /{comment-id}`, param `is_hidden=true`) bằng Page Access Token tương ứng.
-  - [ ] Đảm bảo toàn bộ chu trình từ khi nhận webhook đến khi ẩn bình luận hoàn tất trong **< 3 giây**.
-  - [ ] Tự động tạo/cập nhật thông tin khách hàng trong bảng `customers` (mã hóa SĐT, gán tag `["Co_SDT"]`).
-  - [ ] Lưu tin nhắn/bình luận vào bảng `messages_and_comments` với cờ `is_hidden = true`.
-  - [ ] Cập nhật trạng thái sự kiện trong `webhook_logs` thành `processed`.
-- [ ] **8.5.** Cấu hình giới hạn tần suất (Rate Limiter) và cơ chế Dead Letter Queue (DLQ) chống spam và retry an toàn khi gặp lỗi mạng.
-- [ ] **8.6.** Viết unit tests cho Phone Detection Regex và kiểm thử worker với payload mock.
+*(Toàn bộ 8/8 tác vụ của Sprint 1 đã hoàn thành xuất sắc!)*
 
 ---
 
 ### ✅ TRẠNG THÁI: DONE (ĐÃ HOÀN THÀNH)
+
+#### [TASK-08] Triển khai BullMQ Queue & Worker quét Regex ẩn SĐT trong < 3 giây
+- [x] **8.1.** Cài đặt thư viện hàng đợi: `bullmq`, `ioredis`.
+- [x] **8.2.** Khởi tạo tầng cấu hình Queue tại `backend/src/infrastructure/queue/bullmq.client.ts`:
+  - [x] Khởi tạo kết nối Redis cho BullMQ với `maxRetriesPerRequest: null`.
+  - [x] Khởi tạo hàng đợi `webhook-processing-queue`, `phone-masking-queue` và `phone-masking-dlq`.
+- [x] **8.3.** Xây dựng Service nhận diện & quét số điện thoại:
+  - [x] Xây dựng bộ biểu thức chính quy (Regex) tối ưu chuyên biệt cho các định dạng số điện thoại tại Việt Nam (`phone-regex.ts` cho các đầu số `03`, `05`, `07`, `08`, `09`, xử lý các biến thể chứa khoảng trắng, dấu chấm, dấu gạch nối, số viết cách điệu bằng chữ o/O).
+  - [x] Hàm kiểm tra phát hiện số điện thoại trong nội dung bình luận (`extractPhoneNumbers`, `normalizePhoneNumber`, `maskPhoneNumber`).
+- [x] **8.4.** Xây dựng Worker xử lý ẩn số điện thoại `backend/src/infrastructure/queue/phone-masking.worker.ts`:
+  - [x] Khi phát hiện bình luận có SĐT: Gọi ngay Meta Graph API (`POST /{comment-id}`, param `is_hidden=true`) bằng Page Access Token tương ứng.
+  - [x] Đảm bảo toàn bộ chu trình từ khi nhận webhook đến khi ẩn bình luận hoàn tất trong **< 3 giây**.
+  - [x] Tự động tạo/cập nhật thông tin khách hàng trong bảng `customers` (mã hóa SĐT, gán tag `["Co_SDT"]`).
+  - [x] Lưu tin nhắn/bình luận vào bảng `messages_and_comments` với cờ `is_hidden = true`.
+  - [x] Cập nhật trạng thái sự kiện trong `webhook_logs` thành `processed`.
+- [x] **8.5.** Cấu hình giới hạn tần suất (Rate Limiter) và cơ chế Dead Letter Queue (DLQ) chống spam và retry an toàn khi gặp lỗi mạng:
+  - [x] Limiter `max: 20`, `duration: 1000` (giới hạn 20 jobs/s bảo vệ Graph API rate limits).
+  - [x] Tự động đẩy job thất bại sau số lần retry vào `phone-masking-dlq` và cập nhật log `failed`.
+- [x] **8.6.** Viết unit tests cho Phone Detection Regex và kiểm thử worker với payload mock:
+  - [x] Unit test `phone-regex.test.ts` (11 tests).
+  - [x] Unit test `bullmq.client.test.ts` (4 tests).
+  - [x] Unit test `graph-api.client.test.ts` (3 tests).
+  - [x] Unit test `phone-masking.worker.test.ts` (5 tests).
+  - [x] Unit tests cho `connected-page.repository`, `customer.repository`, `message-comment.repository` (6 tests).
+  - [x] Tổng cộng **145/145 tests passed**, Code Coverage toàn dự án đạt **92.05% Statements, 85.87% Branches, 94.73% Functions, 92.05% Lines** (vượt chuẩn yêu cầu).
+- [x] Merge vào `main` và hoàn tất Sprint 1.
+
+---
 
 #### [TASK-07] Triển khai Webhook Ingestion Router & Controller kèm HMAC-SHA256 Verifier
 - [x] **7.1.** Xây dựng Middleware xác thực chữ ký Meta `verifyMetaSignature` & `verifyWebhookSignature`:
@@ -235,6 +237,7 @@
 | 19/10/2026 | [TASK-05] Request Validation & Error Handling (Zod + AppError) | **DONE** | Tạo `validateRequest` middleware, `AppError` domain hierarchy, `errorHandler` & `notFoundHandler`; 41/41 tests passed (95.95% coverage); merge main; push GitHub commit `672ed24`. |
 | 19/10/2026 | [TASK-06] Authentication Module (JWT + Bcrypt + Auth Service) | **DONE** | Tạo DTOs, `auth.helper.ts`, `user.repository.ts`, `auth.service.ts`, `auth.controller.ts`, `auth.middleware.ts`, routes; 84/84 tests passed (95.99% coverage); merge main; push GitHub commit `56c0494`. |
 | 19/10/2026 | [TASK-07] Webhook Ingestion & HMAC-SHA256 Verifier | **DONE** | Tạo `verifyWebhookSignature`, `webhook.service.ts`, `webhook-log.repository.ts`, `webhook.routes.ts`; 113/113 tests passed (95.42% coverage); merge main; push GitHub commit `6e914fa`. |
+| 19/10/2026 | [TASK-08] BullMQ Queue & Worker ẩn SĐT < 3s | **DONE** | Cài đặt `bullmq` & `ioredis`, xây dựng `phone-regex.ts` cho các đầu số VN, Meta Graph client `hideComment`, worker ẩn SĐT < 3s, lưu CRM `customers` tag `["Co_SDT"]`, DLQ & Rate Limiter, 145/145 tests passed (92.05% coverage); merge main; push GitHub commit `87eb1ba`. |
 
 
 
