@@ -56,6 +56,7 @@ describe('WebhookService — verifyHandshake()', () => {
 describe('WebhookService — processIncomingWebhook()', () => {
   let service: WebhookService;
   let mockRepo: WebhookLogRepository;
+  let mockQueue: { add: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     mockRepo = {
@@ -64,7 +65,11 @@ describe('WebhookService — processIncomingWebhook()', () => {
       updateStatus:  vi.fn(),
     } as unknown as WebhookLogRepository;
 
-    service = new WebhookService(mockRepo);
+    mockQueue = {
+      add: vi.fn().mockResolvedValue({ id: 'job-1' }),
+    };
+
+    service = new WebhookService(mockRepo, mockQueue as unknown as any);
   });
 
   it('nên bóc tách sự kiện bình luận feed và lưu vào repository', async () => {
@@ -100,6 +105,17 @@ describe('WebhookService — processIncomingWebhook()', () => {
         event_id:   'cmt_987654321',
         page_id:    'page-123456',
         event_type: 'comment',
+      })
+    );
+    expect(mockQueue.add).toHaveBeenCalledWith(
+      'mask-phone-in-comment',
+      expect.objectContaining({
+        commentId: 'cmt_987654321',
+        pageId: 'page-123456',
+        message: 'Cho mình hỏi giá sản phẩm này ạ 0912345678',
+      }),
+      expect.objectContaining({
+        jobId: 'comment-cmt_987654321',
       })
     );
   });
