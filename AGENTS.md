@@ -36,6 +36,9 @@ Tài liệu hướng dẫn tổng thể dành cho các AI Agent (Antigravity, Cu
 4. **Chính Sách Chống Spam của Meta:**
    - Không được spam gửi tin nhắn/bình luận dồn dập. Mọi thao tác trả lời tự động phải đi qua hàng đợi BullMQ với độ trễ an toàn (>= 5 giây giữa các hành động).
    - Quyền `publish_to_groups` đã bị Meta hủy từ 4/2024, không lập trình tính năng tự động đăng vào Group.
+5. **Đồng Bộ Hợp Đồng Dữ Liệu (API Contract & DTO Sync):**
+   - Đảm bảo tính nhất quán 100% giữa API response/request (Backend) và UI state/store (Frontend).
+   - Bắt buộc tuân thủ chuẩn `ApiResponse<T>`, quy ước `camelCase`, và bóc tách dữ liệu phòng vệ (Defensive Data Parsing) theo [.agent/rules/api-contract-sync.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agent/rules/api-contract-sync.md).
 
 ---
 
@@ -51,7 +54,7 @@ ShopFlow/
 ├── docs/
 │   └── deep-research-report.md # Báo cáo nghiên cứu nghiệp vụ chi tiết
 └── .agent/
-    ├── rules/                  # project-rules.md, security.md, testing-standards.md
+    ├── rules/                  # project-rules.md, security.md, testing-standards.md, api-contract-sync.md
     ├── workflows/              # test.md, deploy.md, code-review.md
     ├── skills/db-migration/    # SKILL.md, references/schema.json, scripts/validate.py
     ├── agents/                 # planner.md, coder.md, security-auditor.md, devops.md

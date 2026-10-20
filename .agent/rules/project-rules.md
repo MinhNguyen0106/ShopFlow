@@ -73,3 +73,14 @@ ShopFlow/
   ```
 - **Không nuốt lỗi (No Silent Failures):** Nghiêm cấm `catch (e) {}` trống. Phải log lỗi có context (request ID, fanpage ID, timestamp) bằng structured logger (Winston/Pino) và re-throw hoặc xử lý fallback an toàn.
 - **Bảo mật log:** Tuyệt đối không in thông tin nhạy cảm vào log: `access_token`, `client_secret`, số điện thoại, địa chỉ khách hàng.
+
+---
+
+## 4. Đồng Bộ Hợp Đồng API & DTO (API Contract & Data Synchronization)
+
+- **Chi tiết bắt buộc:** Xem toàn bộ quy chuẩn tại [api-contract-sync.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agent/rules/api-contract-sync.md).
+- **Chuẩn hóa Envelope:** Backend luôn trả về format `{ success: boolean, message?: string, data?: T }`.
+- **Phòng vệ ở Frontend (Defensive Data Parsing):** Frontend store/hook tuyệt đối không bóc tách mù quáng `res.data.data` gán trực tiếp vào mảng (`Array.isArray` check) hay chuỗi token (dùng optional chaining `?.`).
+- **Quy ước `camelCase`:** 100% tên trường trao đổi giữa FE và BE qua JSON phải dùng `camelCase`.
+- **Rà soát chéo khi sửa API:** Mỗi khi sửa đổi endpoint Backend, bắt buộc grep tìm và đồng bộ các component/store tương ứng ở Frontend trước khi commit.
+
