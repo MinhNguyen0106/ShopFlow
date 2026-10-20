@@ -30,6 +30,12 @@ const envSchema = z.object({
 
   // Token Encryption (AES-256-GCM)
   TOKEN_ENCRYPTION_KEY: z.string().min(16).default('shopflow_dev_aes256_encryption_key_32bytes_secret!'),
+
+  // Cloudinary Storage
+  CLOUDINARY_CLOUD_NAME: z.string().default('shopflow-dev'),
+  CLOUDINARY_API_KEY: z.string().default('mock_cloudinary_api_key'),
+  CLOUDINARY_API_SECRET: z.string().default('mock_cloudinary_api_secret'),
+  CLOUDINARY_URL: z.string().optional(),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;

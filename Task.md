@@ -20,23 +20,11 @@
 
 ### 📋 TRẠNG THÁI: IN PROGRESS (ĐANG THỰC HIỆN)
 
-*(Hiện tại không có task nào đang thực hiện - sẵn sàng cho TASK-11)*
+*(Hiện tại không có task nào đang thực hiện - sẵn sàng cho TASK-12)*
 
 ---
 
 ### 📝 TRẠNG THÁI: TODO (CHƯA BẮT ĐẦU)
-
-#### [TASK-11] Dịch vụ Tải lên & Lưu trữ Phương tiện Đa Định dạng (Multer + Cloudinary) (`/api/v1/media`)
-- [ ] **11.1.** Cài đặt thư viện `multer`, `cloudinary` và cấu hình Cloudinary SDK trong `backend/src/config/cloudinary.ts`.
-- [ ] **11.2.** Xây dựng Upload Middleware với Multer `memoryStorage()`:
-  - [ ] Giới hạn định dạng: Ảnh (JPG, PNG, WEBP, tối đa 4MB), Video (MP4, MOV, tối đa 100MB).
-  - [ ] Bắt lỗi file quá kích thước hoặc sai MIME type qua `AppError`.
-- [ ] **11.3.** Xây dựng Media Service (`media.service.ts`):
-  - [ ] Stream upload buffer trực tiếp lên Cloudinary (`folder: shopflow/posts/`).
-  - [ ] Tự động nén và tối ưu hóa (`f_auto, q_auto`).
-  - [ ] Cung cấp Public HTTPS URL (`secure_url`) sẵn sàng cho Meta Graph API tải về.
-- [ ] **11.4.** Triển khai endpoint `POST /api/v1/media/upload` có xác thực Bearer Token.
-- [ ] **11.5.** Viết unit tests cho media controller, stream uploader (mocked Cloudinary SDK).
 
 #### [TASK-12] Đặt lịch Xuất bản Bài viết Đa kênh & Hàng đợi Hẹn giờ BullMQ (`/api/v1/posts`)
 - [ ] **12.1.** Xây dựng DTOs, Repository tương tác bảng `posts_schedule`.
@@ -129,6 +117,18 @@
   - [x] Điều tiết tốc độ gửi tin nhắn qua BullMQ Rate Limiter (giãn cách an toàn giữa các hành động) chống spam Meta.
 - [x] **10.4.** Viết unit tests cho KeywordMatcherService, AutomationRuleService, AutomationRuleController, Graph API methods và automation worker; đạt độ bao phủ toàn diện 254/254 tests passed (90.79% Stmts, 77.86% Branch).
 
+#### [TASK-11] Dịch vụ Tải lên & Lưu trữ Phương tiện Đa Định dạng (Multer + Cloudinary) (`/api/v1/media`)
+- [x] **11.1.** Cài đặt thư viện `multer`, `cloudinary` và cấu hình Cloudinary SDK trong `backend/src/config/cloudinary.ts`.
+- [x] **11.2.** Xây dựng Upload Middleware với Multer `memoryStorage()`:
+  - [x] Giới hạn định dạng: Ảnh (JPG, PNG, WEBP, tối đa 4MB), Video (MP4, MOV, tối đa 100MB).
+  - [x] Bắt lỗi file quá kích thước hoặc sai MIME type qua `AppError`.
+- [x] **11.3.** Xây dựng Media Service (`media.service.ts`):
+  - [x] Stream upload buffer trực tiếp lên Cloudinary (`folder: shopflow/posts/`).
+  - [x] Tự động nén và tối ưu hóa (`f_auto, q_auto`).
+  - [x] Cung cấp Public HTTPS URL (`secure_url`) sẵn sàng cho Meta Graph API tải về.
+- [x] **11.4.** Triển khai endpoint `POST /api/v1/media/upload` có xác thực Bearer Token.
+- [x] **11.5.** Viết unit tests cho media controller, stream uploader (mocked Cloudinary SDK) và upload middleware; đạt 278/278 tests passed (91.57% Stmts, 79.37% Branch).
+
 ---
 
 ## 📅 NHẬT KÝ CẬP NHẬT TIẾN ĐỘ SPRINT (PROGRESS LOG)
@@ -147,3 +147,4 @@
 | 19/10/2026 | [TASK-08] BullMQ Queue & Worker ẩn SĐT < 3s | **DONE** | Cài đặt `bullmq` & `ioredis`, xây dựng `phone-regex.ts` cho các đầu số VN, Meta Graph client `hideComment`, worker ẩn SĐT < 3s, lưu CRM `customers` tag `["Co_SDT"]`, DLQ & Rate Limiter, 145/145 tests passed (92.05% coverage); merge main; push GitHub commit `87eb1ba`. |
 | 20/10/2026 | [TASK-09] Meta Facebook OAuth 2.0, AES-256-GCM Token Encryption & Quản lý Fanpage | **DONE** | Tạo tiện ích AES-256-GCM (`crypto.helper.ts`), Meta Graph Client mở rộng OAuth/Pages/Subscribed Apps, Repositories (`facebook_accounts`, `connected_pages`), Services & Controllers (`/api/v1/fb-oauth`, `/api/v1/pages`); 207/207 tests passed (92.42% coverage); merge main. |
 | 20/10/2026 | [TASK-10] Automation Rules Engine & Reply Worker | **DONE** | Tạo DTOs, Repositories (`automation_rules`), REST APIs CRUD, KeywordMatcherService, Meta Graph Client `replyComment` & `sendPrivateReply`, Worker BullMQ auto-reply rate limit 15 req/s; 254/254 tests passed (90.79% Stmts, 77.86% Branch); merge main. |
+| 20/10/2026 | [TASK-11] Cloudinary Media Stream Upload Service | **DONE** | Cài đặt Multer & Cloudinary SDK, upload middleware giới hạn dung lượng & MIME type, MediaService stream buffer trực tiếp, endpoint `POST /api/v1/media/upload` cấp Public HTTPS URL; 278/278 tests passed (91.57% Stmts, 79.37% Branch); merge main. |

@@ -7,7 +7,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
 import { AutomationRuleController } from '../automation-rule.controller.js';
 import { AutomationRuleService } from '../../../core/services/automation-rule.service.js';
-import { AppError } from '../../../core/errors/app-error.js';
 
 describe('AutomationRuleController Unit Tests', () => {
   let controller: AutomationRuleController;
