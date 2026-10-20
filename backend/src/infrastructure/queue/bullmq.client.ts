@@ -21,11 +21,18 @@ export const QUEUE_NAMES = {
   PHONE_MASKING:      'phone-masking-queue',
   PHONE_MASKING_DLQ:  'phone-masking-dlq',
   AUTOMATION_REPLY:   'automation-reply-queue',
+  SCHEDULED_POST:     'scheduled-post-queue',
 } as const;
 
 // =============================================================================
 // Kiểu dữ liệu Job Payload
 // =============================================================================
+export interface ScheduledPostJobData {
+  postId: string;
+  pageId: string;
+  userId: string;
+}
+
 export interface AutomationReplyJobData {
   commentId: string;
   postId?: string;
@@ -152,6 +159,14 @@ automationReplyQueue.on('error', (err) => {
   logger.debug({ err: err.message }, '[automationReplyQueue] Redis connection status');
 });
 
+export const scheduledPostQueue = new Queue<ScheduledPostJobData>(
+  QUEUE_NAMES.SCHEDULED_POST,
+  defaultQueueOptions
+);
+scheduledPostQueue.on('error', (err) => {
+  logger.debug({ err: err.message }, '[scheduledPostQueue] Redis connection status');
+});
+
 /**
  * Đóng an toàn kết nối của toàn bộ hàng đợi khi tắt ứng dụng (Graceful Shutdown)
  */
@@ -162,6 +177,7 @@ export async function closeQueueConnections(): Promise<void> {
     phoneMaskingQueue.close(),
     phoneMaskingDlq.close(),
     automationReplyQueue.close(),
+    scheduledPostQueue.close(),
   ]);
 
   if (_sharedRedisConnection) {

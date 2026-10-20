@@ -367,6 +367,261 @@ export class MetaGraphApiClient {
       return { success: false, error: errorMsg };
     }
   }
+
+  /**
+   * Đăng bài viết dạng văn bản thuần (Text-only) lên Fanpage.
+   * Endpoint: POST /{page-id}/feed
+   */
+  async publishFeedPost(
+    pageId: string,
+    message: string,
+    pageAccessToken: string,
+    timeoutMs: number = 8000
+  ): Promise<{ success: boolean; postId?: string; error?: string }> {
+    const url = `${this.baseUrl}/${encodeURIComponent(pageId)}/feed`;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message,
+          access_token: pageAccessToken,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timer);
+
+      if (!response.ok) {
+        const errorBody = (await response.json().catch(() => ({}))) as {
+          error?: { message?: string; code?: number };
+        };
+        const errorMsg = errorBody.error?.message || `HTTP ${response.status} ${response.statusText}`;
+        logger.error({ pageId, error: errorMsg }, '[MetaGraphApiClient] ✘ Đăng bài viết feed thất bại');
+        return { success: false, error: errorMsg };
+      }
+
+      const body = (await response.json()) as { id?: string };
+      logger.info({ pageId, postId: body.id }, '[MetaGraphApiClient] ✔ Đăng bài feed thành công');
+      return { success: true, postId: body.id };
+    } catch (err) {
+      clearTimeout(timer);
+      const isTimeout = (err as Error).name === 'AbortError';
+      const errorMsg = isTimeout ? `Request timeout sau ${timeoutMs}ms` : (err as Error).message;
+      logger.error({ pageId, error: errorMsg }, '[MetaGraphApiClient] ✘ Lỗi publishFeedPost');
+      return { success: false, error: errorMsg };
+    }
+  }
+
+  /**
+   * Đăng bài viết kèm 1 hình ảnh lên Fanpage.
+   * Endpoint: POST /{page-id}/photos
+   */
+  async publishPhotoPost(
+    pageId: string,
+    photoUrl: string,
+    caption: string,
+    pageAccessToken: string,
+    timeoutMs: number = 10000
+  ): Promise<{ success: boolean; postId?: string; error?: string }> {
+    const url = `${this.baseUrl}/${encodeURIComponent(pageId)}/photos`;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: photoUrl,
+          caption,
+          access_token: pageAccessToken,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timer);
+
+      if (!response.ok) {
+        const errorBody = (await response.json().catch(() => ({}))) as {
+          error?: { message?: string; code?: number };
+        };
+        const errorMsg = errorBody.error?.message || `HTTP ${response.status} ${response.statusText}`;
+        logger.error({ pageId, error: errorMsg }, '[MetaGraphApiClient] ✘ Đăng bài ảnh thất bại');
+        return { success: false, error: errorMsg };
+      }
+
+      const body = (await response.json()) as { id?: string; post_id?: string };
+      const resolvedPostId = body.post_id || body.id;
+      logger.info({ pageId, postId: resolvedPostId }, '[MetaGraphApiClient] ✔ Đăng bài ảnh thành công');
+      return { success: true, postId: resolvedPostId };
+    } catch (err) {
+      clearTimeout(timer);
+      const isTimeout = (err as Error).name === 'AbortError';
+      const errorMsg = isTimeout ? `Request timeout sau ${timeoutMs}ms` : (err as Error).message;
+      logger.error({ pageId, error: errorMsg }, '[MetaGraphApiClient] ✘ Lỗi publishPhotoPost');
+      return { success: false, error: errorMsg };
+    }
+  }
+
+  /**
+   * Đăng bài viết video lên Fanpage.
+   * Endpoint: POST /{page-id}/videos
+   */
+  async publishVideoPost(
+    pageId: string,
+    fileUrl: string,
+    description: string,
+    pageAccessToken: string,
+    timeoutMs: number = 15000
+  ): Promise<{ success: boolean; postId?: string; error?: string }> {
+    const url = `${this.baseUrl}/${encodeURIComponent(pageId)}/videos`;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          file_url: fileUrl,
+          description,
+          access_token: pageAccessToken,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timer);
+
+      if (!response.ok) {
+        const errorBody = (await response.json().catch(() => ({}))) as {
+          error?: { message?: string; code?: number };
+        };
+        const errorMsg = errorBody.error?.message || `HTTP ${response.status} ${response.statusText}`;
+        logger.error({ pageId, error: errorMsg }, '[MetaGraphApiClient] ✘ Đăng bài video thất bại');
+        return { success: false, error: errorMsg };
+      }
+
+      const body = (await response.json()) as { id?: string };
+      logger.info({ pageId, postId: body.id }, '[MetaGraphApiClient] ✔ Đăng bài video thành công');
+      return { success: true, postId: body.id };
+    } catch (err) {
+      clearTimeout(timer);
+      const isTimeout = (err as Error).name === 'AbortError';
+      const errorMsg = isTimeout ? `Request timeout sau ${timeoutMs}ms` : (err as Error).message;
+      logger.error({ pageId, error: errorMsg }, '[MetaGraphApiClient] ✘ Lỗi publishVideoPost');
+      return { success: false, error: errorMsg };
+    }
+  }
+
+  /**
+   * Upload ảnh dạng unpublished để chuẩn bị đăng Album (nhiều ảnh).
+   * Endpoint: POST /{page-id}/photos với published=false
+   */
+  async uploadUnpublishedPhoto(
+    pageId: string,
+    photoUrl: string,
+    pageAccessToken: string,
+    timeoutMs: number = 8000
+  ): Promise<{ success: boolean; mediaFbid?: string; error?: string }> {
+    const url = `${this.baseUrl}/${encodeURIComponent(pageId)}/photos`;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: photoUrl,
+          published: false,
+          access_token: pageAccessToken,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timer);
+
+      if (!response.ok) {
+        const errorBody = (await response.json().catch(() => ({}))) as {
+          error?: { message?: string; code?: number };
+        };
+        const errorMsg = errorBody.error?.message || `HTTP ${response.status} ${response.statusText}`;
+        logger.error({ pageId, error: errorMsg }, '[MetaGraphApiClient] ✘ Upload unpublished photo thất bại');
+        return { success: false, error: errorMsg };
+      }
+
+      const body = (await response.json()) as { id?: string };
+      return { success: true, mediaFbid: body.id };
+    } catch (err) {
+      clearTimeout(timer);
+      const isTimeout = (err as Error).name === 'AbortError';
+      const errorMsg = isTimeout ? `Request timeout sau ${timeoutMs}ms` : (err as Error).message;
+      logger.error({ pageId, error: errorMsg }, '[MetaGraphApiClient] ✘ Lỗi uploadUnpublishedPhoto');
+      return { success: false, error: errorMsg };
+    }
+  }
+
+  /**
+   * Xuất bản bài viết Album (nhiều ảnh đã upload trước đó).
+   * Endpoint: POST /{page-id}/feed với attached_media
+   */
+  async publishAlbumPost(
+    pageId: string,
+    mediaFbids: string[],
+    message: string,
+    pageAccessToken: string,
+    timeoutMs: number = 10000
+  ): Promise<{ success: boolean; postId?: string; error?: string }> {
+    const url = `${this.baseUrl}/${encodeURIComponent(pageId)}/feed`;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const attachedMedia = mediaFbids.map((id) => ({ media_fbid: id }));
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message,
+          attached_media: attachedMedia,
+          access_token: pageAccessToken,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timer);
+
+      if (!response.ok) {
+        const errorBody = (await response.json().catch(() => ({}))) as {
+          error?: { message?: string; code?: number };
+        };
+        const errorMsg = errorBody.error?.message || `HTTP ${response.status} ${response.statusText}`;
+        logger.error({ pageId, error: errorMsg }, '[MetaGraphApiClient] ✘ Đăng bài Album thất bại');
+        return { success: false, error: errorMsg };
+      }
+
+      const body = (await response.json()) as { id?: string };
+      logger.info({ pageId, postId: body.id }, '[MetaGraphApiClient] ✔ Đăng bài Album thành công');
+      return { success: true, postId: body.id };
+    } catch (err) {
+      clearTimeout(timer);
+      const isTimeout = (err as Error).name === 'AbortError';
+      const errorMsg = isTimeout ? `Request timeout sau ${timeoutMs}ms` : (err as Error).message;
+      logger.error({ pageId, error: errorMsg }, '[MetaGraphApiClient] ✘ Lỗi publishAlbumPost');
+      return { success: false, error: errorMsg };
+    }
+  }
 }
 
 export const metaGraphApiClient = new MetaGraphApiClient();
+

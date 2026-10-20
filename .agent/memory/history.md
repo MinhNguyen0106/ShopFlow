@@ -4,6 +4,35 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 
 ---
 
+## [2026-10-20] - Hoàn Thành TASK-12: Đặt Lịch Xuất Bản Bài Viết Đa Kênh & Hàng Đợi Hẹn Giờ BullMQ
+- **Tác giả:** System Architect & Backend Engineer (Antigravity Ecosystem)
+- **Nội dung hoàn thành:**
+  - Hoàn thành trọn vẹn 100% các hạng mục của **[TASK-12]** trên nhánh `feature/task-12-scheduled-posts-publishing` theo quy chuẩn `task-lifecycle.md`.
+  - **DTOs & Data Access Layer (`posts_schedule`):**
+    - Định nghĩa Zod Schemas [post.dto.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/api/dtos/post.dto.ts) (`CreatePostDtoSchema`, `UpdatePostDtoSchema`, `QueryPostsDtoSchema`), kiểm tra chặt chẽ thời điểm hẹn giờ `scheduled_time` phải cách thời điểm hiện tại ít nhất 10 phút.
+    - Xây dựng [post-schedule.repository.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/infrastructure/repositories/post-schedule.repository.ts) thao tác với bảng `posts_schedule` trong PostgreSQL, hỗ trợ đầy đủ `create`, `findById`, `findByIdAndUserId`, `findManyWithFilter` (phân trang, lọc theo page, trạng thái, khoảng ngày), `update`, `updateStatus` (kèm `meta_post_id`, `published_at`, `error_message`), `delete`.
+    - Bổ sung phương thức `findById(id)` trong [connected-page.repository.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/infrastructure/repositories/connected-page.repository.ts) để truy xuất Fanpage theo ID.
+  - **REST APIs Quản lý Bài viết Đặt lịch (`/api/v1/posts`):**
+    - `GET /api/v1/posts`: Danh sách bài viết có phân trang, lọc theo `page_id`, `status` (`pending`, `scheduled`, `published`, `failed`), `from_date`, `to_date`.
+    - `GET /api/v1/posts/:postId`: Xem chi tiết bài viết đặt lịch của người dùng.
+    - `POST /api/v1/posts`: Tạo bài viết mới & đặt lịch xuất bản (tự động đưa Job vào hàng đợi BullMQ với độ trễ `delay = scheduled_time - now`).
+    - `PUT /api/v1/posts/:postId`: Chỉnh sửa nội dung bài viết và dời lại lịch hẹn giờ khi bài viết chưa được xuất bản.
+    - `DELETE /api/v1/posts/:postId`: Hủy bài viết đặt lịch và tự động gỡ bỏ Delayed Job trong BullMQ.
+    - `POST /api/v1/posts/:postId/retry`: Đưa lại bài viết bị lỗi (`failed`) vào hàng đợi xuất bản ngay lập tức.
+    - Xây dựng [post-schedule.service.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/core/services/post-schedule.service.ts), [post.controller.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/api/controllers/post.controller.ts), [post.routes.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/api/routes/post.routes.ts) và tích hợp vào router trung tâm.
+  - **Mở rộng Meta Graph API Client Xuất Bản Đa Phương Tiện:**
+    - `publishFeedPost(pageId, message, token)`: Đăng bài viết thuần văn bản lên `POST /{page_id}/feed`.
+    - `publishPhotoPost(pageId, photoUrl, caption, token)`: Đăng bài viết ảnh đơn lên `POST /{page_id}/photos`.
+    - `publishVideoPost(pageId, fileUrl, description, token)`: Đăng video lên `POST /{page_id}/videos`.
+    - `uploadUnpublishedPhoto(pageId, photoUrl, token)`: Tải ảnh lên Meta dưới dạng draft chưa xuất bản (`published=false`) để nhận `media_fbid`.
+    - `publishAlbumPost(pageId, mediaFbids, message, token)`: Đăng album/carousel đa ảnh lên `POST /{page_id}/feed` với mảng `attached_media: [{media_fbid}]`.
+  - **Hàng Đợi Hẹn Giờ & Worker Xuất Bản (BullMQ Publishing Worker):**
+    - Cấu hình hàng đợi `scheduled-post-queue` trong [bullmq.client.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/infrastructure/queue/bullmq.client.ts).
+    - Xây dựng [scheduled-post.worker.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/infrastructure/queue/scheduled-post.worker.ts) với concurrency 5 luồng. Khi đến giờ hẹn: tự động giải mã Page Access Token qua `decryptToken` (AES-256-GCM), kiểm tra định dạng media (Text, Photo, Video, Carousel/Album) để gọi Meta API tương ứng, cập nhật `published` hoặc `failed`, phát sự kiện `POST_STATUS_CHANGED`.
+  - **Chất lượng mã nguồn:** 41 file kiểm thử, **337/337 tests passed 100%**, tỷ lệ bao phủ mã nguồn tổng thể đạt **90.85% Statements, 77.96% Branches, 94.30% Functions, 90.85% Lines**, TypeScript type-check 0 lỗi.
+
+---
+
 ## [2026-10-20] - Hoàn Thành TASK-11: Dịch Vụ Tải Lên & Lưu Trữ Phương Tiện Đa Định Dạng (Multer + Cloudinary)
 - **Tác giả:** System Architect & Backend Engineer (Antigravity Ecosystem)
 - **Nội dung hoàn thành:**
@@ -159,6 +188,6 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 - [x] **[TASK-09]** Meta Facebook OAuth 2.0, Mã Hóa Token AES-256-GCM & Quản Lý Fanpage (`/api/v1/fb-oauth`, `/api/v1/pages`).
 - [x] **[TASK-10]** Động Cơ Kịch Bản Tự Động (Automation Rules Engine) & Tự Động Trả Lời Bình Luận/Tin Nhắn Riêng (Auto Comment & Private Reply).
 - [x] **[TASK-11]** Dịch Vụ Tải Lên Phương Tiện Truyền Thông Đa Định Dạng (Multer + Cloudinary Stream Upload) (`/api/v1/media`).
-- [ ] **[TASK-12]** Đặt Lịch Xuất Bản Bài Viết Đa Kênh & Hàng Đợi Hẹn Giờ BullMQ (`/api/v1/posts`).
+- [x] **[TASK-12]** Đặt Lịch Xuất Bản Bài Viết Đa Kênh & Hàng Đợi Hẹn Giờ BullMQ (`/api/v1/posts`).
 - [ ] **[TASK-13]** Máy Chủ WebSocket Thời Gian Thực (Socket.io) & APIs Hộp Thư Tập Trung (Centralized Inbox) (`/api/v1/inbox`).
 - [ ] **[TASK-14]** Giao Diện Người Dùng Next.js 14+ P0: Khung Layout macOS Clean Utility, Màn Hình Auth (`/login`, `/register`) & Quản Lý Kênh Fanpage (`/pages`).
