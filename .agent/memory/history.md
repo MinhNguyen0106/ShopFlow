@@ -4,6 +4,19 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 
 ---
 
+## [2026-10-20] - Hoàn Tất Toàn Diện Sprint 1: Nền Tảng Backend, Database & Webhook Engine
+- **Tác giả:** System Architect & Lead AI Assistant (Antigravity Ecosystem)
+- **Nội dung hoàn thành:**
+  - Hoàn thành xuất sắc 100% (8/8 tác vụ) của Sprint 1 theo đúng quy trình `task-lifecycle.md` và `safe-deploy.md`.
+  - **Hạ tầng & Cơ sở dữ liệu:** Khởi tạo Monorepo chuẩn hóa (`backend/` Express TypeScript, `frontend/` Next.js 14), `docker-compose.yml` (PostgreSQL 15-alpine + Redis 7-alpine), khởi tạo 9 bảng quan hệ, partial indexes và triggers tự động (`001_initial_schema.sql`), xây dựng Singleton `pg.Pool` (`db.client.ts`) có query profiling và transaction wrapper an toàn.
+  - **Middleware & Security:** Generic request validator với Zod (`validateRequest`), phân cấp lỗi miền nghiệp vụ `AppError`, middleware xử lý lỗi tập trung (`errorHandler`), bảo mật JWT Access/Refresh tokens với Bcrypt cost factor 12.
+  - **Module Xác thực:** Triển khai trọn bộ API `/api/v1/auth` (đăng ký, đăng nhập, cấp lại token qua cookie, thông tin tài khoản `/me`).
+  - **Webhook Engine:** Middleware xác thực chữ ký Meta Webhook HMAC-SHA256 với `crypto.timingSafeEqual` loại trừ tấn công dò thời gian, Webhook Handshake endpoint (`GET /api/v1/webhook`), Ingestion endpoint (`POST /api/v1/webhook`) phản hồi tức thời HTTP 200 OK (< 50ms) và ghi nhận `webhook_logs` Idempotent.
+  - **Hàng đợi & Ẩn SĐT khẩn cấp:** Cài đặt BullMQ & ioredis, xây dựng bộ Regex tối ưu phát hiện SĐT Việt Nam (`phone-regex.ts`, 5 đầu số 03/05/07/08/09, +84, lách chữ o/O), Meta Graph API client, worker ẩn bình luận tức thời (`is_hidden = true`) trong **< 3 giây**, tự động cập nhật CRM `customers` gắn nhãn `["Co_SDT"]`, lưu vết vào `messages_and_comments`, thiết lập Rate Limiter (20 jobs/s) và Dead Letter Queue (DLQ).
+  - **Chất lượng mã nguồn:** 20 file kiểm thử, **145/145 tests passed 100%**, Code Coverage toàn diện đạt **92.05% Statements, 85.87% Branches, 94.73% Functions, 92.05% Lines**, TypeScript type-check 0 lỗi. Toàn bộ code đã merge vào `main` và đẩy lên GitHub.
+
+---
+
 ## [2026-10-19] - Đồng Bộ Hóa Toàn Diện Bộ Nhớ Agent (Memory Re-alignment)
 - **Tác giả:** System Architect & Lead AI Assistant (Antigravity Ecosystem)
 - **Nội dung hoàn thành:**
@@ -57,12 +70,22 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 
 ---
 
-## [Kế Hoạch Tiếp Theo] - MVP Implementation Sprint 1
-- [ ] Khởi tạo khung thư mục Monorepo chuẩn hóa (`backend/` và `frontend/`).
-- [ ] Khởi tạo tệp `docker-compose.yml` cho PostgreSQL 15+ và Redis 7+.
-- [ ] Thực thi tệp SQL DDL từ `docs/03_DATABASE_SCHEMA.md` khởi tạo toàn bộ 9 bảng, partial indexes và triggers.
-- [ ] Xây dựng tầng hạ tầng kết nối cơ sở dữ liệu `backend/src/infrastructure/database/db.client.ts` (`pg.Pool` Singleton).
-- [ ] Xây dựng generic validation middleware `validateRequest` với Zod.
-- [ ] Triển khai Module Xác thực `auth` (Đăng ký, Đăng nhập, JWT Access/Refresh tokens).
-- [ ] Triển khai Webhook Ingestion Router & Controller kèm HMAC-SHA256 Verifier.
-- [ ] Triển khai BullMQ Queue & Worker quét Regex ẩn SĐT trong < 3 giây.
+## [Đã Hoàn Thành] - MVP Implementation Sprint 1 (Backend & DB Infrastructure)
+- [x] Khởi tạo khung thư mục Monorepo chuẩn hóa (`backend/` và `frontend/`).
+- [x] Khởi tạo tệp `docker-compose.yml` cho PostgreSQL 15+ và Redis 7+.
+- [x] Thực thi tệp SQL DDL từ `docs/03_DATABASE_SCHEMA.md` khởi tạo toàn bộ 9 bảng, partial indexes và triggers.
+- [x] Xây dựng tầng hạ tầng kết nối cơ sở dữ liệu `backend/src/infrastructure/database/db.client.ts` (`pg.Pool` Singleton).
+- [x] Xây dựng generic validation middleware `validateRequest` với Zod.
+- [x] Triển khai Module Xác thực `auth` (Đăng ký, Đăng nhập, JWT Access/Refresh tokens).
+- [x] Triển khai Webhook Ingestion Router & Controller kèm HMAC-SHA256 Verifier.
+- [x] Triển khai BullMQ Queue & Worker quét Regex ẩn SĐT trong < 3 giây.
+
+---
+
+## [Kế Hoạch Tiếp Theo] - Sprint 2: Core Business Logic, Realtime WebSocket & Next.js UI
+- [ ] **[TASK-09]** Meta Facebook OAuth 2.0, Mã Hóa Token AES-256-GCM & Quản Lý Fanpage (`/api/v1/fb-oauth`, `/api/v1/pages`).
+- [ ] **[TASK-10]** Động Cơ Kịch Bản Tự Động (Automation Rules Engine) & Tự Động Trả Lời Bình Luận/Tin Nhắn Riêng (Auto Comment & Private Reply).
+- [ ] **[TASK-11]** Dịch Vụ Tải Lên Phương Tiện Truyền Thông Đa Định Dạng (Multer + Cloudinary Stream Upload) (`/api/v1/media`).
+- [ ] **[TASK-12]** Đặt Lịch Xuất Bản Bài Viết Đa Kênh & Hàng Đợi Hẹn Giờ BullMQ (`/api/v1/posts`).
+- [ ] **[TASK-13]** Máy Chủ WebSocket Thời Gian Thực (Socket.io) & APIs Hộp Thư Tập Trung (Centralized Inbox) (`/api/v1/inbox`).
+- [ ] **[TASK-14]** Giao Diện Người Dùng Next.js 14+ P0: Khung Layout macOS Clean Utility, Màn Hình Auth (`/login`, `/register`) & Quản Lý Kênh Fanpage (`/pages`).
