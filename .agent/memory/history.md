@@ -2,6 +2,35 @@
 
 Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và trạng thái của dự án ShopFlow.
 
+## [2026-10-20] - Hoàn Thành TASK-14: Khung Layout macOS Clean Utility, Màn hình Auth & Fanpage Management trên Next.js 14+
+- **Tác giả:** System Architect & Frontend Engineer (Antigravity Ecosystem)
+- **Nội dung hoàn thành:**
+  - Hoàn thành trọn vẹn 100% 5 subtasks của **[TASK-14]** trên nhánh `feature/task-14-macos-layout-auth-fanpages` theo quy chuẩn `task-lifecycle.md`.
+  - **Tầng Kết Nối API & Realtime (`frontend/src/lib`):**
+    - `api-client.ts`: Axios instance với Bearer token tự động từ `localStorage`, interceptor bắt lỗi 401 tự động refresh token qua `/auth/refresh-token` và retry request gốc.
+    - `auth.store.ts`: Zustand store quản lý trạng thái xác thực `user`, `accessToken`, `login`, `register`, `logout`, `checkAuth`.
+    - `page.store.ts`: Zustand store quản lý danh sách `pages`, Fanpage đang chọn `selectedPage`, `fetchPages`, `togglePageActive`, `disconnectPage`.
+    - `socket.ts` & `useSocket.ts`: Singleton Socket.io client kết nối với JWT auth, hook điều khiển `joinPage`, `leavePage`, `joinConversation`, `leaveConversation` và lắng nghe `NEW_INBOX_ITEM`, `INBOX_UPDATED`, `POST_STATUS_CHANGED`.
+  - **Khung Layout macOS Clean Utility:**
+    - `mac-traffic-lights.tsx`: 3 nút đỏ (đóng), vàng (thu nhỏ), lục (phóng to) tương tác hover và phóng to cửa sổ.
+    - `command-palette.tsx`: Hộp thoại Spotlight kích hoạt nhanh bằng phím tắt `⌘K` / `Ctrl+K` tra cứu màn hình, hành động nhanh và Fanpage.
+    - `topbar.tsx`: Tìm kiếm Spotlight, Page Switcher dropdown chuyển kênh làm việc, nút CTA `+ Soạn bài mới`, widget giám sát Meta API Limits (24% an toàn), Profile menu.
+    - `sidebar.tsx`: Menu điều hướng bo tròn Squircle, badge số tin chưa đọc (18), Meta Rate Limit Gauge, Meta Business Partner verified badge.
+    - `mac-window-shell.tsx` & `layout.tsx`: Bọc toàn bộ Dashboard bằng cửa sổ macOS trên nền blueprint grid, kèm Auth Guard bảo vệ phiên làm việc.
+  - **Màn hình Đăng Nhập (`/login`) & Đăng Ký (`/register`):**
+    - Giao diện Glassmorphism trong macOS window card 560px, validation nghiêm ngặt bằng React Hook Form + Zod.
+    - Hỗ trợ toggle xem mật khẩu, ghi nhớ đăng nhập, error banner hiển thị lỗi chi tiết từ backend, tự động chuyển hướng khi thành công.
+  - **Màn hình Quản Lý Kênh Fanpage (`/pages`):**
+    - Hàng 4 thẻ Bento Metrics: Tổng số trang kết nối (1/5 Pro), Trạng thái Webhook & Token (100% hoạt động), Lưu lượng hôm nay (1,428 tương tác), Tốc độ phản hồi trung bình (1.4s SLA < 3.0s).
+    - Top CTAs: "Đồng bộ lại tất cả Webhooks", "+ Thêm Fanpage Mới (Meta OAuth)" mở popup OAuth.
+    - Lưới `PageCard Grid`: Avatar, Tên page, Category, Page ID monospace kèm nút copy nhanh, huy hiệu Webhook (xanh lá/vàng/xám), Switch bật/tắt tiếp nhận tin nhắn, Dropdown menu thao tác.
+    - `connect-page-modal.tsx`: Hộp thoại chọn Fanpage từ Facebook Account và gọi `POST /api/v1/fb-oauth/connect-pages`.
+  - **Chất lượng mã nguồn & Kiểm thử:**
+    - 8 file kiểm thử frontend, **21/21 tests passed 100%**.
+    - Toàn bộ monorepo: **55/55 test files passed, 414/414 tests passed 100%**.
+    - TypeScript compilation: **0 lỗi** trên toàn monorepo (`tsc --noEmit`).
+    - Next.js 14 production build: **Compiled and optimized successfully** (`next build`).
+
 ---
 
 ## [2026-10-20] - Hoàn Thành TASK-13: Máy Chủ WebSocket Thời Gian Thực (Socket.io) & APIs Hộp Thư Tập Trung (`/api/v1/inbox`)
@@ -227,4 +256,5 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 - [x] **[TASK-11]** Dịch Vụ Tải Lên Phương Tiện Truyền Thông Đa Định Dạng (Multer + Cloudinary Stream Upload) (`/api/v1/media`).
 - [x] **[TASK-12]** Đặt Lịch Xuất Bản Bài Viết Đa Kênh & Hàng Đợi Hẹn Giờ BullMQ (`/api/v1/posts`).
 - [x] **[TASK-13]** Máy Chủ WebSocket Thời Gian Thực (Socket.io) & APIs Hộp Thư Tập Trung (Centralized Inbox) (`/api/v1/inbox`).
-- [ ] **[TASK-14]** Giao Diện Người Dùng Next.js 14+ P0: Khung Layout macOS Clean Utility, Màn Hình Auth (`/login`, `/register`) & Quản Lý Kênh Fanpage (`/pages`).
+- [x] **[TASK-14]** Giao Diện Người Dùng Next.js 14+ P0: Khung Layout macOS Clean Utility, Màn Hình Auth (`/login`, `/register`) & Quản Lý Kênh Fanpage (`/pages`).
+- [ ] **[TASK-15]** Màn hình Hộp thư Tập trung Live Chat 4-Pane Bento (`/inbox`) - Trọng tâm Cốt lõi P0.
