@@ -35,7 +35,12 @@ export const usePageStore = create<PageState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await apiClient.get('/pages');
-      const pages: ConnectedPage[] = response.data?.data || [];
+      const responseData = response.data?.data || {};
+      const pages: ConnectedPage[] = Array.isArray(responseData)
+        ? responseData
+        : Array.isArray(responseData.pages)
+          ? responseData.pages
+          : [];
       const currentSelected = get().selectedPage;
 
       let nextSelected = currentSelected;
@@ -67,7 +72,8 @@ export const usePageStore = create<PageState>((set, get) => ({
       const response = await apiClient.patch(`/pages/${id}/status`, {
         isActive,
       });
-      const updatedPage: ConnectedPage = response.data?.data;
+      const respData = response.data?.data || {};
+      const updatedPage: ConnectedPage = respData.page || respData;
       set((state) => ({
         pages: state.pages.map((p) => (p.id === id ? updatedPage : p)),
         selectedPage:
