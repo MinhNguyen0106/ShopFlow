@@ -263,6 +263,110 @@ export class MetaGraphApiClient {
       };
     }
   }
+
+  /**
+   * Đăng bình luận trả lời cho một bình luận trên bài viết Facebook.
+   * Endpoint: POST /{comment-id}/comments
+   */
+  async replyComment(
+    commentId: string,
+    message: string,
+    pageAccessToken: string,
+    timeoutMs: number = 3000
+  ): Promise<{ success: boolean; commentId?: string; error?: string }> {
+    const url = `${this.baseUrl}/${encodeURIComponent(commentId)}/comments`;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message,
+          access_token: pageAccessToken,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timer);
+
+      if (!response.ok) {
+        const errorBody = (await response.json().catch(() => ({}))) as {
+          error?: { message?: string; code?: number };
+        };
+        const errorMsg = errorBody.error?.message || `HTTP ${response.status} ${response.statusText}`;
+        logger.error({ commentId, error: errorMsg }, '[MetaGraphApiClient] ✘ Trả lời bình luận thất bại');
+        return { success: false, error: errorMsg };
+      }
+
+      const body = (await response.json()) as { id?: string };
+      logger.info({ commentId, replyId: body.id }, '[MetaGraphApiClient] ✔ Đăng bình luận trả lời thành công');
+      return { success: true, commentId: body.id };
+    } catch (err) {
+      clearTimeout(timer);
+      const isTimeout = (err as Error).name === 'AbortError';
+      const errorMsg = isTimeout ? `Request timeout sau ${timeoutMs}ms` : (err as Error).message;
+      logger.error({ commentId, error: errorMsg }, '[MetaGraphApiClient] ✘ Lỗi khi gọi replyComment');
+      return { success: false, error: errorMsg };
+    }
+  }
+
+  /**
+   * Gửi tin nhắn riêng (Private Reply) qua Messenger cho người đã bình luận.
+   * Chính sách Meta: Chỉ được gửi 1 lần duy nhất trong vòng 7 ngày kể từ khi có comment.
+   * Endpoint: POST /{page-id}/messages
+   */
+  async sendPrivateReply(
+    pageId: string,
+    commentId: string,
+    message: string,
+    pageAccessToken: string,
+    timeoutMs: number = 3500
+  ): Promise<{ success: boolean; messageId?: string; error?: string }> {
+    const url = `${this.baseUrl}/${encodeURIComponent(pageId)}/messages`;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipient: { comment_id: commentId },
+          message: { text: message },
+          access_token: pageAccessToken,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timer);
+
+      if (!response.ok) {
+        const errorBody = (await response.json().catch(() => ({}))) as {
+          error?: { message?: string; code?: number };
+        };
+        const errorMsg = errorBody.error?.message || `HTTP ${response.status} ${response.statusText}`;
+        logger.error({ pageId, commentId, error: errorMsg }, '[MetaGraphApiClient] ✘ Gửi Private Reply thất bại');
+        return { success: false, error: errorMsg };
+      }
+
+      const body = (await response.json()) as { message_id?: string };
+      logger.info(
+        { pageId, commentId, messageId: body.message_id },
+        '[MetaGraphApiClient] ✔ Gửi Private Reply Messenger thành công'
+      );
+      return { success: true, messageId: body.message_id };
+    } catch (err) {
+      clearTimeout(timer);
+      const isTimeout = (err as Error).name === 'AbortError';
+      const errorMsg = isTimeout ? `Request timeout sau ${timeoutMs}ms` : (err as Error).message;
+      logger.error({ pageId, commentId, error: errorMsg }, '[MetaGraphApiClient] ✘ Lỗi khi gửi Private Reply');
+      return { success: false, error: errorMsg };
+    }
+  }
 }
 
 export const metaGraphApiClient = new MetaGraphApiClient();

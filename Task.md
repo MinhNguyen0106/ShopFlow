@@ -19,25 +19,12 @@
 ## 🚀 DANH MỤC CÔNG VIỆC SPRINT 2
 
 ### 📋 TRẠNG THÁI: IN PROGRESS (ĐANG THỰC HIỆN)
-*(Hiện tại chưa có tác vụ nào đang trong quá trình thực thi dở dang)*
+
+*(Hiện tại không có task nào đang thực hiện - sẵn sàng cho TASK-11)*
 
 ---
 
 ### 📝 TRẠNG THÁI: TODO (CHƯA BẮT ĐẦU)
-
-#### [TASK-10] Động cơ Kịch bản Tự động (Automation Rules) & Tự động Phản hồi Bình luận/Tin nhắn
-- [ ] **10.1.** Xây dựng Repositories và DTOs cho `automation_rules` trong PostgreSQL.
-- [ ] **10.2.** Triển khai REST APIs quản lý quy tắc tự động hóa:
-  - [ ] `GET /api/v1/pages/:pageId/rules`: Lấy danh sách quy tắc tự động của Fanpage.
-  - [ ] `POST /api/v1/pages/:pageId/rules`: Tạo mới kịch bản (trigger_keywords, hide_phone_enabled, auto_comment_template, auto_private_reply_template).
-  - [ ] `PUT /api/v1/pages/:pageId/rules/:ruleId`: Cập nhật cấu hình kịch bản.
-  - [ ] `DELETE /api/v1/pages/:pageId/rules/:ruleId`: Xóa kịch bản tự động.
-- [ ] **10.3.** Xây dựng Service đối soát từ khóa (`KeywordMatcherService`) và Worker phản hồi tự động (`automation-reply.worker.ts`):
-  - [ ] Khi nhận webhook comment: Quét khớp trigger keywords (ví dụ: "giá", "tư vấn", "inbox", "bao nhiêu").
-  - [ ] Tự động đăng bình luận trả lời (`POST /{comment-id}/comments`).
-  - [ ] Tự động gửi Private Reply qua Messenger (`POST /{page-id}/messages` với `recipient: { comment_id }` tuân thủ chính sách Meta Private Reply trong vòng 7 ngày).
-  - [ ] Điều tiết tốc độ gửi tin nhắn qua BullMQ Rate Limiter (giãn cách an toàn giữa các hành động) chống spam Meta.
-- [ ] **10.4.** Viết unit tests cho KeywordMatcherService và automation worker với mock Graph API.
 
 #### [TASK-11] Dịch vụ Tải lên & Lưu trữ Phương tiện Đa Định dạng (Multer + Cloudinary) (`/api/v1/media`)
 - [ ] **11.1.** Cài đặt thư viện `multer`, `cloudinary` và cấu hình Cloudinary SDK trong `backend/src/config/cloudinary.ts`.
@@ -128,6 +115,20 @@
   - [x] `DELETE /api/v1/pages/:pageId`: Hủy kết nối Fanpage an toàn.
 - [x] **9.4.** Viết unit tests & integration tests cho luồng OAuth, Crypto Helper và Pages APIs (đảm bảo coverage ≥ 85%).
 
+#### [TASK-10] Động cơ Kịch bản Tự động (Automation Rules) & Tự động Phản hồi Bình luận/Tin nhắn
+- [x] **10.1.** Xây dựng Repositories và DTOs cho `automation_rules` trong PostgreSQL.
+- [x] **10.2.** Triển khai REST APIs quản lý quy tắc tự động hóa:
+  - [x] `GET /api/v1/pages/:pageId/rules`: Lấy danh sách quy tắc tự động của Fanpage.
+  - [x] `POST /api/v1/pages/:pageId/rules`: Tạo mới kịch bản (trigger_keywords, hide_phone_enabled, auto_comment_template, auto_private_reply_template).
+  - [x] `PUT /api/v1/pages/:pageId/rules/:ruleId`: Cập nhật cấu hình kịch bản.
+  - [x] `DELETE /api/v1/pages/:pageId/rules/:ruleId`: Xóa kịch bản tự động.
+- [x] **10.3.** Xây dựng Service đối soát từ khóa (`KeywordMatcherService`) và Worker phản hồi tự động (`automation-reply.worker.ts`):
+  - [x] Khi nhận webhook comment: Quét khớp trigger keywords (ví dụ: "giá", "tư vấn", "inbox", "bao nhiêu").
+  - [x] Tự động đăng bình luận trả lời (`POST /{comment-id}/comments`).
+  - [x] Tự động gửi Private Reply qua Messenger (`POST /{page-id}/messages` với `recipient: { comment_id }` tuân thủ chính sách Meta Private Reply trong vòng 7 ngày).
+  - [x] Điều tiết tốc độ gửi tin nhắn qua BullMQ Rate Limiter (giãn cách an toàn giữa các hành động) chống spam Meta.
+- [x] **10.4.** Viết unit tests cho KeywordMatcherService, AutomationRuleService, AutomationRuleController, Graph API methods và automation worker; đạt độ bao phủ toàn diện 254/254 tests passed (90.79% Stmts, 77.86% Branch).
+
 ---
 
 ## 📅 NHẬT KÝ CẬP NHẬT TIẾN ĐỘ SPRINT (PROGRESS LOG)
@@ -145,3 +146,4 @@
 | 19/10/2026 | [TASK-07] Webhook Ingestion & HMAC-SHA256 Verifier | **DONE** | Tạo `verifyWebhookSignature`, `webhook.service.ts`, `webhook-log.repository.ts`, `webhook.routes.ts`; 113/113 tests passed (95.42% coverage); merge main; push GitHub commit `6e914fa`. |
 | 19/10/2026 | [TASK-08] BullMQ Queue & Worker ẩn SĐT < 3s | **DONE** | Cài đặt `bullmq` & `ioredis`, xây dựng `phone-regex.ts` cho các đầu số VN, Meta Graph client `hideComment`, worker ẩn SĐT < 3s, lưu CRM `customers` tag `["Co_SDT"]`, DLQ & Rate Limiter, 145/145 tests passed (92.05% coverage); merge main; push GitHub commit `87eb1ba`. |
 | 20/10/2026 | [TASK-09] Meta Facebook OAuth 2.0, AES-256-GCM Token Encryption & Quản lý Fanpage | **DONE** | Tạo tiện ích AES-256-GCM (`crypto.helper.ts`), Meta Graph Client mở rộng OAuth/Pages/Subscribed Apps, Repositories (`facebook_accounts`, `connected_pages`), Services & Controllers (`/api/v1/fb-oauth`, `/api/v1/pages`); 207/207 tests passed (92.42% coverage); merge main. |
+| 20/10/2026 | [TASK-10] Automation Rules Engine & Reply Worker | **DONE** | Tạo DTOs, Repositories (`automation_rules`), REST APIs CRUD, KeywordMatcherService, Meta Graph Client `replyComment` & `sendPrivateReply`, Worker BullMQ auto-reply rate limit 15 req/s; 254/254 tests passed (90.79% Stmts, 77.86% Branch); merge main. |

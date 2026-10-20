@@ -240,4 +240,83 @@ describe('MetaGraphApiClient', () => {
       expect(result.error).toContain('timeout');
     });
   });
+
+  describe('replyComment()', () => {
+    it('gọi đúng endpoint /{comment-id}/comments khi trả lời bình luận thành công', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ id: 'reply_comment_123' }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.replyComment('cmt_parent_456', 'Dạ chào bạn!', 'EAA_token_test');
+
+      expect(result.success).toBe(true);
+      expect(result.commentId).toBe('reply_comment_123');
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://graph.facebook.com/v19.0/cmt_parent_456/comments',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: 'Dạ chào bạn!', access_token: 'EAA_token_test' }),
+        })
+      );
+    });
+
+    it('xử lý khi Meta trả về lỗi thất bại', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        json: vi.fn().mockResolvedValue({ error: { message: 'Comment not found', code: 100 } }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.replyComment('cmt_parent_456', 'Dạ chào bạn!', 'EAA_token_test');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Comment not found');
+    });
+  });
+
+  describe('sendPrivateReply()', () => {
+    it('gọi đúng endpoint /{page-id}/messages với recipient.comment_id thành công', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ recipient_id: 'cmt_456', message_id: 'm_mid_123' }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.sendPrivateReply('page_123', 'cmt_456', 'Chào bạn!', 'EAA_token_test');
+
+      expect(result.success).toBe(true);
+      expect(result.messageId).toBe('m_mid_123');
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://graph.facebook.com/v19.0/page_123/messages',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            recipient: { comment_id: 'cmt_456' },
+            message: { text: 'Chào bạn!' },
+            access_token: 'EAA_token_test',
+          }),
+        })
+      );
+    });
+
+    it('xử lý khi gửi tin nhắn riêng thất bại hoặc vi phạm 7 ngày của Meta', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        json: vi.fn().mockResolvedValue({
+          error: { message: 'Private replies only allowed within 7 days', code: 230 },
+        }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.sendPrivateReply('page_123', 'cmt_456', 'Chào bạn!', 'EAA_token_test');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Private replies');
+    });
+  });
 });
+

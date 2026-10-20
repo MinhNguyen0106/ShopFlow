@@ -112,6 +112,25 @@ export class MessageCommentRepository {
 
     return result.rows[0]!;
   }
+
+  /**
+   * Đánh dấu bình luận đã được gửi Private Reply qua Messenger.
+   */
+  async markPrivateReplySent(commentMetaId: string): Promise<boolean> {
+    const sql = `UPDATE messages_and_comments SET private_reply_sent = TRUE WHERE meta_id = $1`;
+    const result = await query(sql, [commentMetaId]);
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  /**
+   * Kiểm tra xem bình luận đã được gửi Private Reply trước đó hay chưa.
+   */
+  async isPrivateReplySent(commentMetaId: string): Promise<boolean> {
+    const sql = `SELECT private_reply_sent FROM messages_and_comments WHERE meta_id = $1 LIMIT 1`;
+    const result = await query<{ private_reply_sent: boolean }>(sql, [commentMetaId]);
+    return result.rows[0]?.private_reply_sent ?? false;
+  }
 }
 
 export const messageCommentRepository = new MessageCommentRepository();
+

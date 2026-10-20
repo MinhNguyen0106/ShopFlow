@@ -57,6 +57,7 @@ describe('WebhookService — processIncomingWebhook()', () => {
   let service: WebhookService;
   let mockRepo: WebhookLogRepository;
   let mockQueue: { add: ReturnType<typeof vi.fn> };
+  let mockReplyQueue: { add: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     mockRepo = {
@@ -69,7 +70,15 @@ describe('WebhookService — processIncomingWebhook()', () => {
       add: vi.fn().mockResolvedValue({ id: 'job-1' }),
     };
 
-    service = new WebhookService(mockRepo, mockQueue as unknown as any);
+    mockReplyQueue = {
+      add: vi.fn().mockResolvedValue({ id: 'reply-job-1' }),
+    };
+
+    service = new WebhookService(
+      mockRepo,
+      mockQueue as unknown as any,
+      mockReplyQueue as unknown as any
+    );
   });
 
   it('nên bóc tách sự kiện bình luận feed và lưu vào repository', async () => {

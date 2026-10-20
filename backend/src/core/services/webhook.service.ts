@@ -18,6 +18,8 @@ import {
 import {
   phoneMaskingQueue as defaultPhoneMaskingQueue,
   PhoneMaskingJobData,
+  automationReplyQueue as defaultAutomationReplyQueue,
+  AutomationReplyJobData,
 } from '../../infrastructure/queue/bullmq.client.js';
 import { Queue } from 'bullmq';
 import { ForbiddenError } from '../errors/app-error.js';
@@ -26,7 +28,8 @@ import { logger } from '../../utils/logger.js';
 export class WebhookService {
   constructor(
     private readonly webhookRepo: WebhookLogRepository = defaultWebhookLogRepo,
-    private readonly phoneQueue: Queue<PhoneMaskingJobData> = defaultPhoneMaskingQueue
+    private readonly phoneQueue: Queue<PhoneMaskingJobData> = defaultPhoneMaskingQueue,
+    private readonly replyQueue: Queue<AutomationReplyJobData> = defaultAutomationReplyQueue
   ) {}
 
   /**
@@ -109,6 +112,29 @@ export class WebhookService {
               '[WebhookService] Lỗi khi đưa bình luận vào phone-masking-queue'
             );
           });
+
+          // 3. Đưa vào hàng đợi automation-reply-queue xử lý kịch bản tự động
+          if (this.replyQueue) {
+            await this.replyQueue.add(
+              'automation-reply-to-comment',
+              {
+                commentId:   (val.comment_id as string) || event.eventId,
+                postId:      val.post_id as string | undefined,
+                pageId:      event.pageId || '',
+                senderFbId:  from.id || '',
+                senderName:  from.name,
+                commentText: (val.message as string) || '',
+              },
+              {
+                jobId: `reply-${event.eventId}`,
+              }
+            ).catch((queueErr) => {
+              logger.error(
+                { eventId: event.eventId, err: (queueErr as Error).message },
+                '[WebhookService] Lỗi khi đưa bình luận vào automation-reply-queue'
+              );
+            });
+          }
         }
       } catch (err) {
         // Không để lỗi DB chặn việc phản hồi 200 OK về Meta
