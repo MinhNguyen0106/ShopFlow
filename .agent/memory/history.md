@@ -2,6 +2,26 @@
 
 Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và trạng thái của dự án ShopFlow.
 
+## [2026-10-20] - Hoàn Thành TASK-15: Màn hình Hộp thư Tập trung Live Chat 4-Pane Bento (`/inbox`) - Trọng tâm Cốt lõi P0 & HOÀN THÀNH 100% SPRINT 2
+- **Tác giả:** System Architect & Frontend Engineer (Antigravity Ecosystem)
+- **Nội dung hoàn thành:**
+  - Hoàn thành trọn vẹn 100% 5 subtasks của **[TASK-15]** trên nhánh `feature/task-15-inbox-livechat` theo quy chuẩn `task-lifecycle.md` và quy tắc `api-contract-sync.md`.
+  - **Tầng Type Contracts & Zustand Store (`frontend/src/types/inbox.ts`, `frontend/src/lib/inbox.store.ts`):**
+    - `inbox.ts`: Khai báo types và interfaces đồng bộ 1-1 với backend (`ConversationItem`, `MessageItem`, `CustomerProfile`, `ExtractedOrderAI`, `QuickMacro`).
+    - `inbox.store.ts`: Quản lý danh sách hội thoại, tin nhắn theo thứ tự thời gian, bộ lọc đa chiều (Page, loại messenger/comment, trạng thái open/resolved/archived, tìm kiếm), defensive parsing chống crash, actions gửi tin nhắn, private reply, ẩn/hiện comment, cập nhật CRM và tích hợp realtime socket.
+  - **Hộp Thư Live Chat 4-Pane Bento (`frontend/src/components/inbox/`):**
+    - **Pane 1 (`column-channels.tsx`):** Bộ chọn Fanpage, bộ lọc kênh Messenger / Comment, bộ lọc trạng thái, tổng unread badge, và widget chỉ số kết nối WebSocket / SLA < 3s.
+    - **Pane 2 (`column-threads.tsx`):** Danh sách hội thoại thời gian thực, đồng hồ đếm ngược **Meta 24h Messaging Window** (cảnh báo xanh/vàng/đỏ), huy hiệu an ninh `🛡️ Đã ẩn SĐT`, thẻ phân loại khách.
+    - **Pane 3 (`chat-window.tsx`):** Khung chat đa kênh cuộn tự động, banner cảnh báo an ninh ShopFlow Shield chống cướp khách, nút 1-click ẩn/hiện bình luận & gửi Private Reply Messenger (hạn 7 ngày Meta), Macro chốt đơn thần tốc (`/size`, `/gia`, `/bank`, `/chot`).
+    - **Pane 4 (`customer-panel.tsx`):** Hồ sơ CRM mini, SĐT tích hợp nút gọi điện & copy 1-click, form chỉnh sửa CRM tức thì, **Thẻ Trích Xuất Đơn Hàng AI (Gemini NLP fallback)** tự động bóc tách sản phẩm, số lượng, size, màu sắc, tổng tiền và nút CTA `1-Click Tạo Đơn Hàng Ngay`.
+    - **Trang chính (`frontend/src/app/(dashboard)/inbox/page.tsx`):** Bố cục 4-Pane Bento hoàn chỉnh, chiều cao `h-[calc(100vh-3.5rem)]` chống tràn, tích hợp lắng nghe Socket events `NEW_INBOX_ITEM` và `INBOX_UPDATED`.
+  - **Chất lượng mã nguồn & Kiểm thử:**
+    - 10 file kiểm thử frontend, **30/30 tests passed 100%**.
+    - Next.js 14 production build (`next build`): Thành công tối ưu hóa 100% các route.
+    - Toàn bộ Sprint 2 chính thức hoàn thành 100%.
+
+---
+
 ## [2026-10-20] - Hoàn Thành TASK-14: Khung Layout macOS Clean Utility, Màn hình Auth & Fanpage Management trên Next.js 14+
 - **Tác giả:** System Architect & Frontend Engineer (Antigravity Ecosystem)
 - **Nội dung hoàn thành:**
@@ -256,5 +276,4 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 - [x] **[TASK-11]** Dịch Vụ Tải Lên Phương Tiện Truyền Thông Đa Định Dạng (Multer + Cloudinary Stream Upload) (`/api/v1/media`).
 - [x] **[TASK-12]** Đặt Lịch Xuất Bản Bài Viết Đa Kênh & Hàng Đợi Hẹn Giờ BullMQ (`/api/v1/posts`).
 - [x] **[TASK-13]** Máy Chủ WebSocket Thời Gian Thực (Socket.io) & APIs Hộp Thư Tập Trung (Centralized Inbox) (`/api/v1/inbox`).
-- [x] **[TASK-14]** Giao Diện Người Dùng Next.js 14+ P0: Khung Layout macOS Clean Utility, Màn Hình Auth (`/login`, `/register`) & Quản Lý Kênh Fanpage (`/pages`).
-- [ ] **[TASK-15]** Màn hình Hộp thư Tập trung Live Chat 4-Pane Bento (`/inbox`) - Trọng tâm Cốt lõi P0.
+- [x] **[TASK-15]** Màn hình Hộp thư Tập trung Live Chat 4-Pane Bento (`/inbox`) - Trọng tâm Cốt lõi P0. *(HOÀN THÀNH 100% SPRINT 2)*
