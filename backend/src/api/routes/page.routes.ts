@@ -5,9 +5,14 @@
 
 import { Router } from 'express';
 import { pageController } from '../controllers/page.controller.js';
+import { automationRuleController } from '../controllers/automation-rule.controller.js';
 import { authenticateToken } from '../middlewares/auth.middleware.js';
 import { validateRequest } from '../middlewares/validate-request.middleware.js';
 import { UpdatePageStatusDtoSchema } from '../dtos/page.dto.js';
+import {
+  CreateAutomationRuleDtoSchema,
+  UpdateAutomationRuleDtoSchema,
+} from '../dtos/automation-rule.dto.js';
 
 export const pageRouter = Router();
 
@@ -52,3 +57,44 @@ pageRouter.post('/:pageId/subscribe-webhook', pageController.subscribeWebhook);
  * @access  Private
  */
 pageRouter.delete('/:pageId', pageController.disconnectPage);
+
+/* =============================================================================
+   AUTOMATION RULES ROUTES (/api/v1/pages/:pageId/rules)
+============================================================================= */
+
+/**
+ * @route   GET /api/v1/pages/:pageId/rules
+ * @desc    Lấy danh sách quy tắc tự động hóa của Fanpage
+ * @access  Private
+ */
+pageRouter.get('/:pageId/rules', automationRuleController.getRules);
+
+/**
+ * @route   POST /api/v1/pages/:pageId/rules
+ * @desc    Tạo mới quy tắc tự động hóa
+ * @access  Private
+ */
+pageRouter.post(
+  '/:pageId/rules',
+  validateRequest({ body: CreateAutomationRuleDtoSchema }),
+  automationRuleController.createRule
+);
+
+/**
+ * @route   PUT /api/v1/pages/:pageId/rules/:ruleId
+ * @desc    Cập nhật cấu hình quy tắc tự động hóa
+ * @access  Private
+ */
+pageRouter.put(
+  '/:pageId/rules/:ruleId',
+  validateRequest({ body: UpdateAutomationRuleDtoSchema }),
+  automationRuleController.updateRule
+);
+
+/**
+ * @route   DELETE /api/v1/pages/:pageId/rules/:ruleId
+ * @desc    Xóa quy tắc tự động hóa
+ * @access  Private
+ */
+pageRouter.delete('/:pageId/rules/:ruleId', automationRuleController.deleteRule);
+

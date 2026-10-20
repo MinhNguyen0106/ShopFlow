@@ -4,6 +4,31 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 
 ---
 
+## [2026-10-20] - Hoàn Thành TASK-10: Động Cơ Kịch Bản Tự Động (Automation Rules Engine) & Tự Động Trả Lời Bình Luận/Tin Nhắn Riêng
+- **Tác giả:** System Architect & Backend Engineer (Antigravity Ecosystem)
+- **Nội dung hoàn thành:**
+  - Hoàn thành trọn vẹn 100% các hạng mục của **[TASK-10]** trên nhánh `feature/task-10-automation-rules-reply` theo quy chuẩn `task-lifecycle.md`.
+  - **Repositories & DTOs:**
+    - Xây dựng [automation-rule.repository.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/infrastructure/repositories/automation-rule.repository.ts) thao tác với bảng `automation_rules` trong PostgreSQL, hỗ trợ đầy đủ `create`, `findAllByPageId`, `findActiveRulesByPageId`, `findByIdAndPageId`, `update`, `delete`.
+    - Định nghĩa Zod schemas [automation-rule.dto.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/api/dtos/automation-rule.dto.ts) (`CreateAutomationRuleDtoSchema`, `UpdateAutomationRuleDtoSchema`).
+  - **REST APIs Quản lý Quy tắc Tự động hóa (`/api/v1/pages/:pageId/rules`):**
+    - `GET /api/v1/pages/:pageId/rules`: Lấy toàn bộ danh sách quy tắc tự động hóa của Fanpage.
+    - `POST /api/v1/pages/:pageId/rules`: Tạo mới kịch bản (từ khóa kích hoạt, bật/tắt ẩn SĐT, mẫu bình luận, mẫu tin nhắn riêng).
+    - `PUT /api/v1/pages/:pageId/rules/:ruleId`: Chỉnh sửa nội dung quy tắc tự động hóa.
+    - `DELETE /api/v1/pages/:pageId/rules/:ruleId`: Xóa quy tắc tự động hóa an toàn.
+  - **Keyword Matcher & Template Rendering Service:**
+    - Xây dựng [keyword-matcher.service.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/core/services/keyword-matcher.service.ts) chuẩn hóa văn bản tiếng Việt, xóa dấu không phân biệt hoa thường (bóc tách đúng cả ký tự `Đ`/`đ`), quét khớp từ khóa kích hoạt, và thay thế các biến động linh hoạt `{{customer_name}}`, `{{page_name}}`.
+  - **Mở rộng Meta Graph API Client:**
+    - Bổ sung `replyComment(commentId, message, token)` gọi `POST /{comment-id}/comments`.
+    - Bổ sung `sendPrivateReply(pageId, commentId, message, token)` gọi `POST /{page-id}/messages` với `recipient: { comment_id }` tuân thủ chính sách Meta Private Reply (chỉ 1 lần trong vòng 7 ngày).
+  - **Hàng đợi & Worker Tự động Phản hồi (Automation Reply Worker):**
+    - Thiết lập hàng đợi BullMQ `automation-reply-queue` với Rate Limiter 15 yêu cầu/giây chống vi phạm spam chính sách Meta.
+    - Triển khai [automation-reply.worker.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/infrastructure/queue/automation-reply.worker.ts) xử lý tự động: lọc quy tắc active, đối soát từ khóa, kiểm tra idempotency `isPrivateReplySent`, tự động đăng comment trả lời và gửi Messenger private reply, ghi log CRM `messages_and_comments`.
+    - Tích hợp hook tự động enqueue job trong [webhook.service.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/core/services/webhook.service.ts) khi tiếp nhận comment.
+  - **Chất lượng mã nguồn:** 32 file kiểm thử, **254/254 tests passed 100%**, độ bao phủ mã nguồn vượt chuẩn với **90.79% Statements, 77.86% Branches, 95.36% Functions, 90.79% Lines**, TypeScript type-check 0 lỗi.
+
+---
+
 ## [2026-10-20] - Hoàn Thành TASK-09: Meta Facebook OAuth 2.0, AES-256-GCM Token Encryption & Quản Lý Fanpage
 - **Tác giả:** System Architect & Backend Engineer (Antigravity Ecosystem)
 - **Nội dung hoàn thành:**
@@ -105,7 +130,7 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 
 ## [Kế Hoạch Tiếp Theo] - Sprint 2: Core Business Logic, Realtime WebSocket & Next.js UI
 - [x] **[TASK-09]** Meta Facebook OAuth 2.0, Mã Hóa Token AES-256-GCM & Quản Lý Fanpage (`/api/v1/fb-oauth`, `/api/v1/pages`).
-- [ ] **[TASK-10]** Động Cơ Kịch Bản Tự Động (Automation Rules Engine) & Tự Động Trả Lời Bình Luận/Tin Nhắn Riêng (Auto Comment & Private Reply).
+- [x] **[TASK-10]** Động Cơ Kịch Bản Tự Động (Automation Rules Engine) & Tự Động Trả Lời Bình Luận/Tin Nhắn Riêng (Auto Comment & Private Reply).
 - [ ] **[TASK-11]** Dịch Vụ Tải Lên Phương Tiện Truyền Thông Đa Định Dạng (Multer + Cloudinary Stream Upload) (`/api/v1/media`).
 - [ ] **[TASK-12]** Đặt Lịch Xuất Bản Bài Viết Đa Kênh & Hàng Đợi Hẹn Giờ BullMQ (`/api/v1/posts`).
 - [ ] **[TASK-13]** Máy Chủ WebSocket Thời Gian Thực (Socket.io) & APIs Hộp Thư Tập Trung (Centralized Inbox) (`/api/v1/inbox`).

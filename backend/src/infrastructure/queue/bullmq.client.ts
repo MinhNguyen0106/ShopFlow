@@ -20,11 +20,21 @@ export const QUEUE_NAMES = {
   WEBHOOK_PROCESSING: 'webhook-processing-queue',
   PHONE_MASKING:      'phone-masking-queue',
   PHONE_MASKING_DLQ:  'phone-masking-dlq',
+  AUTOMATION_REPLY:   'automation-reply-queue',
 } as const;
 
 // =============================================================================
 // Kiểu dữ liệu Job Payload
 // =============================================================================
+export interface AutomationReplyJobData {
+  commentId: string;
+  postId?: string;
+  pageId: string; // Meta Fanpage ID
+  senderFbId: string;
+  senderName?: string;
+  commentText: string;
+}
+
 export interface PhoneMaskingJobData {
   eventId:      string;          // Idempotency key (comment_id hoặc eventId)
   pageId:       string;          // Meta Fanpage ID
@@ -134,6 +144,14 @@ phoneMaskingDlq.on('error', (err) => {
   logger.debug({ err: err.message }, '[phoneMaskingDlq] Redis connection status');
 });
 
+export const automationReplyQueue = new Queue<AutomationReplyJobData>(
+  QUEUE_NAMES.AUTOMATION_REPLY,
+  defaultQueueOptions
+);
+automationReplyQueue.on('error', (err) => {
+  logger.debug({ err: err.message }, '[automationReplyQueue] Redis connection status');
+});
+
 /**
  * Đóng an toàn kết nối của toàn bộ hàng đợi khi tắt ứng dụng (Graceful Shutdown)
  */
@@ -143,6 +161,7 @@ export async function closeQueueConnections(): Promise<void> {
     webhookProcessingQueue.close(),
     phoneMaskingQueue.close(),
     phoneMaskingDlq.close(),
+    automationReplyQueue.close(),
   ]);
 
   if (_sharedRedisConnection) {
