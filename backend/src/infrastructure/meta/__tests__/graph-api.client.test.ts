@@ -5,68 +5,239 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MetaGraphApiClient } from '../graph-api.client.js';
+import { AppError } from '../../../core/errors/app-error.js';
+import { env } from '../../../config/env.js';
 
-describe('MetaGraphApiClient — hideComment()', () => {
+describe('MetaGraphApiClient', () => {
   let client: MetaGraphApiClient;
   const originalFetch = globalThis.fetch;
+  const originalAppId = env.FACEBOOK_APP_ID;
+  const originalAppSecret = env.FACEBOOK_APP_SECRET;
 
   beforeEach(() => {
+    env.FACEBOOK_APP_ID = 'test_fb_app_id';
+    env.FACEBOOK_APP_SECRET = 'test_fb_app_secret';
     client = new MetaGraphApiClient('v19.0');
   });
 
   afterEach(() => {
     globalThis.fetch = originalFetch;
+    env.FACEBOOK_APP_ID = originalAppId;
+    env.FACEBOOK_APP_SECRET = originalAppSecret;
     vi.restoreAllMocks();
   });
 
-  it('gọi đúng URL và headers khi ẩn bình luận thành công', async () => {
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({ success: true }),
+  describe('getOAuthDialogUrl()', () => {
+    it('nên tạo URL OAuth dialog chứa đầy đủ scopes và state', () => {
+      const url = client.getOAuthDialogUrl('state-xyz', 'http://localhost:3000/callback');
+      expect(url).toContain('https://www.facebook.com/v19.0/dialog/oauth');
+      expect(url).toContain('client_id=test_fb_app_id');
+      expect(url).toContain('state=state-xyz');
+      expect(url).toContain('pages_manage_posts');
+      expect(url).toContain('pages_messaging');
     });
-    globalThis.fetch = mockFetch;
-
-    const result = await client.hideComment('cmt_999', 'EAA_token_test');
-
-    expect(result.success).toBe(true);
-    expect(result.commentId).toBe('cmt_999');
-    expect(mockFetch).toHaveBeenCalledWith(
-      'https://graph.facebook.com/v19.0/cmt_999',
-      expect.objectContaining({
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_hidden: true, access_token: 'EAA_token_test' }),
-      })
-    );
   });
 
-  it('xử lý lỗi khi Graph API trả về HTTP 400/500 có body lỗi', async () => {
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: false,
-      status: 400,
-      statusText: 'Bad Request',
-      json: vi.fn().mockResolvedValue({
-        error: { message: 'Invalid OAuth access token.', code: 190 },
-      }),
+  describe('exchangeCodeForTokens()', () => {
+    it('nên throw AppError nếu thiếu FACEBOOK_APP_ID hoặc FACEBOOK_APP_SECRET', async () => {
+      env.FACEBOOK_APP_ID = undefined;
+      await expect(client.exchangeCodeForTokens('code', 'http://localhost:3000/callback')).rejects.toThrow(
+        AppError
+      );
     });
-    globalThis.fetch = mockFetch;
 
-    const result = await client.hideComment('cmt_err_token', 'EAA_invalid_token');
+    it('nên đổi code lấy short-lived token và nâng cấp lên long-lived token', async () => {
+      const mockFetch = vi
+        .fn()
+        // Call 1: Short token
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ access_token: 'short_token_123', expires_in: 3600 }),
+        })
+        // Call 2: Long token
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ access_token: 'long_token_456', expires_in: 5184000 }),
+        });
+      globalThis.fetch = mockFetch;
 
-    expect(result.success).toBe(false);
-    expect(result.error).toBe('Invalid OAuth access token.');
+      const result = await client.exchangeCodeForTokens('mock_auth_code', 'http://localhost:3000/callback');
+
+      expect(result.shortLivedToken).toBe('short_token_123');
+      expect(result.longLivedToken).toBe('long_token_456');
+      expect(result.expiresIn).toBe(5184000);
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
+
+    it('nên fallback về short token nếu nâng cấp long-lived token không thành công', async () => {
+      const mockFetch = vi
+        .fn()
+        // Call 1: Short token ok
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ access_token: 'short_token_only', expires_in: 3600 }),
+        })
+        // Call 2: Long token fails
+        .mockResolvedValueOnce({
+          ok: false,
+          json: vi.fn().mockResolvedValue({ error: 'Cannot exchange' }),
+        });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.exchangeCodeForTokens('mock_auth_code', 'http://localhost:3000/callback');
+      expect(result.shortLivedToken).toBe('short_token_only');
+      expect(result.longLivedToken).toBe('short_token_only');
+    });
+
+    it('nên throw AppError khi đổi short token thất bại', async () => {
+      const mockFetch = vi.fn().mockResolvedValueOnce({
+        ok: false,
+        json: vi.fn().mockResolvedValue({ error: 'Code expired' }),
+      });
+      globalThis.fetch = mockFetch;
+
+      await expect(client.exchangeCodeForTokens('bad_code', 'http://localhost:3000/callback')).rejects.toThrow(
+        AppError
+      );
+    });
   });
 
-  it('xử lý khi fetch ném ra ngoại lệ mạng hoặc AbortError (timeout)', async () => {
-    const abortError = new Error('The operation was aborted');
-    abortError.name = 'AbortError';
+  describe('getFbUserProfile()', () => {
+    it('nên trả về thông tin id và name của user', async () => {
+      const mockFetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ id: 'fb-user-123', name: 'Le Van C' }),
+      });
+      globalThis.fetch = mockFetch;
 
-    const mockFetch = vi.fn().mockRejectedValue(abortError);
-    globalThis.fetch = mockFetch;
+      const profile = await client.getFbUserProfile('user_token');
+      expect(profile).toEqual({ id: 'fb-user-123', name: 'Le Van C' });
+    });
 
-    const result = await client.hideComment('cmt_timeout', 'EAA_token_test', 100);
+    it('nên throw AppError khi lấy profile thất bại', async () => {
+      const mockFetch = vi.fn().mockResolvedValueOnce({
+        ok: false,
+        json: vi.fn().mockResolvedValue({ error: 'Unauthorized' }),
+      });
+      globalThis.fetch = mockFetch;
 
-    expect(result.success).toBe(false);
-    expect(result.error).toContain('timeout');
+      await expect(client.getFbUserProfile('bad_token')).rejects.toThrow(AppError);
+    });
+  });
+
+  describe('getManageablePages()', () => {
+    it('nên trả về danh sách accounts từ /me/accounts', async () => {
+      const mockPages = [
+        {
+          id: 'p-1',
+          name: 'My Page',
+          access_token: 'tok-1',
+          picture: { data: { url: 'https://fb.com/pic.png' } },
+        },
+      ];
+      const mockFetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ data: mockPages }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const pages = await client.getManageablePages('user_token');
+      expect(pages).toEqual(mockPages);
+    });
+
+    it('nên throw AppError khi gọi /me/accounts thất bại', async () => {
+      const mockFetch = vi.fn().mockResolvedValueOnce({
+        ok: false,
+        json: vi.fn().mockResolvedValue({ error: 'Failed' }),
+      });
+      globalThis.fetch = mockFetch;
+
+      await expect(client.getManageablePages('bad_token')).rejects.toThrow(AppError);
+    });
+  });
+
+  describe('subscribePageApps()', () => {
+    it('nên trả về true khi subscribed_apps thành công', async () => {
+      const mockFetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ success: true }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const success = await client.subscribePageApps('page-123', 'tok-page');
+      expect(success).toBe(true);
+    });
+
+    it('nên trả về false khi API trả về lỗi', async () => {
+      const mockFetch = vi.fn().mockResolvedValueOnce({
+        ok: false,
+        json: vi.fn().mockResolvedValue({ error: 'Permission denied' }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const success = await client.subscribePageApps('page-123', 'tok-page');
+      expect(success).toBe(false);
+    });
+
+    it('nên trả về false khi fetch ném ngoại lệ mạng', async () => {
+      const mockFetch = vi.fn().mockRejectedValueOnce(new Error('Network offline'));
+      globalThis.fetch = mockFetch;
+
+      const success = await client.subscribePageApps('page-123', 'tok-page');
+      expect(success).toBe(false);
+    });
+  });
+
+  describe('hideComment()', () => {
+    it('gọi đúng URL và headers khi ẩn bình luận thành công', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ success: true }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.hideComment('cmt_999', 'EAA_token_test');
+
+      expect(result.success).toBe(true);
+      expect(result.commentId).toBe('cmt_999');
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://graph.facebook.com/v19.0/cmt_999',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_hidden: true, access_token: 'EAA_token_test' }),
+        })
+      );
+    });
+
+    it('xử lý lỗi khi Graph API trả về HTTP 400/500 có body lỗi', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 400,
+        statusText: 'Bad Request',
+        json: vi.fn().mockResolvedValue({
+          error: { message: 'Invalid OAuth access token.', code: 190 },
+        }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.hideComment('cmt_err_token', 'EAA_invalid_token');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Invalid OAuth access token.');
+    });
+
+    it('xử lý khi fetch ném ra ngoại lệ mạng hoặc AbortError (timeout)', async () => {
+      const abortError = new Error('The operation was aborted');
+      abortError.name = 'AbortError';
+
+      const mockFetch = vi.fn().mockRejectedValue(abortError);
+      globalThis.fetch = mockFetch;
+
+      const result = await client.hideComment('cmt_timeout', 'EAA_token_test', 100);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('timeout');
+    });
   });
 });

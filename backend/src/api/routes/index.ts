@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { healthRouter } from './health.routes.js';
 import { authRouter } from './auth.routes.js';
 import { webhookRouter } from './webhook.routes.js';
+import { fbOAuthRouter } from './fb-oauth.routes.js';
+import { pageRouter } from './page.routes.js';
 
 export const apiV1Router = Router();
 
@@ -13,5 +15,12 @@ apiV1Router.use('/auth', authRouter);
 
 // Mount Meta webhook route
 apiV1Router.use('/webhook', webhookRouter);
+
+// Mount Meta Facebook OAuth routes
+apiV1Router.use('/fb-oauth', fbOAuthRouter);
+
+// Mount Connected Pages routes
+apiV1Router.use('/pages', pageRouter);
+
 
 

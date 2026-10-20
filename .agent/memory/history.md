@@ -4,6 +4,27 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 
 ---
 
+## [2026-10-20] - Hoàn Thành TASK-09: Meta Facebook OAuth 2.0, AES-256-GCM Token Encryption & Quản Lý Fanpage
+- **Tác giả:** System Architect & Backend Engineer (Antigravity Ecosystem)
+- **Nội dung hoàn thành:**
+  - Hoàn thành trọn vẹn 100% các hạng mục của **[TASK-09]** trên nhánh `feature/task-09-meta-oauth-page-management` theo quy chuẩn `task-lifecycle.md`.
+  - **Mã hóa Token đối xứng:** Xây dựng tiện ích `crypto.helper.ts` sử dụng thuật toán `AES-256-GCM` với IV ngẫu nhiên 96 bits và GCM Authentication Tag 128 bits chống giả mạo, mã hóa toàn bộ User Access Token và Page Access Token trước khi lưu vào cơ sở dữ liệu (`facebook_accounts`, `connected_pages`).
+  - **Meta Graph API Client:** Mở rộng `graph-api.client.ts` hỗ trợ sinh OAuth Dialog URL với các scopes quản lý Fanpage (`pages_manage_posts`, `pages_messaging`, `pages_read_engagement`, `pages_show_list`), đổi Authorization Code lấy Short-Lived token và nâng cấp sang Long-Lived Token (hạn 60 ngày), lấy profile cá nhân, lấy danh sách Fanpage từ `/me/accounts`, và đăng ký tự động Webhook qua `POST /{page-id}/subscribed_apps`.
+  - **Facebook OAuth Endpoints (`/api/v1/fb-oauth`):**
+    - `GET /connect-url`: Sinh URL OAuth kèm JWT CSRF State Token có hạn 15 phút.
+    - `GET /callback`: Xác thực CSRF state, đổi token, mã hóa và lưu vào bảng `facebook_accounts`. Hỗ trợ redirect về Next.js frontend hoặc trả về JSON.
+    - `GET /accounts`: Lấy danh sách Fanpage quản lý và đối chiếu trạng thái kết nối `is_connected`.
+    - `POST /connect-pages`: Kết nối hàng loạt Fanpage, mã hóa token và đăng ký `subscribed_apps`.
+  - **Quản lý Kênh Fanpage (`/api/v1/pages`):**
+    - `GET /`: Lấy danh sách Fanpage của user với token đã được che giấu an toàn.
+    - `GET /:pageId`: Xem chi tiết Fanpage và số liệu thống kê (tổng bài viết, tổng hội thoại).
+    - `PATCH /:pageId/status`: Bật/Tắt trạng thái hoạt động `is_active`.
+    - `POST /:pageId/subscribe-webhook`: Đồng bộ và đăng ký lại Webhook với Meta.
+    - `DELETE /:pageId`: Hủy kết nối Fanpage an toàn.
+  - **Chất lượng mã nguồn:** 26 file kiểm thử, **207/207 tests passed 100%**, tỷ lệ bao phủ mã nguồn tổng thể đạt **92.42% Statements, 78.60% Branches, 96.72% Functions, 92.42% Lines** (vượt chuẩn yêu cầu), TypeScript type-check 0 lỗi.
+
+---
+
 ## [2026-10-20] - Hoàn Tất Toàn Diện Sprint 1: Nền Tảng Backend, Database & Webhook Engine
 - **Tác giả:** System Architect & Lead AI Assistant (Antigravity Ecosystem)
 - **Nội dung hoàn thành:**
@@ -83,7 +104,7 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 ---
 
 ## [Kế Hoạch Tiếp Theo] - Sprint 2: Core Business Logic, Realtime WebSocket & Next.js UI
-- [ ] **[TASK-09]** Meta Facebook OAuth 2.0, Mã Hóa Token AES-256-GCM & Quản Lý Fanpage (`/api/v1/fb-oauth`, `/api/v1/pages`).
+- [x] **[TASK-09]** Meta Facebook OAuth 2.0, Mã Hóa Token AES-256-GCM & Quản Lý Fanpage (`/api/v1/fb-oauth`, `/api/v1/pages`).
 - [ ] **[TASK-10]** Động Cơ Kịch Bản Tự Động (Automation Rules Engine) & Tự Động Trả Lời Bình Luận/Tin Nhắn Riêng (Auto Comment & Private Reply).
 - [ ] **[TASK-11]** Dịch Vụ Tải Lên Phương Tiện Truyền Thông Đa Định Dạng (Multer + Cloudinary Stream Upload) (`/api/v1/media`).
 - [ ] **[TASK-12]** Đặt Lịch Xuất Bản Bài Viết Đa Kênh & Hàng Đợi Hẹn Giờ BullMQ (`/api/v1/posts`).

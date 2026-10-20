@@ -25,21 +25,6 @@
 
 ### 📝 TRẠNG THÁI: TODO (CHƯA BẮT ĐẦU)
 
-#### [TASK-09] Meta Facebook OAuth 2.0, AES-256-GCM Token Encryption & Quản lý Fanpage (`/api/v1/fb-oauth` & `/api/v1/pages`)
-- [ ] **9.1.** Xây dựng tiện ích mã hóa đối xứng AES-256-GCM tại `backend/src/utils/crypto.helper.ts` (mã hóa/giải mã Page Access Token và User Access Token bằng khóa bí mật từ `.env`).
-- [ ] **9.2.** Triển khai Luồng Meta Facebook OAuth 2.0 (`/api/v1/fb-oauth`):
-  - [ ] `GET /api/v1/fb-oauth/connect-url`: Tạo URL xác thực OAuth kèm CSRF state token và scopes (`pages_manage_posts`, `pages_messaging`, `pages_read_engagement`, `pages_show_list`).
-  - [ ] `GET /api/v1/fb-oauth/callback`: Nhận authorization code, đổi lấy Short-Lived User Token, nâng cấp thành Long-Lived User Token (hạn 60 ngày), lưu vào bảng `facebook_accounts`.
-  - [ ] `GET /api/v1/fb-oauth/accounts`: Gọi Meta Graph API lấy danh sách Fanpage mà user quản lý.
-  - [ ] `POST /api/v1/fb-oauth/connect-pages`: Tự động lấy Page Access Token dài hạn, mã hóa AES-256-GCM, lưu vào bảng `connected_pages`, gọi Meta API đăng ký `subscribed_apps` (webhook subscription).
-- [ ] **9.3.** Triển khai APIs Quản lý Kênh Fanpage (`/api/v1/pages`):
-  - [ ] `GET /api/v1/pages`: Lấy danh sách Fanpage đã kết nối của người dùng kèm trạng thái webhook.
-  - [ ] `GET /api/v1/pages/:pageId`: Xem thông tin chi tiết Fanpage và số liệu thống kê.
-  - [ ] `PATCH /api/v1/pages/:pageId/status`: Bật/Tắt trạng thái hoạt động (`is_active`) của Fanpage.
-  - [ ] `POST /api/v1/pages/:pageId/subscribe-webhook`: Đồng bộ/Đăng ký lại Webhook với Meta.
-  - [ ] `DELETE /api/v1/pages/:pageId`: Hủy kết nối Fanpage an toàn.
-- [ ] **9.4.** Viết unit tests & integration tests cho luồng OAuth, Crypto Helper và Pages APIs (đảm bảo coverage ≥ 85%).
-
 #### [TASK-10] Động cơ Kịch bản Tự động (Automation Rules) & Tự động Phản hồi Bình luận/Tin nhắn
 - [ ] **10.1.** Xây dựng Repositories và DTOs cho `automation_rules` trong PostgreSQL.
 - [ ] **10.2.** Triển khai REST APIs quản lý quy tắc tự động hóa:
@@ -127,7 +112,21 @@
 ---
 
 ### ✅ TRẠNG THÁI: DONE (ĐÃ HOÀN THÀNH)
-*(Chưa có tác vụ nào hoàn thành trong Sprint 2 - Toàn bộ 8 tác vụ của Sprint 1 đã được lưu trữ an toàn trong bảng Progress Log bên dưới và history.md)*
+
+#### [TASK-09] Meta Facebook OAuth 2.0, AES-256-GCM Token Encryption & Quản lý Fanpage (`/api/v1/fb-oauth` & `/api/v1/pages`)
+- [x] **9.1.** Xây dựng tiện ích mã hóa đối xứng AES-256-GCM tại `backend/src/utils/crypto.helper.ts` (mã hóa/giải mã Page Access Token và User Access Token bằng khóa bí mật từ `.env`).
+- [x] **9.2.** Triển khai Luồng Meta Facebook OAuth 2.0 (`/api/v1/fb-oauth`):
+  - [x] `GET /api/v1/fb-oauth/connect-url`: Tạo URL xác thực OAuth kèm CSRF state token và scopes (`pages_manage_posts`, `pages_messaging`, `pages_read_engagement`, `pages_show_list`).
+  - [x] `GET /api/v1/fb-oauth/callback`: Nhận authorization code, đổi lấy Short-Lived User Token, nâng cấp thành Long-Lived User Token (hạn 60 ngày), lưu vào bảng `facebook_accounts`.
+  - [x] `GET /api/v1/fb-oauth/accounts`: Gọi Meta Graph API lấy danh sách Fanpage mà user quản lý.
+  - [x] `POST /api/v1/fb-oauth/connect-pages`: Tự động lấy Page Access Token dài hạn, mã hóa AES-256-GCM, lưu vào bảng `connected_pages`, gọi Meta API đăng ký `subscribed_apps` (webhook subscription).
+- [x] **9.3.** Triển khai APIs Quản lý Kênh Fanpage (`/api/v1/pages`):
+  - [x] `GET /api/v1/pages`: Lấy danh sách Fanpage đã kết nối của người dùng kèm trạng thái webhook.
+  - [x] `GET /api/v1/pages/:pageId`: Xem thông tin chi tiết Fanpage và số liệu thống kê.
+  - [x] `PATCH /api/v1/pages/:pageId/status`: Bật/Tắt trạng thái hoạt động (`is_active`) của Fanpage.
+  - [x] `POST /api/v1/pages/:pageId/subscribe-webhook`: Đồng bộ/Đăng ký lại Webhook với Meta.
+  - [x] `DELETE /api/v1/pages/:pageId`: Hủy kết nối Fanpage an toàn.
+- [x] **9.4.** Viết unit tests & integration tests cho luồng OAuth, Crypto Helper và Pages APIs (đảm bảo coverage ≥ 85%).
 
 ---
 
@@ -145,3 +144,4 @@
 | 19/10/2026 | [TASK-06] Authentication Module (JWT + Bcrypt + Auth Service) | **DONE** | Tạo DTOs, `auth.helper.ts`, `user.repository.ts`, `auth.service.ts`, `auth.controller.ts`, `auth.middleware.ts`, routes; 84/84 tests passed (95.99% coverage); merge main; push GitHub commit `56c0494`. |
 | 19/10/2026 | [TASK-07] Webhook Ingestion & HMAC-SHA256 Verifier | **DONE** | Tạo `verifyWebhookSignature`, `webhook.service.ts`, `webhook-log.repository.ts`, `webhook.routes.ts`; 113/113 tests passed (95.42% coverage); merge main; push GitHub commit `6e914fa`. |
 | 19/10/2026 | [TASK-08] BullMQ Queue & Worker ẩn SĐT < 3s | **DONE** | Cài đặt `bullmq` & `ioredis`, xây dựng `phone-regex.ts` cho các đầu số VN, Meta Graph client `hideComment`, worker ẩn SĐT < 3s, lưu CRM `customers` tag `["Co_SDT"]`, DLQ & Rate Limiter, 145/145 tests passed (92.05% coverage); merge main; push GitHub commit `87eb1ba`. |
+| 20/10/2026 | [TASK-09] Meta Facebook OAuth 2.0, AES-256-GCM Token Encryption & Quản lý Fanpage | **DONE** | Tạo tiện ích AES-256-GCM (`crypto.helper.ts`), Meta Graph Client mở rộng OAuth/Pages/Subscribed Apps, Repositories (`facebook_accounts`, `connected_pages`), Services & Controllers (`/api/v1/fb-oauth`, `/api/v1/pages`); 207/207 tests passed (92.42% coverage); merge main. |
