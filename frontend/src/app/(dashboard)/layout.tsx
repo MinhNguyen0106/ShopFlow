@@ -12,19 +12,19 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { isAuthenticated, isLoading, checkAuth } = useAuthStore();
+  const { isAuthenticated, isCheckingAuth, checkAuth } = useAuthStore();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!isCheckingAuth && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isCheckingAuth, isAuthenticated, router]);
 
-  if (isLoading) {
+  if (isCheckingAuth) {
     return (
       <div className="min-h-screen bg-blueprint-grid flex flex-col items-center justify-center p-4">
         <div className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white shadow-mac-card border border-slate-200">

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -38,13 +38,25 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register: registerUser, isLoading, error, clearError } = useAuthStore();
+  const {
+    register: registerUser,
+    isLoading,
+    isAuthenticated,
+    error,
+    clearError,
+  } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/pages');
+    }
+  }, [isAuthenticated, router]);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -55,6 +67,8 @@ export default function RegisterPage() {
       acceptTerms: false,
     },
   });
+
+  const isPending = isLoading || isSubmitting;
 
   const onSubmit = async (data: RegisterFormData) => {
     clearError();
@@ -249,10 +263,10 @@ export default function RegisterPage() {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isPending}
           className="w-full h-11 flex items-center justify-center gap-2 rounded-full bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white text-sm font-semibold shadow-md shadow-blue-500/25 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {isLoading ? (
+          {isPending ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
               <span>Đang tạo tài khoản...</span>

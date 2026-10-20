@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -24,13 +24,19 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isLoading, error, clearError } = useAuthStore();
+  const { login, isLoading, isAuthenticated, error, clearError } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/pages');
+    }
+  }, [isAuthenticated, router]);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -39,6 +45,8 @@ export default function LoginPage() {
       rememberMe: false,
     },
   });
+
+  const isPending = isLoading || isSubmitting;
 
   const onSubmit = async (data: LoginFormData) => {
     clearError();
@@ -175,10 +183,10 @@ export default function LoginPage() {
         {/* Submit Button (Pill Blue) */}
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isPending}
           className="w-full h-11 flex items-center justify-center gap-2 rounded-full bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white text-sm font-semibold shadow-md shadow-blue-500/25 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {isLoading ? (
+          {isPending ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
               <span>Đang xác thực...</span>

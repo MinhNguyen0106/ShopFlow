@@ -17,12 +17,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Pool, PoolClient } from 'pg';
+import dotenv from 'dotenv';
 
-// =============================================================================
-// Cấu hình đường dẫn
-// =============================================================================
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
+
+// Load environment variables từ backend/.env
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+dotenv.config(); // fallback to current working dir .env
 
 const MIGRATIONS_DIR = path.join(__dirname, 'migrations');
 

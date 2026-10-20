@@ -19,15 +19,18 @@ describe('Auth Store (useAuthStore)', () => {
       refreshToken: null,
       isAuthenticated: false,
       isLoading: false,
+      isCheckingAuth: true,
       error: null,
     });
   });
 
-  it('should have initial unauthenticated state', () => {
+  it('should have initial unauthenticated state with isLoading false and isCheckingAuth true', () => {
     const state = useAuthStore.getState();
     expect(state.user).toBeNull();
     expect(state.isAuthenticated).toBe(false);
     expect(state.accessToken).toBeNull();
+    expect(state.isLoading).toBe(false);
+    expect(state.isCheckingAuth).toBe(true);
   });
 
   it('should successfully login and store tokens in localStorage', async () => {

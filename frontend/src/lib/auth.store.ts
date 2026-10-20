@@ -14,6 +14,7 @@ interface AuthState {
   refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isCheckingAuth: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<boolean>;
   register: (
@@ -31,7 +32,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   refreshToken: null,
   isAuthenticated: false,
-  isLoading: true,
+  isLoading: false,
+  isCheckingAuth: true,
   error: null,
 
   clearError: () => set({ error: null }),
@@ -135,9 +137,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   checkAuth: async () => {
-    set({ isLoading: true });
+    set({ isCheckingAuth: true });
     if (typeof window === 'undefined') {
-      set({ isLoading: false });
+      set({ isCheckingAuth: false });
       return;
     }
 
@@ -150,7 +152,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         accessToken: null,
         refreshToken: null,
         isAuthenticated: false,
-        isLoading: false,
+        isCheckingAuth: false,
       });
       return;
     }
@@ -174,7 +176,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         accessToken: token,
         refreshToken: localStorage.getItem('shopflow_refresh_token'),
         isAuthenticated: true,
-        isLoading: false,
+        isCheckingAuth: false,
       });
     } catch {
       // If /auth/me fails, try using cached user if token exists, or reset
@@ -186,7 +188,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             accessToken: token,
             refreshToken: localStorage.getItem('shopflow_refresh_token'),
             isAuthenticated: true,
-            isLoading: false,
+            isCheckingAuth: false,
           });
           return;
         } catch {
@@ -199,7 +201,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         accessToken: null,
         refreshToken: null,
         isAuthenticated: false,
-        isLoading: false,
+        isCheckingAuth: false,
       });
     }
   },
