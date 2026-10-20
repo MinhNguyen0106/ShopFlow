@@ -24,6 +24,7 @@ import {
   MetaGraphApiClient,
 } from '../meta/graph-api.client.js';
 import { decryptToken } from '../../utils/crypto.helper.js';
+import { socketService, SocketService } from '../../core/services/socket.service.js';
 import { logger } from '../../utils/logger.js';
 
 export class ScheduledPostWorkerService {
@@ -32,7 +33,8 @@ export class ScheduledPostWorkerService {
   constructor(
     private readonly postRepo: PostScheduleRepository = postScheduleRepository,
     private readonly pageRepo: ConnectedPageRepository = connectedPageRepository,
-    private readonly graphClient: MetaGraphApiClient = metaGraphApiClient
+    private readonly graphClient: MetaGraphApiClient = metaGraphApiClient,
+    private readonly socketSvc: SocketService = socketService
   ) {}
 
   /**
@@ -179,13 +181,23 @@ export class ScheduledPostWorkerService {
         );
       }
 
-      // 4. Cập nhật kết quả vào DB
+      // 4. Cập nhật kết quả vào DB và phát sự kiện WebSocket
       if (publishResult.success && publishResult.postId) {
         await this.postRepo.updateStatus(postId, 'published', publishResult.postId, null);
         logger.info(
           { postId, metaPostId: publishResult.postId },
           '[ScheduledPostWorker] ✔ Xuất bản bài viết thành công lên Facebook'
         );
+
+        this.socketSvc.emitPostStatusChanged(metaPageId, {
+          event: 'POST_STATUS_CHANGED',
+          post_id: postId,
+          page_id: metaPageId,
+          status: 'published',
+          meta_post_id: publishResult.postId,
+          error_message: null,
+          published_at: new Date().toISOString(),
+        });
       } else {
         const errorDetail = publishResult.error || 'Meta API từ chối xuất bản bài viết';
         await this.postRepo.updateStatus(postId, 'failed', null, errorDetail);
@@ -193,6 +205,16 @@ export class ScheduledPostWorkerService {
           { postId, error: errorDetail },
           '[ScheduledPostWorker] ✘ Xuất bản bài viết thất bại'
         );
+
+        this.socketSvc.emitPostStatusChanged(metaPageId, {
+          event: 'POST_STATUS_CHANGED',
+          post_id: postId,
+          page_id: metaPageId,
+          status: 'failed',
+          meta_post_id: null,
+          error_message: errorDetail,
+          published_at: null,
+        });
       }
     } catch (apiErr) {
       const errMsg = (apiErr as Error).message;
@@ -201,6 +223,16 @@ export class ScheduledPostWorkerService {
         { postId, error: errMsg },
         '[ScheduledPostWorker] ✘ Ngoại lệ khi gọi Meta API'
       );
+
+      this.socketSvc.emitPostStatusChanged(metaPageId, {
+        event: 'POST_STATUS_CHANGED',
+        post_id: postId,
+        page_id: metaPageId,
+        status: 'failed',
+        meta_post_id: null,
+        error_message: errMsg,
+        published_at: null,
+      });
     }
   }
 

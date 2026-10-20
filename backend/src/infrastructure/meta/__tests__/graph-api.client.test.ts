@@ -234,7 +234,7 @@ describe('MetaGraphApiClient', () => {
       const mockFetch = vi.fn().mockRejectedValue(abortError);
       globalThis.fetch = mockFetch;
 
-      const result = await client.hideComment('cmt_timeout', 'EAA_token_test', 100);
+      const result = await client.hideComment('cmt_timeout', 'EAA_token_test', true, 100);
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('timeout');
@@ -446,6 +446,75 @@ describe('MetaGraphApiClient', () => {
       expect(result.error).toBe('Album fail');
     });
   });
+
+  describe('sendMessage()', () => {
+    it('gửi tin nhắn văn bản qua Facebook Messenger thành công', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ message_id: 'mid_msg_123' }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.sendMessage('page_123', 'recipient_456', 'Hello text', 'tok_test');
+
+      expect(result.success).toBe(true);
+      expect(result.messageId).toBe('mid_msg_123');
+
+      const calledBody = JSON.parse(mockFetch.mock.calls[0]![1].body);
+      expect(calledBody.recipient.id).toBe('recipient_456');
+      expect(calledBody.message.text).toBe('Hello text');
+    });
+
+    it('gửi tin nhắn đính kèm mediaUrl thành công', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ message_id: 'mid_msg_media' }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.sendMessage(
+        'page_123',
+        'recipient_456',
+        '',
+        'tok_test',
+        'https://img.com/pic.jpg'
+      );
+
+      expect(result.success).toBe(true);
+      expect(result.messageId).toBe('mid_msg_media');
+
+      const calledBody = JSON.parse(mockFetch.mock.calls[0]![1].body);
+      expect(calledBody.message.attachment.payload.url).toBe('https://img.com/pic.jpg');
+    });
+
+    it('xử lý khi Meta API trả về lỗi', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 400,
+        statusText: 'Bad Request',
+        json: vi.fn().mockResolvedValue({ error: { message: 'Policy violation' } }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.sendMessage('page_123', 'recipient_456', 'Hello', 'tok_test');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Policy violation');
+    });
+
+    it('xử lý khi gọi sendMessage bị timeout hoặc lỗi mạng', async () => {
+      const abortError = new Error('The operation was aborted');
+      abortError.name = 'AbortError';
+      const mockFetch = vi.fn().mockRejectedValue(abortError);
+      globalThis.fetch = mockFetch;
+
+      const result = await client.sendMessage('page_123', 'recipient_456', 'Hello', 'tok_test', undefined, 100);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('timeout');
+    });
+  });
 });
+
 
 
