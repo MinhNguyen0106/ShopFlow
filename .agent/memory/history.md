@@ -4,6 +4,43 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 
 ---
 
+## [2026-10-20] - Hoàn Thành TASK-13: Máy Chủ WebSocket Thời Gian Thực (Socket.io) & APIs Hộp Thư Tập Trung (`/api/v1/inbox`)
+- **Tác giả:** System Architect & Backend Engineer (Antigravity Ecosystem)
+- **Nội dung hoàn thành:**
+  - Hoàn thành trọn vẹn 100% các hạng mục của **[TASK-13]** trên nhánh `feature/task-13-websocket-centralized-inbox` theo quy chuẩn `task-lifecycle.md`.
+  - **Hạ Tầng WebSocket (Socket.io Server & Room Management):**
+    - Cài đặt thư viện `socket.io` và `socket.io-client`.
+    - Xây dựng [socket.server.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/infrastructure/socket/socket.server.ts):
+      - Middleware xác thực kết nối qua JWT Access Token (`socketAuthMiddleware`) chấp nhận qua auth payload, headers authorization hoặc query token.
+      - Tự động gán socket vào phòng người dùng: `room:user_{user_id}`.
+      - Lắng nghe các sự kiện quản lý phòng từ client: `join_page`, `leave_page` (`room:page_{page_id}`), `join_conversation`, `leave_conversation` (`room:conv_{conversation_id}`).
+      - Tích hợp vòng đời khởi động và đóng an toàn (`initSocketServer`, `closeSocketServer`) vào [index.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/index.ts).
+  - **Dịch Vụ Phát Sóng Thời Gian Thực (SocketService):**
+    - Xây dựng [socket.service.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/core/services/socket.service.ts) chuẩn hóa 3 sự kiện thời gian thực theo đặc tả `04_API_AND_WEBSOCKET.md`:
+      - `emitNewInboxItem(pageId, payload)`: Phát `NEW_INBOX_ITEM` tới phòng Fanpage.
+      - `emitInboxUpdated(pageId, payload)`: Phát `INBOX_UPDATED` tới phòng Fanpage và phòng chi tiết hội thoại.
+      - `emitPostStatusChanged(pageId, payload)`: Phát `POST_STATUS_CHANGED` tới phòng Fanpage (đã tích hợp vào worker bài viết hẹn giờ).
+  - **Tầng Truy Cập Dữ Liệu (Repositories):**
+    - Xây dựng [conversation.repository.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/infrastructure/repositories/conversation.repository.ts): Hỗ trợ truy vấn danh sách hội thoại có phân trang, bộ lọc đa chiều (Page, loại messenger/comment, trạng thái open/resolved/archived, tìm kiếm text/khách hàng), chi tiết kèm Customer info, cập nhật status, đánh dấu đã đọc (`markAsRead`), cập nhật tin nhắn cuối cùng.
+    - Mở rộng [customer.repository.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/infrastructure/repositories/customer.repository.ts): Bổ sung `findById`, `findByIdAndUserId`, `update` thông tin CRM (tên, số điện thoại, địa chỉ, tags, ghi chú).
+    - Mở rộng [message-comment.repository.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/infrastructure/repositories/message-comment.repository.ts): Bổ sung `findMessagesByConversation` với cursor pagination (`created_at < cursor`), `findById`, `findByIdWithPage`, `createPageMessage`, `updateHideStatus`.
+  - **Mở rộng Meta Graph API Client:**
+    - Bổ sung method `sendMessage(pageId, recipientFbId, text, pageAccessToken, mediaUrl)` trong [graph-api.client.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/infrastructure/meta/graph-api.client.ts) gửi tin nhắn trực tiếp qua Messenger API (`POST /{page-id}/messages`).
+    - Nâng cấp method `hideComment(commentId, pageAccessToken, isHidden)` hỗ trợ linh hoạt cả ẩn (`true`) và hiện (`false`) bình luận.
+  - **Dịch Vụ Nghiệp Vụ & REST APIs Hộp Thư Tập Trung (`/api/v1/inbox`):**
+    - Xây dựng [inbox.service.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/core/services/inbox.service.ts), [inbox.controller.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/api/controllers/inbox.controller.ts), [inbox.routes.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/api/routes/inbox.routes.ts):
+      - `GET /api/v1/inbox/conversations`: Danh sách hội thoại phân trang, lọc theo Page/loại/trạng thái/tìm kiếm, tính toán cờ `is_within_24h` của Meta.
+      - `GET /api/v1/inbox/conversations/:conversationId`: Chi tiết hội thoại + khách hàng, tự động đánh dấu đã đọc (`unread_count = 0`) và phát socket event.
+      - `GET /api/v1/inbox/conversations/:conversationId/messages`: Lấy tin nhắn theo cursor pagination (`nextCursor`).
+      - `POST /api/v1/inbox/conversations/:conversationId/messages`: Nhân viên gửi tin nhắn trả lời (phân nhánh Messenger Send API hoặc Comment Reply), lưu DB và phát realtime event.
+      - `POST /api/v1/inbox/messages/:messageId/private-reply`: Gửi tin nhắn riêng (Private Reply) cho comment, chặn gửi trùng vi phạm chính sách Meta.
+      - `PATCH /api/v1/inbox/messages/:messageId/hide`: Ẩn/Hiện bình luận Facebook qua Graph API.
+      - `PATCH /api/v1/inbox/conversations/:conversationId/status`: Đổi trạng thái hội thoại (`open`, `resolved`, `archived`).
+      - `PATCH /api/v1/inbox/customers/:customerId`: Cập nhật thông tin khách hàng CRM.
+  - **Chất lượng mã nguồn:** 47 file kiểm thử, **393/393 tests passed 100%**, tỷ lệ bao phủ mã nguồn tổng thể đạt **88.89% Statements, 76.20% Branches, 91.94% Functions, 88.89% Lines**, TypeScript type-check 0 lỗi.
+
+---
+
 ## [2026-10-20] - Hoàn Thành TASK-12: Đặt Lịch Xuất Bản Bài Viết Đa Kênh & Hàng Đợi Hẹn Giờ BullMQ
 - **Tác giả:** System Architect & Backend Engineer (Antigravity Ecosystem)
 - **Nội dung hoàn thành:**
@@ -189,5 +226,5 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 - [x] **[TASK-10]** Động Cơ Kịch Bản Tự Động (Automation Rules Engine) & Tự Động Trả Lời Bình Luận/Tin Nhắn Riêng (Auto Comment & Private Reply).
 - [x] **[TASK-11]** Dịch Vụ Tải Lên Phương Tiện Truyền Thông Đa Định Dạng (Multer + Cloudinary Stream Upload) (`/api/v1/media`).
 - [x] **[TASK-12]** Đặt Lịch Xuất Bản Bài Viết Đa Kênh & Hàng Đợi Hẹn Giờ BullMQ (`/api/v1/posts`).
-- [ ] **[TASK-13]** Máy Chủ WebSocket Thời Gian Thực (Socket.io) & APIs Hộp Thư Tập Trung (Centralized Inbox) (`/api/v1/inbox`).
+- [x] **[TASK-13]** Máy Chủ WebSocket Thời Gian Thực (Socket.io) & APIs Hộp Thư Tập Trung (Centralized Inbox) (`/api/v1/inbox`).
 - [ ] **[TASK-14]** Giao Diện Người Dùng Next.js 14+ P0: Khung Layout macOS Clean Utility, Màn Hình Auth (`/login`, `/register`) & Quản Lý Kênh Fanpage (`/pages`).

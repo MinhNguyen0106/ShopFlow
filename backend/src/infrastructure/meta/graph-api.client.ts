@@ -194,6 +194,7 @@ export class MetaGraphApiClient {
   async hideComment(
     commentId: string,
     pageAccessToken: string,
+    isHidden: boolean = true,
     timeoutMs: number = 2500
   ): Promise<HideCommentResult> {
     const url = `${this.baseUrl}/${encodeURIComponent(commentId)}`;
@@ -208,7 +209,7 @@ export class MetaGraphApiClient {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          is_hidden: true,
+          is_hidden: isHidden,
           access_token: pageAccessToken,
         }),
         signal: controller.signal,
@@ -364,6 +365,72 @@ export class MetaGraphApiClient {
       const isTimeout = (err as Error).name === 'AbortError';
       const errorMsg = isTimeout ? `Request timeout sau ${timeoutMs}ms` : (err as Error).message;
       logger.error({ pageId, commentId, error: errorMsg }, '[MetaGraphApiClient] ✘ Lỗi khi gửi Private Reply');
+      return { success: false, error: errorMsg };
+    }
+  }
+
+  /**
+   * Gửi tin nhắn trực tiếp qua Facebook Messenger cho khách hàng (theo recipientFbId / PSID).
+   * Endpoint: POST /{page-id}/messages
+   */
+  async sendMessage(
+    pageId: string,
+    recipientFbId: string,
+    text: string,
+    pageAccessToken: string,
+    mediaUrl?: string,
+    timeoutMs: number = 5000
+  ): Promise<{ success: boolean; messageId?: string; error?: string }> {
+    const url = `${this.baseUrl}/${encodeURIComponent(pageId)}/messages`;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const messagePayload: Record<string, unknown> = {};
+      if (mediaUrl) {
+        messagePayload.attachment = {
+          type: 'image',
+          payload: { url: mediaUrl, is_reusable: true },
+        };
+      } else {
+        messagePayload.text = text;
+      }
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipient: { id: recipientFbId },
+          message: messagePayload,
+          messaging_type: 'RESPONSE',
+          access_token: pageAccessToken,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timer);
+
+      if (!response.ok) {
+        const errorBody = (await response.json().catch(() => ({}))) as {
+          error?: { message?: string; code?: number };
+        };
+        const errorMsg = errorBody.error?.message || `HTTP ${response.status} ${response.statusText}`;
+        logger.error({ pageId, recipientFbId, error: errorMsg }, '[MetaGraphApiClient] ✘ Gửi tin nhắn Messenger thất bại');
+        return { success: false, error: errorMsg };
+      }
+
+      const body = (await response.json()) as { message_id?: string };
+      logger.info(
+        { pageId, recipientFbId, messageId: body.message_id },
+        '[MetaGraphApiClient] ✔ Gửi tin nhắn Messenger thành công'
+      );
+      return { success: true, messageId: body.message_id };
+    } catch (err) {
+      clearTimeout(timer);
+      const isTimeout = (err as Error).name === 'AbortError';
+      const errorMsg = isTimeout ? `Request timeout sau ${timeoutMs}ms` : (err as Error).message;
+      logger.error({ pageId, recipientFbId, error: errorMsg }, '[MetaGraphApiClient] ✘ Lỗi khi gửi tin nhắn Messenger');
       return { success: false, error: errorMsg };
     }
   }

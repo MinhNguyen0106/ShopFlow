@@ -20,30 +20,11 @@
 
 ### 📋 TRẠNG THÁI: IN PROGRESS (ĐANG THỰC HIỆN)
 
-*(Hiện không có tác vụ nào đang thực hiện. Sẵn sàng bắt đầu TASK-13)*
+*(Hiện không có tác vụ nào đang thực hiện. Sẵn sàng bắt đầu TASK-14)*
 
 ---
 
 ### 📝 TRẠNG THÁI: TODO (CHƯA BẮT ĐẦU)
-
-#### [TASK-13] Máy chủ WebSocket Thời gian thực (Socket.io) & APIs Hộp thư Tập trung (`/api/v1/inbox`)
-- [ ] **13.1.** Khởi tạo Socket.io Server gắn liền với Express HTTP Server:
-  - [ ] Middleware xác thực JWT token cho kết nối Socket.io (`io.use(socketAuthMiddleware)`).
-  - [ ] Quản lý phòng: `room:user_{user_id}`, `room:page_{page_id}`, `room:conv_{conversation_id}` (`join_conversation`, `leave_conversation`).
-- [ ] **13.2.** Định nghĩa và phát các sự kiện thời gian thực:
-  - [ ] `NEW_INBOX_ITEM`: Phát khi nhận tin nhắn/comment mới từ webhook.
-  - [ ] `INBOX_UPDATED`: Phát khi trạng thái hội thoại thay đổi hoặc tin nhắn được xử lý.
-  - [ ] `POST_STATUS_CHANGED`: Phát khi bài viết đặt lịch hoàn tất xuất bản.
-- [ ] **13.3.** Triển khai REST APIs Hộp thư Tập trung (`/api/v1/inbox`):
-  - [ ] `GET /api/v1/inbox/conversations`: Danh sách hội thoại có tìm kiếm, lọc theo Page, loại (`messenger`/`comment_thread`), trạng thái, số tin chưa đọc.
-  - [ ] `GET /api/v1/inbox/conversations/:conversationId`: Chi tiết hội thoại, khách hàng và tính toán cửa sổ 24h Meta (`window_24h_expires_at`).
-  - [ ] `GET /api/v1/inbox/conversations/:conversationId/messages`: Lấy lịch sử tin nhắn/bình luận theo cursor pagination.
-  - [ ] `POST /api/v1/inbox/conversations/:conversationId/messages`: Nhân viên gửi tin nhắn trả lời khách (gọi Meta Send API `POST /{page_id}/messages` và emit socket event).
-  - [ ] `POST /api/v1/inbox/messages/:messageId/private-reply`: Gửi tin nhắn riêng (Private Reply) cho bình luận.
-  - [ ] `PATCH /api/v1/inbox/messages/:messageId/hide`: Ẩn/Hiện thủ công bình luận Facebook qua Graph API.
-  - [ ] `PATCH /api/v1/inbox/conversations/:conversationId/status`: Đổi trạng thái hội thoại (`open`, `resolved`, `archived`).
-  - [ ] `PATCH /api/v1/inbox/customers/:customerId`: Cập nhật ghi chú, địa chỉ, số điện thoại và tags khách hàng.
-- [ ] **13.4.** Viết unit tests cho Socket.io connection, room routing và Inbox REST APIs.
 
 #### [TASK-14] Khung Layout macOS Clean Utility, Màn hình Auth & Fanpage Management trên Next.js 14+
 - [ ] **14.1.** Thiết lập tầng kết nối API và Realtime ở Frontend (`frontend/src/lib`):
@@ -129,6 +110,25 @@
   - [x] Phát sự kiện WebSocket `POST_STATUS_CHANGED` khi xuất bản thành công/thất bại.
 - [x] **12.4.** Viết unit tests & integration tests cho toàn bộ luồng tạo, hẹn giờ và xuất bản bài viết; đạt 337/337 tests passed (90.85% Stmts, 77.96% Branch).
 
+#### [TASK-13] Máy chủ WebSocket Thời gian thực (Socket.io) & APIs Hộp thư Tập trung (`/api/v1/inbox`)
+- [x] **13.1.** Khởi tạo Socket.io Server gắn liền với Express HTTP Server:
+  - [x] Middleware xác thực JWT token cho kết nối Socket.io (`io.use(socketAuthMiddleware)`).
+  - [x] Quản lý phòng: `room:user_{user_id}`, `room:page_{page_id}`, `room:conv_{conversation_id}` (`join_page`, `leave_page`, `join_conversation`, `leave_conversation`).
+- [x] **13.2.** Định nghĩa và phát các sự kiện thời gian thực (Socket Service):
+  - [x] `NEW_INBOX_ITEM`: Phát khi nhận tin nhắn/comment mới từ webhook.
+  - [x] `INBOX_UPDATED`: Phát khi trạng thái hội thoại thay đổi hoặc tin nhắn được xử lý.
+  - [x] `POST_STATUS_CHANGED`: Phát khi bài viết đặt lịch hoàn tất xuất bản (tích hợp worker).
+- [x] **13.3.** Triển khai REST APIs Hộp thư Tập trung (`/api/v1/inbox`):
+  - [x] `GET /api/v1/inbox/conversations`: Danh sách hội thoại có tìm kiếm, lọc theo Page, loại (`messenger`/`comment_thread`), trạng thái, số tin chưa đọc.
+  - [x] `GET /api/v1/inbox/conversations/:conversationId`: Chi tiết hội thoại, khách hàng và tính toán cửa sổ 24h Meta (`window_24h_expires_at`).
+  - [x] `GET /api/v1/inbox/conversations/:conversationId/messages`: Lấy lịch sử tin nhắn/bình luận theo cursor pagination.
+  - [x] `POST /api/v1/inbox/conversations/:conversationId/messages`: Nhân viên gửi tin nhắn trả lời khách (gọi Meta Send API `POST /{page_id}/messages` và emit socket event).
+  - [x] `POST /api/v1/inbox/messages/:messageId/private-reply`: Gửi tin nhắn riêng (Private Reply) cho bình luận qua Graph API.
+  - [x] `PATCH /api/v1/inbox/messages/:messageId/hide`: Ẩn/Hiện thủ công bình luận Facebook qua Graph API.
+  - [x] `PATCH /api/v1/inbox/conversations/:conversationId/status`: Đổi trạng thái hội thoại (`open`, `resolved`, `archived`).
+  - [x] `PATCH /api/v1/inbox/customers/:customerId`: Cập nhật ghi chú, địa chỉ, số điện thoại và tags khách hàng.
+- [x] **13.4.** Viết unit tests & integration tests cho Socket.io connection, room routing và Inbox REST APIs; đạt 393/393 tests passed (88.89% Stmts, 76.20% Branch).
+
 ---
 
 ## 📅 NHẬT KÝ CẬP NHẬT TIẾN ĐỘ SPRINT (PROGRESS LOG)
@@ -149,3 +149,4 @@
 | 20/10/2026 | [TASK-10] Automation Rules Engine & Reply Worker | **DONE** | Tạo DTOs, Repositories (`automation_rules`), REST APIs CRUD, KeywordMatcherService, Meta Graph Client `replyComment` & `sendPrivateReply`, Worker BullMQ auto-reply rate limit 15 req/s; 254/254 tests passed (90.79% Stmts, 77.86% Branch); merge main. |
 | 20/10/2026 | [TASK-11] Cloudinary Media Stream Upload Service | **DONE** | Cài đặt Multer & Cloudinary SDK, upload middleware giới hạn dung lượng & MIME type, MediaService stream buffer trực tiếp, endpoint `POST /api/v1/media/upload` cấp Public HTTPS URL; 278/278 tests passed (91.57% Stmts, 79.37% Branch); merge main. |
 | 20/10/2026 | [TASK-12] Đặt lịch Xuất bản Bài viết Đa kênh & BullMQ Worker | **DONE** | Xây dựng DTOs, Repository `posts_schedule`, REST APIs CRUD/Retry, Meta Graph Client xuất bản Feed/Photo/Video/Album, Worker BullMQ delay job; 337/337 tests passed (90.85% Stmts, 77.96% Branch); merge main. |
+| 20/10/2026 | [TASK-13] Máy chủ WebSocket Realtime & Centralized Inbox APIs | **DONE** | Khởi tạo Socket.io Server xác thực JWT & room routing, SocketService phát NEW_INBOX_ITEM, INBOX_UPDATED, POST_STATUS_CHANGED, 8 REST APIs `/api/v1/inbox` (Messenger & Comment Reply, Private Reply, Hide/Unhide, Status, Customer CRM); 393/393 tests passed (88.89% Stmts, 76.20% Branch); merge main. |

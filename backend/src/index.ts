@@ -7,6 +7,10 @@ import {
   stopPhoneMaskingWorker,
 } from './infrastructure/queue/phone-masking.worker.js';
 import { closeQueueConnections } from './infrastructure/queue/bullmq.client.js';
+import {
+  initSocketServer,
+  closeSocketServer,
+} from './infrastructure/socket/socket.server.js';
 
 const app = createApp();
 
@@ -14,6 +18,14 @@ const server = app.listen(env.PORT, () => {
   logger.info(`🚀 ShopFlow Backend Service đang chạy thành công trên cổng ${env.PORT}`);
   logger.info(`📡 Môi trường: [${env.NODE_ENV}] | API Prefix: [${env.API_PREFIX}]`);
   logger.info(`🔗 Healthcheck URL: http://localhost:${env.PORT}/health`);
+
+  // Khởi động Socket.io WebSocket Server
+  try {
+    initSocketServer(server);
+    logger.info('⚡ Socket.io WebSocket Server đã khởi động thành công');
+  } catch (err) {
+    logger.error({ err: (err as Error).message }, 'Lỗi khởi động Socket.io Server');
+  }
 
   // Khởi động BullMQ Worker xử lý quét & ẩn số điện thoại
   try {
@@ -45,7 +57,10 @@ const server = app.listen(env.PORT, () => {
 async function handleShutdown(signal: string): Promise<void> {
   logger.info(`Nhận tín hiệu ${signal}. Đang tiến hành đóng máy chủ an toàn...`);
 
-  // 1. Đóng HTTP server (ngừng nhận request mới)
+  // 1. Đóng kết nối Socket.io
+  await closeSocketServer().catch(() => {});
+
+  // 2. Đóng HTTP server (ngừng nhận request mới)
   await new Promise<void>((resolve) => {
     server.close(() => {
       logger.info('Máy chủ HTTP đã đóng hoàn toàn.');
@@ -53,11 +68,11 @@ async function handleShutdown(signal: string): Promise<void> {
     });
   });
 
-  // 2. Dừng Worker và đóng các hàng đợi BullMQ
+  // 3. Dừng Worker và đóng các hàng đợi BullMQ
   await stopPhoneMaskingWorker().catch(() => {});
   await closeQueueConnections().catch(() => {});
 
-  // 3. Đóng Database pool
+  // 4. Đóng Database pool
   await closePool();
 
   logger.info('✔ Graceful shutdown hoàn tất. Tạm biệt!');
