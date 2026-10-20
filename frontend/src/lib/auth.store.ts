@@ -65,9 +65,23 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
       throw new Error('Dữ liệu đăng nhập không hợp lệ');
     } catch (err: unknown) {
+      const respData = (
+        err as {
+          response?: {
+            data?: {
+              error?: {
+                message?: string;
+                details?: Array<{ field?: string; message?: string }>;
+              };
+              message?: string;
+            };
+          };
+        }
+      )?.response?.data;
+
       const errorMsg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ||
+        respData?.error?.message ||
+        respData?.message ||
         (err as Error).message ||
         'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.';
       set({ error: errorMsg, isLoading: false });
@@ -81,6 +95,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const response = await apiClient.post('/auth/register', {
         email,
         password,
+        full_name: fullName,
         fullName,
       });
       const { user, accessToken, refreshToken } = response.data?.data || {};
@@ -106,9 +121,24 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
       throw new Error('Dữ liệu đăng ký không hợp lệ');
     } catch (err: unknown) {
+      const respData = (
+        err as {
+          response?: {
+            data?: {
+              error?: {
+                message?: string;
+                details?: Array<{ field?: string; message?: string }>;
+              };
+              message?: string;
+            };
+          };
+        }
+      )?.response?.data;
+
       const errorMsg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ||
+        respData?.error?.details?.[0]?.message ||
+        respData?.error?.message ||
+        respData?.message ||
         (err as Error).message ||
         'Đăng ký thất bại. Vui lòng thử lại sau.';
       set({ error: errorMsg, isLoading: false });
