@@ -4,6 +4,7 @@ import { authRouter } from './auth.routes.js';
 import { webhookRouter } from './webhook.routes.js';
 import { fbOAuthRouter } from './fb-oauth.routes.js';
 import { pageRouter } from './page.routes.js';
+import { mediaRouter } from './media.routes.js';
 
 export const apiV1Router = Router();
 
@@ -21,6 +22,9 @@ apiV1Router.use('/fb-oauth', fbOAuthRouter);
 
 // Mount Connected Pages routes
 apiV1Router.use('/pages', pageRouter);
+
+// Mount Media Upload routes
+apiV1Router.use('/media', mediaRouter);
 
 
 

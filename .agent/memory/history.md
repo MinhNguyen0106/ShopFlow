@@ -4,6 +4,33 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 
 ---
 
+## [2026-10-20] - Hoàn Thành TASK-11: Dịch Vụ Tải Lên & Lưu Trữ Phương Tiện Đa Định Dạng (Multer + Cloudinary)
+- **Tác giả:** System Architect & Backend Engineer (Antigravity Ecosystem)
+- **Nội dung hoàn thành:**
+  - Hoàn thành trọn vẹn 100% các hạng mục của **[TASK-11]** trên nhánh `feature/task-11-media-upload-cloudinary` theo quy chuẩn `task-lifecycle.md`.
+  - **Cấu hình & Tích hợp Cloudinary SDK:**
+    - Cài đặt thư viện `multer`, `cloudinary` và `@types/multer`.
+    - Bổ sung biến môi trường Cloudinary (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_URL`) vào `backend/src/config/env.ts`.
+    - Xây dựng cấu hình singleton SDK tại [cloudinary.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/config/cloudinary.ts).
+  - **Upload Middleware (Multer MemoryStorage):**
+    - Xây dựng [upload.middleware.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/api/middlewares/upload.middleware.ts) tiếp nhận file buffer trực tiếp trong RAM (không ghi xuống đĩa cục bộ).
+    - Áp dụng các giới hạn chặt chẽ theo yêu cầu Meta Graph API:
+      - Ảnh (JPG, PNG, WEBP): Tối đa **4MB** (`MAX_IMAGE_SIZE_BYTES = 4MB`).
+      - Video (MP4, MOV): Tối đa **100MB** (`MAX_VIDEO_SIZE_BYTES = 100MB`).
+      - Tự động bắt và chuyển đổi lỗi `MulterError` thành `AppError` chuẩn hóa (`UNSUPPORTED_MEDIA_TYPE`, `FILE_TOO_LARGE`, `MISSING_FILE`).
+  - **Dịch Vụ Media (Stream Uploader):**
+    - Xây dựng [media.service.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/core/services/media.service.ts) sử dụng `node:stream.Readable.from(buffer).pipe(cloudinary.uploader.upload_stream)`.
+    - Lưu trữ tại thư mục `shopflow/posts/`, tự động nén tối ưu hóa hình ảnh (`quality: 'auto'`, `fetch_format: 'auto'`).
+    - Cung cấp Public HTTPS URL (`secure_url`) sẵn sàng cho Meta Graph API tải về xuất bản.
+    - Hỗ trợ phương thức hủy/xóa tệp tin `deleteMedia(publicId, resourceType)`.
+  - **REST API Endpoint (`POST /api/v1/media/upload`):**
+    - Xây dựng [media.controller.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/api/controllers/media.controller.ts) và [media.routes.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/api/routes/media.routes.ts).
+    - Bảo vệ bằng middleware `authenticateToken`, trả về phản hồi HTTP 201 Created chuẩn Envelope JSON.
+    - Gắn kết vào router trung tâm [index.ts](file:///c:/Users/Dell/Desktop/ShopFlow/backend/src/api/routes/index.ts) tại đường dẫn `/api/v1/media`.
+  - **Chất lượng mã nguồn:** 36 file kiểm thử, **278/278 tests passed 100%**, tỷ lệ bao phủ mã nguồn tổng thể đạt **91.57% Statements, 79.37% Branches, 95.56% Functions, 91.57% Lines** (vượt toàn bộ ngưỡng quy chuẩn), TypeScript type-check 0 lỗi.
+
+---
+
 ## [2026-10-20] - Hoàn Thành TASK-10: Động Cơ Kịch Bản Tự Động (Automation Rules Engine) & Tự Động Trả Lời Bình Luận/Tin Nhắn Riêng
 - **Tác giả:** System Architect & Backend Engineer (Antigravity Ecosystem)
 - **Nội dung hoàn thành:**
@@ -131,7 +158,7 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 ## [Kế Hoạch Tiếp Theo] - Sprint 2: Core Business Logic, Realtime WebSocket & Next.js UI
 - [x] **[TASK-09]** Meta Facebook OAuth 2.0, Mã Hóa Token AES-256-GCM & Quản Lý Fanpage (`/api/v1/fb-oauth`, `/api/v1/pages`).
 - [x] **[TASK-10]** Động Cơ Kịch Bản Tự Động (Automation Rules Engine) & Tự Động Trả Lời Bình Luận/Tin Nhắn Riêng (Auto Comment & Private Reply).
-- [ ] **[TASK-11]** Dịch Vụ Tải Lên Phương Tiện Truyền Thông Đa Định Dạng (Multer + Cloudinary Stream Upload) (`/api/v1/media`).
+- [x] **[TASK-11]** Dịch Vụ Tải Lên Phương Tiện Truyền Thông Đa Định Dạng (Multer + Cloudinary Stream Upload) (`/api/v1/media`).
 - [ ] **[TASK-12]** Đặt Lịch Xuất Bản Bài Viết Đa Kênh & Hàng Đợi Hẹn Giờ BullMQ (`/api/v1/posts`).
 - [ ] **[TASK-13]** Máy Chủ WebSocket Thời Gian Thực (Socket.io) & APIs Hộp Thư Tập Trung (Centralized Inbox) (`/api/v1/inbox`).
 - [ ] **[TASK-14]** Giao Diện Người Dùng Next.js 14+ P0: Khung Layout macOS Clean Utility, Màn Hình Auth (`/login`, `/register`) & Quản Lý Kênh Fanpage (`/pages`).
