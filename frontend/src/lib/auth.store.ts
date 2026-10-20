@@ -42,7 +42,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await apiClient.post('/auth/login', { email, password });
-      const { user, accessToken, refreshToken } = response.data?.data || {};
+      const responseData = response.data?.data || {};
+      const user = responseData.user;
+      const tokens = responseData.tokens || {};
+      const accessToken = tokens.accessToken || responseData.accessToken;
+      const refreshToken = tokens.refreshToken || responseData.refreshToken;
 
       if (accessToken && user) {
         if (typeof window !== 'undefined') {
@@ -98,7 +102,11 @@ export const useAuthStore = create<AuthState>((set) => ({
         full_name: fullName,
         fullName,
       });
-      const { user, accessToken, refreshToken } = response.data?.data || {};
+      const responseData = response.data?.data || {};
+      const user = responseData.user;
+      const tokens = responseData.tokens || {};
+      const accessToken = tokens.accessToken || responseData.accessToken;
+      const refreshToken = tokens.refreshToken || responseData.refreshToken;
 
       if (accessToken && user) {
         if (typeof window !== 'undefined') {
