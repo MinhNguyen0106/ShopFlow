@@ -20,22 +20,25 @@
 
 ### 📋 TRẠNG THÁI: IN PROGRESS (ĐANG THỰC HIỆN)
 
-*(Hiện không có tác vụ nào đang thực hiện. Sẵn sàng bắt đầu TASK-15)*
+*(Tất cả tác vụ trong Sprint 2 đã hoàn thành 100%! Sẵn sàng bước sang Sprint 3)*
 
 ---
 
 ### 📝 TRẠNG THÁI: TODO (CHƯA BẮT ĐẦU)
 
-#### [TASK-15] Màn hình Hộp thư Tập trung Live Chat 4-Pane Bento (`/inbox`) - Trọng tâm Cốt lõi P0
-- [ ] **15.1.** Thiết kế Pane 1 (`column-channels.tsx`): Bộ chọn Fanpage, bộ lọc trạng thái, bộ lọc thẻ tags và thanh thông số kết nối Webhooks.
-- [ ] **15.2.** Thiết kế Pane 2 (`column-threads.tsx`): Danh sách hội thoại theo thời gian thực (Socket.io), hiển thị đồng hồ đếm ngược Cửa sổ 24h Meta, nhãn lead nóng và badge an ninh ẩn SĐT.
-- [ ] **15.3.** Thiết kế Pane 3 (`chat-window.tsx`): Khung trò chuyện đa kênh, banner cảnh báo an ninh ShopFlow Shield, thanh soạn thảo tin nhắn với macro chốt đơn (`/size`, `/gia`, `/bank`).
-- [ ] **15.4.** Thiết kế Pane 4 (`customer-panel.tsx`): Bảng hồ sơ khách hàng, chi tiết SĐT (nút gọi & copy 1-click), thẻ trích xuất đơn hàng AI (Gemini NLP fallback) và nút CTA tạo đơn hàng.
-- [ ] **15.5.** Viết unit & integration tests cho Hộp thư Live Chat 4-Pane.
+*(Sprint 2 đã hoàn thành toàn bộ tác vụ)*
 
 ---
 
 ### ✅ TRẠNG THÁI: DONE (ĐÃ HOÀN THÀNH)
+
+#### [TASK-15] Màn hình Hộp thư Tập trung Live Chat 4-Pane Bento (`/inbox`) - Trọng tâm Cốt lõi P0
+- [x] **15.1.** Thiết kế Pane 1 (`column-channels.tsx`): Bộ chọn Fanpage, bộ lọc trạng thái, bộ lọc thẻ tags và thanh thông số kết nối Webhooks.
+- [x] **15.2.** Thiết kế Pane 2 (`column-threads.tsx`): Danh sách hội thoại theo thời gian thực (Socket.io), hiển thị đồng hồ đếm ngược Cửa sổ 24h Meta, nhãn lead nóng và badge an ninh ẩn SĐT.
+- [x] **15.3.** Thiết kế Pane 3 (`chat-window.tsx`): Khung trò chuyện đa kênh, banner cảnh báo an ninh ShopFlow Shield, thanh soạn thảo tin nhắn với macro chốt đơn (`/size`, `/gia`, `/bank`).
+- [x] **15.4.** Thiết kế Pane 4 (`customer-panel.tsx`): Bảng hồ sơ khách hàng, chi tiết SĐT (nút gọi & copy 1-click), thẻ trích xuất đơn hàng AI (Gemini NLP fallback) và nút CTA tạo đơn hàng.
+- [x] **15.5.** Viết unit & integration tests cho Hộp thư Live Chat 4-Pane (10/10 test files passed, 30/30 tests passed 100%, Next.js 14 production build thành công).
+
 
 #### [TASK-14] Khung Layout macOS Clean Utility, Màn hình Auth & Fanpage Management trên Next.js 14+
 - [x] **14.1.** Thiết lập tầng kết nối API và Realtime ở Frontend (`frontend/src/lib`):
@@ -162,3 +165,5 @@
 | 20/10/2026 | [TASK-12] Đặt lịch Xuất bản Bài viết Đa kênh & BullMQ Worker | **DONE** | Xây dựng DTOs, Repository `posts_schedule`, REST APIs CRUD/Retry, Meta Graph Client xuất bản Feed/Photo/Video/Album, Worker BullMQ delay job; 337/337 tests passed (90.85% Stmts, 77.96% Branch); merge main. |
 | 20/10/2026 | [TASK-13] Máy chủ WebSocket Realtime & Centralized Inbox APIs | **DONE** | Khởi tạo Socket.io Server xác thực JWT & room routing, SocketService phát NEW_INBOX_ITEM, INBOX_UPDATED, POST_STATUS_CHANGED, 8 REST APIs `/api/v1/inbox` (Messenger & Comment Reply, Private Reply, Hide/Unhide, Status, Customer CRM); 393/393 tests passed (88.89% Stmts, 76.20% Branch); merge main. |
 | 20/10/2026 | [TASK-14] Khung Layout macOS Clean Utility, Màn hình Auth & Fanpage Management trên Next.js 14+ | **DONE** | Xây dựng API Client Wrapper (Axios + auto-refresh token), Zustand Stores (`auth.store`, `page.store`), `useSocket.ts`, MacTrafficLights, Sidebar Squircle, Topbar Spotlight (`⌘K`), Màn hình Login/Register (React Hook Form + Zod), Màn hình Pages (4 Bento Metrics, PageCard Grid, ConnectPageModal); 21/21 tests passed (100%), Next.js 14 production build thành công; merge main. |
+| 20/10/2026 | [TASK-15] Màn hình Hộp thư Tập trung Live Chat 4-Pane Bento (`/inbox`) | **DONE** | Xây dựng 4 Pane Bento (Channels & Filters, Realtime Threads list với Meta 24h Window & SĐT shield, Chat Window với ShopFlow Shield & Macro chốt đơn 1-click, Customer CRM & Thẻ Đơn Hàng AI Gemini NLP fallback); 30/30 tests passed (100%), Next.js build thành công. **HOÀN THÀNH SPRINT 2 (100%)**. |
+
