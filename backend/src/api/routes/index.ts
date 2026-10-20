@@ -5,6 +5,7 @@ import { webhookRouter } from './webhook.routes.js';
 import { fbOAuthRouter } from './fb-oauth.routes.js';
 import { pageRouter } from './page.routes.js';
 import { mediaRouter } from './media.routes.js';
+import { postRouter } from './post.routes.js';
 
 export const apiV1Router = Router();
 
@@ -25,6 +26,10 @@ apiV1Router.use('/pages', pageRouter);
 
 // Mount Media Upload routes
 apiV1Router.use('/media', mediaRouter);
+
+// Mount Scheduled Posts routes
+apiV1Router.use('/posts', postRouter);
+
 
 
 

@@ -74,6 +74,20 @@ export class ConnectedPageRepository {
   }
 
   /**
+   * Tìm Fanpage theo ID nội bộ (UUID) hoặc Meta Page ID.
+   */
+  async findById(id: string): Promise<ConnectedPage | null> {
+    const sql = `
+      SELECT id, user_id, fb_account_id, page_id, page_name, avatar_url, page_access_token, is_active, webhook_subscribed, created_at, updated_at
+      FROM connected_pages
+      WHERE id::text = $1 OR page_id = $1
+      LIMIT 1
+    `;
+    const result = await query<ConnectedPage>(sql, [id]);
+    return result.rows[0] ?? null;
+  }
+
+  /**
    * Tìm Fanpage theo Meta Page ID.
    */
   async findByPageId(pageId: string): Promise<ConnectedPage | null> {

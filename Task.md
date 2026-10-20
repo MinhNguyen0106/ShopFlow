@@ -20,31 +20,11 @@
 
 ### 📋 TRẠNG THÁI: IN PROGRESS (ĐANG THỰC HIỆN)
 
-*(Hiện tại không có task nào đang thực hiện - sẵn sàng cho TASK-12)*
+*(Hiện không có tác vụ nào đang thực hiện. Sẵn sàng bắt đầu TASK-13)*
 
 ---
 
 ### 📝 TRẠNG THÁI: TODO (CHƯA BẮT ĐẦU)
-
-#### [TASK-12] Đặt lịch Xuất bản Bài viết Đa kênh & Hàng đợi Hẹn giờ BullMQ (`/api/v1/posts`)
-- [ ] **12.1.** Xây dựng DTOs, Repository tương tác bảng `posts_schedule`.
-- [ ] **12.2.** Triển khai REST APIs quản lý bài viết đặt lịch (`/api/v1/posts`):
-  - [ ] `GET /api/v1/posts`: Danh sách bài viết có phân trang, lọc theo `page_id`, `status` (`pending`, `scheduled`, `published`, `failed`), khoảng ngày.
-  - [ ] `GET /api/v1/posts/:postId`: Chi tiết bài viết đặt lịch.
-  - [ ] `POST /api/v1/posts`: Tạo bài viết mới & đặt lịch (Validate `scheduled_time` phải cách thời điểm hiện tại ít nhất 10 phút).
-  - [ ] `PUT /api/v1/posts/:postId`: Chỉnh sửa bài viết khi chưa xuất bản.
-  - [ ] `DELETE /api/v1/posts/:postId`: Hủy bài viết đặt lịch (gỡ bỏ job hẹn giờ trong BullMQ).
-  - [ ] `POST /api/v1/posts/:postId/retry`: Đưa lại bài viết bị lỗi (`failed`) vào hàng đợi xuất bản.
-- [ ] **12.3.** Xây dựng BullMQ Publishing Worker (`scheduled-post.worker.ts`):
-  - [ ] Lập lịch Job có độ trễ (`delay = scheduled_time - now`).
-  - [ ] Khi đến giờ: Lấy bài viết, giải mã Page Access Token (AES-256).
-  - [ ] Xuất bản bài viết lên Meta Graph API:
-    - Ảnh đơn: `POST /{page_id}/photos` (url, caption).
-    - Video: `POST /{page_id}/videos` (file_url, description).
-    - Album/Carousel (Nhiều ảnh): Upload từng ảnh `published=false` lên `/{page_id}/photos`, lấy `media_fbid`, sau đó `POST /{page_id}/feed` với `attached_media`.
-  - [ ] Cập nhật trạng thái `published` kèm `meta_post_id`, hoặc `failed` kèm `error_message`.
-  - [ ] Phát sự kiện WebSocket `POST_STATUS_CHANGED` khi xuất bản thành công/thất bại.
-- [ ] **12.4.** Viết unit tests & integration tests cho toàn bộ luồng tạo, hẹn giờ và xuất bản bài viết.
 
 #### [TASK-13] Máy chủ WebSocket Thời gian thực (Socket.io) & APIs Hộp thư Tập trung (`/api/v1/inbox`)
 - [ ] **13.1.** Khởi tạo Socket.io Server gắn liền với Express HTTP Server:
@@ -129,6 +109,26 @@
 - [x] **11.4.** Triển khai endpoint `POST /api/v1/media/upload` có xác thực Bearer Token.
 - [x] **11.5.** Viết unit tests cho media controller, stream uploader (mocked Cloudinary SDK) và upload middleware; đạt 278/278 tests passed (91.57% Stmts, 79.37% Branch).
 
+#### [TASK-12] Đặt lịch Xuất bản Bài viết Đa kênh & Hàng đợi Hẹn giờ BullMQ (`/api/v1/posts`)
+- [x] **12.1.** Xây dựng DTOs, Repository tương tác bảng `posts_schedule`.
+- [x] **12.2.** Triển khai REST APIs quản lý bài viết đặt lịch (`/api/v1/posts`):
+  - [x] `GET /api/v1/posts`: Danh sách bài viết có phân trang, lọc theo `page_id`, `status` (`pending`, `scheduled`, `published`, `failed`), khoảng ngày.
+  - [x] `GET /api/v1/posts/:postId`: Chi tiết bài viết đặt lịch.
+  - [x] `POST /api/v1/posts`: Tạo bài viết mới & đặt lịch (Validate `scheduled_time` phải cách thời điểm hiện tại ít nhất 10 phút).
+  - [x] `PUT /api/v1/posts/:postId`: Chỉnh sửa bài viết khi chưa xuất bản.
+  - [x] `DELETE /api/v1/posts/:postId`: Hủy bài viết đặt lịch (gỡ bỏ job hẹn giờ trong BullMQ).
+  - [x] `POST /api/v1/posts/:postId/retry`: Đưa lại bài viết bị lỗi (`failed`) vào hàng đợi xuất bản.
+- [x] **12.3.** Xây dựng BullMQ Publishing Worker (`scheduled-post.worker.ts`):
+  - [x] Lập lịch Job có độ trễ (`delay = scheduled_time - now`).
+  - [x] Khi đến giờ: Lấy bài viết, giải mã Page Access Token (AES-256).
+  - [x] Xuất bản bài viết lên Meta Graph API:
+    - Ảnh đơn: `POST /{page_id}/photos` (url, caption).
+    - Video: `POST /{page_id}/videos` (file_url, description).
+    - Album/Carousel (Nhiều ảnh): Upload từng ảnh `published=false` lên `/{page_id}/photos`, lấy `media_fbid`, sau đó `POST /{page_id}/feed` với `attached_media`.
+  - [x] Cập nhật trạng thái `published` kèm `meta_post_id`, hoặc `failed` kèm `error_message`.
+  - [x] Phát sự kiện WebSocket `POST_STATUS_CHANGED` khi xuất bản thành công/thất bại.
+- [x] **12.4.** Viết unit tests & integration tests cho toàn bộ luồng tạo, hẹn giờ và xuất bản bài viết; đạt 337/337 tests passed (90.85% Stmts, 77.96% Branch).
+
 ---
 
 ## 📅 NHẬT KÝ CẬP NHẬT TIẾN ĐỘ SPRINT (PROGRESS LOG)
@@ -148,3 +148,4 @@
 | 20/10/2026 | [TASK-09] Meta Facebook OAuth 2.0, AES-256-GCM Token Encryption & Quản lý Fanpage | **DONE** | Tạo tiện ích AES-256-GCM (`crypto.helper.ts`), Meta Graph Client mở rộng OAuth/Pages/Subscribed Apps, Repositories (`facebook_accounts`, `connected_pages`), Services & Controllers (`/api/v1/fb-oauth`, `/api/v1/pages`); 207/207 tests passed (92.42% coverage); merge main. |
 | 20/10/2026 | [TASK-10] Automation Rules Engine & Reply Worker | **DONE** | Tạo DTOs, Repositories (`automation_rules`), REST APIs CRUD, KeywordMatcherService, Meta Graph Client `replyComment` & `sendPrivateReply`, Worker BullMQ auto-reply rate limit 15 req/s; 254/254 tests passed (90.79% Stmts, 77.86% Branch); merge main. |
 | 20/10/2026 | [TASK-11] Cloudinary Media Stream Upload Service | **DONE** | Cài đặt Multer & Cloudinary SDK, upload middleware giới hạn dung lượng & MIME type, MediaService stream buffer trực tiếp, endpoint `POST /api/v1/media/upload` cấp Public HTTPS URL; 278/278 tests passed (91.57% Stmts, 79.37% Branch); merge main. |
+| 20/10/2026 | [TASK-12] Đặt lịch Xuất bản Bài viết Đa kênh & BullMQ Worker | **DONE** | Xây dựng DTOs, Repository `posts_schedule`, REST APIs CRUD/Retry, Meta Graph Client xuất bản Feed/Photo/Video/Album, Worker BullMQ delay job; 337/337 tests passed (90.85% Stmts, 77.96% Branch); merge main. |

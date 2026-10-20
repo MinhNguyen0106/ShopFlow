@@ -318,5 +318,134 @@ describe('MetaGraphApiClient', () => {
       expect(result.error).toContain('Private replies');
     });
   });
+
+  describe('publishFeedPost()', () => {
+    it('gọi POST /{page-id}/feed thành công', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ id: 'feed_post_123' }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.publishFeedPost('p_123', 'Hello world', 'tok_test');
+      expect(result.success).toBe(true);
+      expect(result.postId).toBe('feed_post_123');
+    });
+
+    it('xử lý khi đăng bài feed thất bại', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        json: vi.fn().mockResolvedValue({ error: { message: 'Feed error' } }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.publishFeedPost('p_123', 'Hello', 'tok_test');
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Feed error');
+    });
+  });
+
+  describe('publishPhotoPost()', () => {
+    it('gọi POST /{page-id}/photos thành công', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ id: 'photo_123', post_id: 'post_456' }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.publishPhotoPost('p_123', 'https://img.com/a.jpg', 'Caption', 'tok_test');
+      expect(result.success).toBe(true);
+      expect(result.postId).toBe('post_456');
+    });
+
+    it('xử lý khi đăng ảnh thất bại', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        json: vi.fn().mockResolvedValue({ error: { message: 'Photo error' } }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.publishPhotoPost('p_123', 'https://img.com/a.jpg', 'Caption', 'tok_test');
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Photo error');
+    });
+  });
+
+  describe('publishVideoPost()', () => {
+    it('gọi POST /{page-id}/videos thành công', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ id: 'video_123' }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.publishVideoPost('p_123', 'https://vid.com/v.mp4', 'Desc', 'tok_test');
+      expect(result.success).toBe(true);
+      expect(result.postId).toBe('video_123');
+    });
+
+    it('xử lý khi đăng video thất bại', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        json: vi.fn().mockResolvedValue({ error: { message: 'Video error' } }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.publishVideoPost('p_123', 'https://vid.com/v.mp4', 'Desc', 'tok_test');
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Video error');
+    });
+  });
+
+  describe('uploadUnpublishedPhoto() & publishAlbumPost()', () => {
+    it('upload unpublished photo thành công', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ id: 'media_fbid_999' }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.uploadUnpublishedPhoto('p_123', 'https://img.com/a.jpg', 'tok_test');
+      expect(result.success).toBe(true);
+      expect(result.mediaFbid).toBe('media_fbid_999');
+    });
+
+    it('xử lý khi upload unpublished photo thất bại', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        json: vi.fn().mockResolvedValue({ error: { message: 'Upload fail' } }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.uploadUnpublishedPhoto('p_123', 'https://img.com/a.jpg', 'tok_test');
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Upload fail');
+    });
+
+    it('publishAlbumPost thành công với attached_media', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ id: 'album_post_777' }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.publishAlbumPost('p_123', ['fbid_1', 'fbid_2'], 'Album caption', 'tok_test');
+      expect(result.success).toBe(true);
+      expect(result.postId).toBe('album_post_777');
+    });
+
+    it('xử lý khi publishAlbumPost thất bại', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        json: vi.fn().mockResolvedValue({ error: { message: 'Album fail' } }),
+      });
+      globalThis.fetch = mockFetch;
+
+      const result = await client.publishAlbumPost('p_123', ['fbid_1'], 'Album caption', 'tok_test');
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Album fail');
+    });
+  });
 });
+
 
