@@ -20,30 +20,41 @@
 
 ### 📋 TRẠNG THÁI: IN PROGRESS (ĐANG THỰC HIỆN)
 
-*(Hiện không có tác vụ nào đang thực hiện. Sẵn sàng bắt đầu TASK-14)*
+*(Hiện không có tác vụ nào đang thực hiện. Sẵn sàng bắt đầu TASK-15)*
 
 ---
 
 ### 📝 TRẠNG THÁI: TODO (CHƯA BẮT ĐẦU)
 
+#### [TASK-15] Màn hình Hộp thư Tập trung Live Chat 4-Pane Bento (`/inbox`) - Trọng tâm Cốt lõi P0
+- [ ] **15.1.** Thiết kế Pane 1 (`column-channels.tsx`): Bộ chọn Fanpage, bộ lọc trạng thái, bộ lọc thẻ tags và thanh thông số kết nối Webhooks.
+- [ ] **15.2.** Thiết kế Pane 2 (`column-threads.tsx`): Danh sách hội thoại theo thời gian thực (Socket.io), hiển thị đồng hồ đếm ngược Cửa sổ 24h Meta, nhãn lead nóng và badge an ninh ẩn SĐT.
+- [ ] **15.3.** Thiết kế Pane 3 (`chat-window.tsx`): Khung trò chuyện đa kênh, banner cảnh báo an ninh ShopFlow Shield, thanh soạn thảo tin nhắn với macro chốt đơn (`/size`, `/gia`, `/bank`).
+- [ ] **15.4.** Thiết kế Pane 4 (`customer-panel.tsx`): Bảng hồ sơ khách hàng, chi tiết SĐT (nút gọi & copy 1-click), thẻ trích xuất đơn hàng AI (Gemini NLP fallback) và nút CTA tạo đơn hàng.
+- [ ] **15.5.** Viết unit & integration tests cho Hộp thư Live Chat 4-Pane.
+
+---
+
+### ✅ TRẠNG THÁI: DONE (ĐÃ HOÀN THÀNH)
+
 #### [TASK-14] Khung Layout macOS Clean Utility, Màn hình Auth & Fanpage Management trên Next.js 14+
-- [ ] **14.1.** Thiết lập tầng kết nối API và Realtime ở Frontend (`frontend/src/lib`):
-  - [ ] API Client Wrapper (`api-client.ts`) với Axios/Fetch, tự động gắn `Authorization: Bearer <token>`, interceptor refresh token khi gặp 401.
-  - [ ] Auth Context / Zustand Store quản lý trạng thái đăng nhập người dùng.
-  - [ ] Socket.io Client Hook (`useSocket.ts`) tự động kết nối và lắng nghe events.
-- [ ] **14.2.** Xây dựng Shell Layout chuẩn macOS Clean Utility:
-  - [ ] macOS Window Frame với Traffic Lights (đỏ, vàng, lục) tương tác thu nhỏ/phóng to.
-  - [ ] Topbar: Thanh tìm kiếm nhanh Spotlight (`⌘K`), Page Switcher dropdown, Widget giám sát Meta API Limits (Gauge 24%).
-  - [ ] Sidebar: Menu điều hướng bo tròn Squircle, badge số tin chưa đọc, trạng thái active đồng bộ Design System.
-- [ ] **14.3.** Triển khai Màn hình Đăng nhập (`/login`) & Đăng ký (`/register`):
-  - [ ] Thiết kế form Glassmorphism, validation bằng React Hook Form + Zod.
-  - [ ] Đăng nhập/Đăng ký thành công -> lưu token -> chuyển hướng vào Dashboard.
-- [ ] **14.4.** Triển khai Màn hình Quản lý Kênh Fanpage (`/pages`):
-  - [ ] 4 thẻ Bento Metrics thống kê trang, token, lưu lượng, SLA < 3s.
-  - [ ] Nút CTA "+ Thêm Fanpage Mới (Meta OAuth)" mở popup OAuth.
-  - [ ] Lưới `PageCard Grid`: Avatar, Tên page, Huy hiệu Webhook xanh/vàng/xám, nút Switch gạt bật/tắt tiếp nhận tin nhắn, menu thao tác.
-  - [ ] `ConnectPageModal`: Hộp thoại chọn Fanpage sau khi hoàn tất OAuth Facebook.
-- [ ] **14.5.** Kiểm thử E2E / Component tests cho layout, Auth flow và Fanpage management.
+- [x] **14.1.** Thiết lập tầng kết nối API và Realtime ở Frontend (`frontend/src/lib`):
+  - [x] API Client Wrapper (`api-client.ts`) với Axios, tự động gắn `Authorization: Bearer <token>`, interceptor refresh token khi gặp 401.
+  - [x] Zustand Stores (`auth.store.ts` & `page.store.ts`) quản lý trạng thái đăng nhập và danh sách Fanpage.
+  - [x] Socket.io Client Hook (`useSocket.ts`) tự động kết nối và lắng nghe events (`NEW_INBOX_ITEM`, `INBOX_UPDATED`, `POST_STATUS_CHANGED`).
+- [x] **14.2.** Xây dựng Shell Layout chuẩn macOS Clean Utility:
+  - [x] macOS Window Frame với Traffic Lights (`mac-traffic-lights.tsx`) tương tác thu nhỏ/phóng to.
+  - [x] Topbar (`topbar.tsx`): Thanh tìm kiếm nhanh Spotlight (`command-palette.tsx` `⌘K`), Page Switcher dropdown, Widget giám sát Meta API Limits (Gauge 24%).
+  - [x] Sidebar (`sidebar.tsx`): Menu điều hướng bo tròn Squircle, badge số tin chưa đọc (18), trạng thái active đồng bộ Design System, Meta Business Partner verified.
+- [x] **14.3.** Triển khai Màn hình Đăng nhập (`/login`) & Đăng ký (`/register`):
+  - [x] Thiết kế form Glassmorphism, validation bằng React Hook Form + Zod, toggle show/hide password, error banners.
+  - [x] Đăng nhập/Đăng ký thành công -> lưu token -> chuyển hướng vào Dashboard.
+- [x] **14.4.** Triển khai Màn hình Quản lý Kênh Fanpage (`/pages`):
+  - [x] 4 thẻ Bento Metrics thống kê trang (1/5 Pro), token (100% hoạt động), lưu lượng (1,428), SLA < 3s (1.4s).
+  - [x] Nút CTA "+ Thêm Fanpage Mới (Meta OAuth)" mở popup OAuth Facebook.
+  - [x] Lưới `PageCard Grid`: Avatar, Tên page, Huy hiệu Webhook xanh/vàng/xám, nút Switch gạt bật/tắt tiếp nhận tin nhắn, menu thao tác (Vào hộp thư, cấu hình bot, ngắt kết nối).
+  - [x] `ConnectPageModal`: Hộp thoại chọn Fanpage sau khi hoàn tất OAuth Facebook.
+- [x] **14.5.** Kiểm thử E2E / Component tests cho layout, Auth flow và Fanpage management (8/8 test files passed, 21/21 tests passed 100%, Next.js build passed).
 
 ---
 
@@ -150,3 +161,4 @@
 | 20/10/2026 | [TASK-11] Cloudinary Media Stream Upload Service | **DONE** | Cài đặt Multer & Cloudinary SDK, upload middleware giới hạn dung lượng & MIME type, MediaService stream buffer trực tiếp, endpoint `POST /api/v1/media/upload` cấp Public HTTPS URL; 278/278 tests passed (91.57% Stmts, 79.37% Branch); merge main. |
 | 20/10/2026 | [TASK-12] Đặt lịch Xuất bản Bài viết Đa kênh & BullMQ Worker | **DONE** | Xây dựng DTOs, Repository `posts_schedule`, REST APIs CRUD/Retry, Meta Graph Client xuất bản Feed/Photo/Video/Album, Worker BullMQ delay job; 337/337 tests passed (90.85% Stmts, 77.96% Branch); merge main. |
 | 20/10/2026 | [TASK-13] Máy chủ WebSocket Realtime & Centralized Inbox APIs | **DONE** | Khởi tạo Socket.io Server xác thực JWT & room routing, SocketService phát NEW_INBOX_ITEM, INBOX_UPDATED, POST_STATUS_CHANGED, 8 REST APIs `/api/v1/inbox` (Messenger & Comment Reply, Private Reply, Hide/Unhide, Status, Customer CRM); 393/393 tests passed (88.89% Stmts, 76.20% Branch); merge main. |
+| 20/10/2026 | [TASK-14] Khung Layout macOS Clean Utility, Màn hình Auth & Fanpage Management trên Next.js 14+ | **DONE** | Xây dựng API Client Wrapper (Axios + auto-refresh token), Zustand Stores (`auth.store`, `page.store`), `useSocket.ts`, MacTrafficLights, Sidebar Squircle, Topbar Spotlight (`⌘K`), Màn hình Login/Register (React Hook Form + Zod), Màn hình Pages (4 Bento Metrics, PageCard Grid, ConnectPageModal); 21/21 tests passed (100%), Next.js 14 production build thành công; merge main. |
