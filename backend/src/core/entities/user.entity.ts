@@ -27,6 +27,7 @@ export type SafeUser = Omit<User, 'password_hash'>;
  */
 export interface JwtUserPayload {
   sub:        string;       // User ID (UUID)
+  id?:        string;       // Alias cho sub
   email:      string;
   role:       UserRole;
   token_type: 'access' | 'refresh';

@@ -38,6 +38,7 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 export function generateTokens(user: Pick<User, 'id' | 'email' | 'role'>): AuthTokens {
   const accessPayload: JwtUserPayload = {
     sub:        user.id,
+    id:         user.id,
     email:      user.email,
     role:       user.role,
     token_type: 'access',
