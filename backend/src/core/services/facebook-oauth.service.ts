@@ -38,7 +38,7 @@ export class FacebookOAuthService {
    * Tạo URL kết nối Facebook OAuth kèm chữ ký CSRF State.
    */
   generateConnectUrl(userId: string, redirectUri?: string): { authUrl: string; state: string } {
-    const callbackUrl = redirectUri || `${env.CORS_ORIGIN}/api/v1/fb-oauth/callback`;
+    const callbackUrl = redirectUri || `http://localhost:${env.PORT}/api/v1/fb-oauth/callback`;
     const stateToken = jwt.sign(
       { userId, nonce: Math.random().toString(36).substring(2) },
       env.JWT_ACCESS_SECRET,

@@ -122,6 +122,22 @@ export function ConnectPageModal({
     }
   };
 
+  const handleTriggerOAuth = async () => {
+    try {
+      const res = await apiClient.get('/fb-oauth/connect-url');
+      const oauthUrl = res.data?.data?.authUrl || res.data?.data?.url;
+      if (oauthUrl) {
+        const width = 600;
+        const height = 700;
+        const left = window.innerWidth / 2 - width / 2;
+        const top = window.innerHeight / 2 - height / 2;
+        window.open(oauthUrl, 'MetaOAuth', `width=${width},height=${height},top=${top},left=${left}`);
+      }
+    } catch {
+      setError('Không thể lấy đường dẫn đăng nhập Meta OAuth.');
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-150">
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
@@ -152,14 +168,23 @@ export function ConnectPageModal({
         {/* Modal Body */}
         <div className="p-6 overflow-y-auto space-y-4">
           {error && (
-            <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-start gap-2.5">
-              <AlertCircle className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
-              <div className="flex-1">
-                <p className="font-semibold">{error}</p>
-                <p className="mt-1 text-slate-600">
-                  Hãy bấm &quot;Đăng nhập với Facebook&quot; để cấp quyền quản trị Fanpage mới.
-                </p>
+            <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-start gap-2.5">
+                <AlertCircle className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
+                <div>
+                  <p className="font-semibold">{error}</p>
+                  <p className="mt-1 text-slate-600">
+                    Bấm nút bên dưới để mở cửa sổ cấp quyền Facebook cho Fanpage của bạn:
+                  </p>
+                </div>
               </div>
+              <button
+                type="button"
+                onClick={handleTriggerOAuth}
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shrink-0 shadow-sm transition-all"
+              >
+                Đăng nhập Facebook
+              </button>
             </div>
           )}
 
@@ -169,16 +194,26 @@ export function ConnectPageModal({
               <p className="text-xs">Đang tải danh sách Fanpage từ Meta API...</p>
             </div>
           ) : accounts.length === 0 ? (
-            <div className="py-8 text-center space-y-3">
+            <div className="py-8 text-center space-y-4">
               <div className="w-12 h-12 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
                 <Layers className="w-6 h-6" />
               </div>
-              <p className="text-sm font-medium text-slate-700">
-                Không tìm thấy Fanpage nào
-              </p>
-              <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                Tài khoản Facebook của bạn chưa có quyền Quản trị viên (Admin) cho Fanpage nào, hoặc chưa cấp đủ quyền `pages_show_list`.
-              </p>
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-slate-800">
+                  Chưa có Fanpage nào được liên kết
+                </p>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                  Bạn cần đăng nhập tài khoản Facebook cá nhân có quyền Quản trị viên (Admin) cho các Fanpage muốn kết nối.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleTriggerOAuth}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-all active:scale-95"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>Đăng nhập với Facebook ngay</span>
+              </button>
             </div>
           ) : (
             <div className="space-y-3">

@@ -64,7 +64,7 @@ export default function PagesManagementPage() {
     setIsConnectingOAuth(true);
     try {
       const res = await apiClient.get('/fb-oauth/connect-url');
-      const oauthUrl = res.data?.data?.url;
+      const oauthUrl = res.data?.data?.authUrl || res.data?.data?.url;
       if (oauthUrl) {
         // Mở popup OAuth Meta
         const width = 600;
