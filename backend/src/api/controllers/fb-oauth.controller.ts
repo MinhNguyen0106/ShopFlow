@@ -51,7 +51,27 @@ export class FacebookOAuthController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { code, state, format } = req.query as { code?: string; state?: string; format?: string };
+      const {
+        code,
+        state,
+        format,
+        error: fbError,
+        error_reason: fbErrorReason,
+        error_description: fbErrorDesc,
+      } = req.query as {
+        code?: string;
+        state?: string;
+        format?: string;
+        error?: string;
+        error_reason?: string;
+        error_description?: string;
+      };
+
+      if (fbError || fbErrorReason === 'user_denied') {
+        const cancelMsg = fbErrorDesc || 'Người dùng đã hủy đăng nhập Facebook';
+        res.redirect(`${env.CORS_ORIGIN}/pages?oauth_status=cancel&message=${encodeURIComponent(cancelMsg)}`);
+        return;
+      }
 
       if (!code || !state) {
         throw new AppError('Thiếu tham số code hoặc state từ Meta redirect', 400, 'BAD_REQUEST');

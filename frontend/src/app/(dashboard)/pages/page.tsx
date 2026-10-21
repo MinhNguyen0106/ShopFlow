@@ -43,12 +43,16 @@ export default function PagesManagementPage() {
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   const [isConnectingOAuth, setIsConnectingOAuth] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [oauthCallbackInfo, setOauthCallbackInfo] = useState<{
+    status: 'success' | 'cancel' | 'error';
+    message?: string;
+  } | null>(null);
 
   useEffect(() => {
     fetchPages();
   }, [fetchPages]);
 
-  // Lắng nghe callback OAuth khi trang này được tải (dù ở tab chính hay popup)
+  // Xử lý khi tab này là tab callback sau khi Meta redirect về
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -58,53 +62,112 @@ export default function PagesManagementPage() {
     const fbUserId = urlParams.get('fb_user_id');
 
     if (oauthStatus) {
-      if (window.opener && window.opener !== window) {
-        // Cửa sổ popup/tab con được mở từ handleStartOAuth
-        try {
-          window.opener.postMessage(
-            {
-              type: oauthStatus === 'success' ? 'FB_OAUTH_SUCCESS' : 'FB_OAUTH_ERROR',
-              message: oauthMessage,
-              fbUserId,
-            },
-            '*'
-          );
-        } catch (err) {
-          console.error('Không thể gửi postMessage tới window.opener:', err);
+      const statusType: 'success' | 'cancel' | 'error' =
+        oauthStatus === 'success' ? 'success' : oauthStatus === 'cancel' ? 'cancel' : 'error';
+
+      setOauthCallbackInfo({
+        status: statusType,
+        message: oauthMessage || undefined,
+      });
+
+      const payload = {
+        type:
+          oauthStatus === 'success'
+            ? 'FB_OAUTH_SUCCESS'
+            : oauthStatus === 'cancel'
+            ? 'FB_OAUTH_CANCEL'
+            : 'FB_OAUTH_ERROR',
+        message: oauthMessage,
+        fbUserId,
+      };
+
+      // 1. BroadcastChannel (đồng bộ tức thì giữa các tab cùng origin)
+      try {
+        if ('BroadcastChannel' in window) {
+          const channel = new BroadcastChannel('shopflow_oauth');
+          channel.postMessage(payload);
+          channel.close();
         }
-        // Tự động đóng tab popup này lại ngay lập tức
-        setTimeout(() => {
-          window.close();
-        }, 300);
-        return;
+      } catch (err) {
+        console.error('Lỗi BroadcastChannel:', err);
       }
 
-      // Trường hợp người dùng mở cùng tab (không có window.opener)
-      if (oauthStatus === 'success') {
-        showToast('Kết nối tài khoản Meta thành công!');
-        setIsConnectModalOpen(true);
-        fetchPages();
-      } else {
-        showToast(`Kết nối thất bại: ${oauthMessage || 'Lỗi không xác định'}`);
+      // 2. localStorage event (fallback cho mọi trình duyệt)
+      try {
+        localStorage.setItem(
+          'shopflow_oauth_sync',
+          JSON.stringify({ ...payload, timestamp: Date.now() })
+        );
+      } catch (err) {
+        console.error('Lỗi localStorage sync:', err);
       }
-      window.history.replaceState({}, '', window.location.pathname);
+
+      // 3. postMessage tới window.opener (nếu chưa bị ngắt kết nối cross-origin)
+      try {
+        if (window.opener && window.opener !== window) {
+          window.opener.postMessage(payload, '*');
+        }
+      } catch (err) {
+        console.error('Lỗi window.opener postMessage:', err);
+      }
+
+      // Tự động đóng tab callback này lại
+      setTimeout(() => {
+        window.close();
+      }, 600);
     }
-  }, [fetchPages]);
+  }, []);
 
-  // Lắng nghe sự kiện postMessage từ cửa sổ popup con trả về cho cửa sổ chính
+  // Lắng nghe sự kiện xác thực Meta từ tab/cửa sổ OAuth gửi về cho tab chính
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === 'FB_OAUTH_SUCCESS') {
+    const handleAuthEvent = (data: { type?: string; message?: string }) => {
+      if (data?.type === 'FB_OAUTH_SUCCESS') {
         showToast('Xác thực Meta thành công! Đang tải danh sách Fanpage...');
         setIsConnectModalOpen(true);
         fetchPages();
-      } else if (event.data?.type === 'FB_OAUTH_ERROR') {
-        showToast(`Xác thực Meta thất bại: ${event.data.message || 'Lỗi không xác định'}`);
+      } else if (data?.type === 'FB_OAUTH_CANCEL') {
+        showToast('Bạn đã hủy liên kết Facebook.');
+        setIsConnectModalOpen(false);
+      } else if (data?.type === 'FB_OAUTH_ERROR') {
+        showToast(`Xác thực Meta thất bại: ${data.message || 'Lỗi không xác định'}`);
       }
     };
 
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
+    // 1. Lắng nghe window.postMessage
+    const onMessage = (event: MessageEvent) => {
+      handleAuthEvent(event.data);
+    };
+    window.addEventListener('message', onMessage);
+
+    // 2. Lắng nghe BroadcastChannel
+    let channel: BroadcastChannel | null = null;
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      channel = new BroadcastChannel('shopflow_oauth');
+      channel.onmessage = (event) => {
+        handleAuthEvent(event.data);
+      };
+    }
+
+    // 3. Lắng nghe localStorage sync event
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === 'shopflow_oauth_sync' && event.newValue) {
+        try {
+          const parsed = JSON.parse(event.newValue);
+          handleAuthEvent(parsed);
+        } catch {
+          // Ignore parse errors
+        }
+      }
+    };
+    window.addEventListener('storage', onStorage);
+
+    return () => {
+      window.removeEventListener('message', onMessage);
+      window.removeEventListener('storage', onStorage);
+      if (channel) {
+        channel.close();
+      }
+    };
   }, [fetchPages]);
 
   const showToast = (msg: string) => {
@@ -175,6 +238,56 @@ export default function PagesManagementPage() {
   };
 
   const activePagesCount = pages.filter((p) => p.isActive).length;
+
+  if (oauthCallbackInfo) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center p-4 bg-slate-950 text-white font-sans">
+        <div className="w-full max-w-sm p-8 bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl text-center space-y-4 animate-in fade-in zoom-in-95 duration-200">
+          {oauthCallbackInfo.status === 'success' ? (
+            <>
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/10">
+                <Check className="w-7 h-7" />
+              </div>
+              <h2 className="text-lg font-bold text-white">Xác thực thành công!</h2>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Đã đồng bộ tài khoản Meta với ShopFlow. Cửa sổ này đang tự động đóng...
+              </p>
+            </>
+          ) : oauthCallbackInfo.status === 'cancel' ? (
+            <>
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/10">
+                <AlertTriangle className="w-7 h-7" />
+              </div>
+              <h2 className="text-lg font-bold text-white">Đã hủy kết nối</h2>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Bạn đã hủy quá trình đăng nhập Facebook. Cửa sổ này đang tự động đóng...
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto shadow-lg shadow-rose-500/10">
+                <AlertTriangle className="w-7 h-7" />
+              </div>
+              <h2 className="text-lg font-bold text-white">Xác thực không thành công</h2>
+              <p className="text-xs text-rose-300 leading-relaxed">
+                {oauthCallbackInfo.message || 'Có lỗi xảy ra khi xác thực với Meta.'}
+              </p>
+            </>
+          )}
+
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => window.close()}
+              className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-lg shadow-blue-600/30 transition-all cursor-pointer"
+            >
+              Đóng cửa sổ này
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-6">
