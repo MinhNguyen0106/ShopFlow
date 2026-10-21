@@ -48,6 +48,65 @@ export default function PagesManagementPage() {
     fetchPages();
   }, [fetchPages]);
 
+  // Lắng nghe callback OAuth khi trang này được tải (dù ở tab chính hay popup)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const oauthStatus = urlParams.get('oauth_status');
+    const oauthMessage = urlParams.get('message');
+    const fbUserId = urlParams.get('fb_user_id');
+
+    if (oauthStatus) {
+      if (window.opener && window.opener !== window) {
+        // Cửa sổ popup/tab con được mở từ handleStartOAuth
+        try {
+          window.opener.postMessage(
+            {
+              type: oauthStatus === 'success' ? 'FB_OAUTH_SUCCESS' : 'FB_OAUTH_ERROR',
+              message: oauthMessage,
+              fbUserId,
+            },
+            '*'
+          );
+        } catch (err) {
+          console.error('Không thể gửi postMessage tới window.opener:', err);
+        }
+        // Tự động đóng tab popup này lại ngay lập tức
+        setTimeout(() => {
+          window.close();
+        }, 300);
+        return;
+      }
+
+      // Trường hợp người dùng mở cùng tab (không có window.opener)
+      if (oauthStatus === 'success') {
+        showToast('Kết nối tài khoản Meta thành công!');
+        setIsConnectModalOpen(true);
+        fetchPages();
+      } else {
+        showToast(`Kết nối thất bại: ${oauthMessage || 'Lỗi không xác định'}`);
+      }
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [fetchPages]);
+
+  // Lắng nghe sự kiện postMessage từ cửa sổ popup con trả về cho cửa sổ chính
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'FB_OAUTH_SUCCESS') {
+        showToast('Xác thực Meta thành công! Đang tải danh sách Fanpage...');
+        setIsConnectModalOpen(true);
+        fetchPages();
+      } else if (event.data?.type === 'FB_OAUTH_ERROR') {
+        showToast(`Xác thực Meta thất bại: ${event.data.message || 'Lỗi không xác định'}`);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [fetchPages]);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
@@ -76,9 +135,8 @@ export default function PagesManagementPage() {
           'MetaOAuth',
           `width=${width},height=${height},top=${top},left=${left}`
         );
+        showToast('Đang mở cửa sổ đăng nhập Meta Facebook...');
       }
-      // Đồng thời mở modal chọn page
-      setIsConnectModalOpen(true);
     } catch {
       showToast('Không thể kết nối Meta OAuth. Vui lòng thử lại.');
     } finally {

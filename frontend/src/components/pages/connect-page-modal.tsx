@@ -19,6 +19,8 @@ interface MetaAccountPage {
   category?: string;
   access_token: string;
   tasks?: string[];
+  avatar_url?: string;
+  is_connected?: boolean;
 }
 
 interface ConnectPageModalProps {
@@ -39,38 +41,59 @@ export function ConnectPageModal({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!isOpen) return;
-
-    let isMounted = true;
+  const loadAccounts = React.useCallback(() => {
     setIsLoading(true);
     setError(null);
 
     apiClient
       .get('/fb-oauth/accounts')
       .then((res) => {
-        if (isMounted) {
-          const list: MetaAccountPage[] = res.data?.data?.accounts || [];
-          setAccounts(list);
-          // Mặc định chọn tất cả
-          setSelectedPageIds(list.map((a) => a.id));
-          setIsLoading(false);
-        }
+        const rawList = res.data?.data?.pages || res.data?.data?.accounts || [];
+        const normalized: MetaAccountPage[] = (Array.isArray(rawList) ? rawList : []).map(
+          (item: Record<string, unknown>) => ({
+            id: String(item.id || item.page_id || item.pageId || ''),
+            name: String(item.name || item.page_name || item.pageName || 'Fanpage'),
+            category: item.category as string | undefined,
+            access_token: (item.access_token || item.accessToken || '') as string,
+            tasks: (item.tasks || []) as string[],
+            avatar_url: (item.avatar_url || item.avatarUrl) as string | undefined,
+            is_connected: Boolean(item.is_connected || item.isConnected),
+          })
+        );
+
+        setAccounts(normalized);
+        // Mặc định chọn các page chưa được kết nối
+        const pendingIds = normalized
+          .filter((p) => !p.is_connected)
+          .map((p) => p.id);
+        setSelectedPageIds(pendingIds.length > 0 ? pendingIds : normalized.map((p) => p.id));
+        setIsLoading(false);
       })
       .catch((err) => {
-        if (isMounted) {
-          const msg =
-            err.response?.data?.message ||
-            'Chưa có tài khoản Facebook nào được liên kết hoặc phiên đã hết hạn.';
-          setError(msg);
-          setIsLoading(false);
-        }
+        const msg =
+          err.response?.data?.message ||
+          'Chưa có tài khoản Facebook nào được liên kết hoặc phiên đã hết hạn.';
+        setError(msg);
+        setIsLoading(false);
       });
+  }, []);
 
-    return () => {
-      isMounted = false;
+  useEffect(() => {
+    if (isOpen) {
+      loadAccounts();
+    }
+  }, [isOpen, loadAccounts]);
+
+  // Lắng nghe tín hiệu hoàn tất OAuth từ popup window
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'FB_OAUTH_SUCCESS') {
+        loadAccounts();
+      }
     };
-  }, [isOpen]);
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [loadAccounts]);
 
   if (!isOpen) return null;
 
@@ -96,17 +119,9 @@ export function ConnectPageModal({
     setError(null);
 
     try {
-      const selectedAccounts = accounts.filter((a) =>
-        selectedPageIds.includes(a.id)
-      );
       await apiClient.post('/fb-oauth/connect-pages', {
-        pages: selectedAccounts.map((a) => ({
-          pageId: a.id,
-          pageName: a.name,
-          category: a.category,
-          accessToken: a.access_token,
-          tasks: a.tasks,
-        })),
+        page_ids: selectedPageIds,
+        pageIds: selectedPageIds,
       });
 
       await fetchPages();

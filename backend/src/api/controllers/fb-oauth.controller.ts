@@ -98,7 +98,10 @@ export class FacebookOAuthController {
       const pages = await this.service.getManageablePages(userId);
       res.status(200).json({
         success: true,
-        data: { pages },
+        data: {
+          pages,
+          accounts: pages,
+        },
       });
     } catch (error) {
       next(error);
@@ -120,7 +123,8 @@ export class FacebookOAuthController {
         throw new AppError('Yêu cầu xác thực tài khoản', 401, 'UNAUTHORIZED');
       }
 
-      const result = await this.service.connectPages(userId, req.body.page_ids);
+      const targetPageIds = (req.body.page_ids || req.body.pageIds) as string[];
+      const result = await this.service.connectPages(userId, targetPageIds);
 
       // Mask token khi trả về client
       const safePages = result.pages.map(({ page_access_token: _, ...rest }) => rest);
