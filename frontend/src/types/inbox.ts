@@ -2,7 +2,7 @@
  * ShopFlow - Centralized Inbox Types & Contracts
  * File: frontend/src/types/inbox.ts
  *
- * Đồng bộ theo quy chuẩn: .agent/rules/api-contract-sync.md
+ * Đồng bộ theo quy chuẩn: .agents/rules/api-contract-sync.md
  */
 
 export type ConversationType = 'messenger' | 'comment_thread';

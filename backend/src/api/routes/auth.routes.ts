@@ -9,6 +9,7 @@ import { Router } from 'express';
 import { authController } from '../controllers/auth.controller.js';
 import { validateRequest } from '../middlewares/validate-request.middleware.js';
 import { authenticateToken } from '../middlewares/auth.middleware.js';
+import { registerRateLimiter } from '../middlewares/rate-limiter.middleware.js';
 import {
   RegisterDtoSchema,
   LoginDtoSchema,
@@ -19,11 +20,12 @@ export const authRouter = Router();
 
 /**
  * @route   POST /api/v1/auth/register
- * @desc    Đăng ký tài khoản người dùng mới
+ * @desc    Đăng ký tài khoản người dùng mới (được bảo vệ bởi Rate Limiter)
  * @access  Public
  */
 authRouter.post(
   '/register',
+  registerRateLimiter,
   validateRequest({ body: RegisterDtoSchema }),
   authController.register
 );

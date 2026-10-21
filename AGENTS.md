@@ -38,7 +38,9 @@ Tài liệu hướng dẫn tổng thể dành cho các AI Agent (Antigravity, Cu
    - Quyền `publish_to_groups` đã bị Meta hủy từ 4/2024, không lập trình tính năng tự động đăng vào Group.
 5. **Đồng Bộ Hợp Đồng Dữ Liệu (API Contract & DTO Sync):**
    - Đảm bảo tính nhất quán 100% giữa API response/request (Backend) và UI state/store (Frontend).
-   - Bắt buộc tuân thủ chuẩn `ApiResponse<T>`, quy ước `camelCase`, và bóc tách dữ liệu phòng vệ (Defensive Data Parsing) theo [.agent/rules/api-contract-sync.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agent/rules/api-contract-sync.md).
+   - Bắt buộc tuân thủ chuẩn `ApiResponse<T>`, quy ước `camelCase`, và bóc tách dữ liệu phòng vệ (Defensive Data Parsing) theo [.agents/rules/api-contract-sync.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/rules/api-contract-sync.md).
+6. **Quy Trình Chuyển Giao Sprint (Sprint Transition Protocol):**
+   - Sau khi hoàn thành 100% một Sprint (vượt qua toàn bộ tests & build), bắt buộc đóng Sprint đó, đề xuất mục tiêu và danh sách tasks Sprint tiếp theo vào [.agents/memory/history.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/history.md), và cập nhật lại [Task.md](file:///c:/Users/Dell/Desktop/ShopFlow/Task.md) (đổi Sprint Hiện Tại và thiết lập danh mục TODO cho Sprint mới).
 
 ---
 
@@ -53,11 +55,12 @@ ShopFlow/
 │   └── schema.prisma           # Prisma MySQL schema
 ├── docs/
 │   └── deep-research-report.md # Báo cáo nghiên cứu nghiệp vụ chi tiết
-└── .agent/
+├── openspec/                   # OpenSpec spec-driven changes & capabilities
+└── .agents/
     ├── rules/                  # project-rules.md, security.md, testing-standards.md, api-contract-sync.md
-    ├── workflows/              # test.md, deploy.md, code-review.md
-    ├── skills/db-migration/    # SKILL.md, references/schema.json, scripts/validate.py
-    ├── agents/                 # planner.md, coder.md, security-auditor.md, devops.md
+    ├── workflows/              # opsx-*.md (OpenSpec), safe-deploy.md, deploy.md, test.md, code-review.md
+    ├── skills/                 # db-migration/, openspec-*
+    ├── agents/                 # security-auditor.md, devops.md
     ├── memory/                 # project_context.md, decisions.md, history.md
     └── hooks/                  # on_task_start.md, on_pre_command.md, on_task_finish.md
 ```
@@ -68,7 +71,7 @@ ShopFlow/
 
 ```bash
 # Thẩm định cơ sở dữ liệu MySQL
-python .agent/skills/db-migration/scripts/validate.py
+python .agents/skills/db-migration/scripts/validate.py
 
 # Sinh và áp dụng migration Prisma MySQL
 npx prisma migrate dev --name <migration_name>

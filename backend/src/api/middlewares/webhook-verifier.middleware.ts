@@ -4,7 +4,7 @@
  *
  * Xác thực chữ ký HMAC-SHA256 từ header `x-hub-signature-256` của Meta Platform.
  * Sử dụng crypto.timingSafeEqual để ngăn chặn tấn công Timing Attack.
- * Tuân thủ nghiêm ngặt quy định bảo mật tại .agent/rules/security.md.
+ * Tuân thủ nghiêm ngặt quy định bảo mật tại .agents/rules/security.md.
  */
 
 import crypto from 'node:crypto';

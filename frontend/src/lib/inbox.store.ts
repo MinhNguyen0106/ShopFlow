@@ -2,7 +2,7 @@
  * ShopFlow - Centralized Inbox Zustand Store
  * File: frontend/src/lib/inbox.store.ts
  *
- * Tuân thủ quy chuẩn: .agent/rules/api-contract-sync.md
+ * Tuân thủ quy chuẩn: .agents/rules/api-contract-sync.md
  */
 
 import { create } from 'zustand';
