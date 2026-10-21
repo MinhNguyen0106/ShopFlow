@@ -218,6 +218,22 @@ export default function PagesManagementPage() {
     }
   };
 
+  const handleSubscribeWebhook = async (page: ConnectedPage) => {
+    try {
+      showToast(`Đang đồng bộ lại Webhook cho ${page.pageName}...`);
+      const res = await apiClient.post(`/pages/${page.pageId}/subscribe-webhook`);
+      if (res.data?.data?.webhook_subscribed) {
+        showToast(`✔ Đã đồng bộ Webhook thành công cho ${page.pageName}!`);
+        fetchPages();
+      } else {
+        showToast(`Chưa thể đồng bộ: ${res.data?.message || 'Thiếu quyền từ Facebook'}`);
+      }
+    } catch {
+      showToast('Lỗi khi gửi yêu cầu đồng bộ Webhook.');
+    }
+    setActiveMenuId(null);
+  };
+
   const handleDisconnect = async (page: ConnectedPage) => {
     if (
       window.confirm(
@@ -528,6 +544,14 @@ export default function PagesManagementPage() {
                             <div className="my-1 border-t border-slate-100" />
                             <button
                               type="button"
+                              onClick={() => handleSubscribeWebhook(page)}
+                              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 text-left"
+                            >
+                              <RefreshCw className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Đồng bộ lại Webhook</span>
+                            </button>
+                            <button
+                              type="button"
                               onClick={() => handleDisconnect(page)}
                               className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-600 hover:bg-red-50 text-left"
                             >
@@ -572,10 +596,15 @@ export default function PagesManagementPage() {
                           <span>Đang đồng bộ Webhook</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[11px] font-medium border border-amber-200/60">
-                          <AlertTriangle className="w-3 h-3 text-amber-600" />
-                          <span>Cần cấp lại Token</span>
-                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleSubscribeWebhook(page)}
+                          title="Bấm để kích hoạt Webhook đồng bộ tự động với Facebook"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-700 text-[11px] font-medium border border-amber-200/80 transition-colors cursor-pointer group/btn"
+                        >
+                          <RefreshCw className="w-3 h-3 text-amber-600 group-hover/btn:rotate-180 transition-transform duration-300" />
+                          <span>Chưa bật Webhook (Bấm để thử lại)</span>
+                        </button>
                       )}
                     </div>
                   </div>
