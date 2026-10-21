@@ -114,9 +114,9 @@ export function Topbar({ onOpenCommandPalette }: TopbarProps) {
                     >
                       <div className="flex items-center gap-2 truncate">
                         <div className="w-5 h-5 rounded-md bg-blue-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0">
-                          {p.pageName.charAt(0)}
+                          {(p.pageName || 'P').charAt(0).toUpperCase()}
                         </div>
-                        <span className="truncate">{p.pageName}</span>
+                        <span className="truncate">{p.pageName || 'Fanpage'}</span>
                       </div>
                       {isSelected && <Check className="w-3.5 h-3.5 shrink-0" />}
                     </button>

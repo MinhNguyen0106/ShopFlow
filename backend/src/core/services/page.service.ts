@@ -11,7 +11,16 @@ import { decryptToken } from '../../utils/crypto.helper.js';
 import { AppError } from '../errors/app-error.js';
 import { logger } from '../../utils/logger.js';
 
-export type SafeConnectedPage = Omit<ConnectedPage, 'page_access_token'>;
+export type SafeConnectedPage = Omit<ConnectedPage, 'page_access_token'> & {
+  pageId?: string;
+  pageName?: string;
+  avatarUrl?: string | null;
+  userId?: string;
+  isActive?: boolean;
+  webhookSubscribed?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
 
 export class PageService {
   constructor(
@@ -21,10 +30,21 @@ export class PageService {
 
   /**
    * Ẩn thông tin nhạy cảm của token trước khi trả về cho client.
+   * Đồng thời chuẩn hóa cả định dạng camelCase và snake_case.
    */
   private toSafePage(page: ConnectedPage): SafeConnectedPage {
     const { page_access_token: _, ...safePage } = page;
-    return safePage;
+    return {
+      ...safePage,
+      pageId: page.page_id,
+      pageName: page.page_name,
+      avatarUrl: page.avatar_url,
+      userId: page.user_id,
+      isActive: page.is_active,
+      webhookSubscribed: page.webhook_subscribed,
+      createdAt: page.created_at,
+      updatedAt: page.updated_at,
+    };
   }
 
   /**

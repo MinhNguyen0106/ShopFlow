@@ -36,11 +36,34 @@ export const usePageStore = create<PageState>((set, get) => ({
     try {
       const response = await apiClient.get('/pages');
       const responseData = response.data?.data || {};
-      const pages: ConnectedPage[] = Array.isArray(responseData)
+      const rawList = Array.isArray(responseData)
         ? responseData
         : Array.isArray(responseData.pages)
           ? responseData.pages
           : [];
+
+      const pages: ConnectedPage[] = rawList.map((item: Record<string, unknown>) => ({
+        id: String(item.id || item.page_id || item.pageId || ''),
+        userId: String(item.userId || item.user_id || ''),
+        pageId: String(item.pageId || item.page_id || ''),
+        pageName: String(item.pageName || item.page_name || 'Fanpage'),
+        category: (item.category as string | undefined) || null,
+        tasks: (item.tasks as string[] | undefined) || null,
+        isActive:
+          item.isActive !== undefined
+            ? Boolean(item.isActive)
+            : item.is_active !== undefined
+              ? Boolean(item.is_active)
+              : true,
+        webhookSubscribed:
+          item.webhookSubscribed !== undefined
+            ? Boolean(item.webhookSubscribed)
+            : item.webhook_subscribed !== undefined
+              ? Boolean(item.webhook_subscribed)
+              : false,
+        createdAt: String(item.createdAt || item.created_at || new Date().toISOString()),
+        updatedAt: String(item.updatedAt || item.updated_at || new Date().toISOString()),
+      }));
       const currentSelected = get().selectedPage;
 
       let nextSelected = currentSelected;

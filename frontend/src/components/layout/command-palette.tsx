@@ -186,11 +186,11 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                 >
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center">
-                      {page.pageName.charAt(0)}
+                      {(page.pageName || 'P').charAt(0).toUpperCase()}
                     </div>
                     <div>
                       <div className="font-medium text-slate-900 group-hover:text-blue-700">
-                        {page.pageName}
+                        {page.pageName || 'Fanpage'}
                       </div>
                       <div className="text-[11px] font-mono text-slate-400">
                         ID: {page.pageId}

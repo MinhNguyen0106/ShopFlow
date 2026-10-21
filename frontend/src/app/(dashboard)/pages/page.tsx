@@ -481,11 +481,11 @@ export default function PagesManagementPage() {
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-base flex items-center justify-center shadow-md shadow-blue-500/20">
-                          {page.pageName.charAt(0)}
+                          {(page.pageName || 'P').charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0">
                           <h3 className="text-sm font-bold text-slate-900 truncate">
-                            {page.pageName}
+                            {page.pageName || 'Fanpage'}
                           </h3>
                           <p className="text-xs text-slate-400 truncate">
                             {page.category || 'Trang kinh doanh'}
