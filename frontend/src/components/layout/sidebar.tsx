@@ -14,6 +14,7 @@ import {
   Edit3,
   Gauge,
   CheckCircle2,
+  ShoppingBag,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -36,6 +37,12 @@ export function Sidebar({ unreadInboxCount = 18 }: SidebarProps) {
       icon: MessageSquare,
       badge: unreadInboxCount,
       active: pathname.startsWith('/inbox'),
+    },
+    {
+      name: 'Quản lý đơn hàng',
+      href: '/orders',
+      icon: ShoppingBag,
+      active: pathname.startsWith('/orders'),
     },
     {
       name: 'Lịch đăng bài',
