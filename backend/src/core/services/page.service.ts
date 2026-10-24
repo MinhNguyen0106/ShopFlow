@@ -7,6 +7,7 @@
 
 import { connectedPageRepository, ConnectedPageRepository, ConnectedPage, PageStats } from '../../infrastructure/repositories/connected-page.repository.js';
 import { metaGraphApiClient, MetaGraphApiClient } from '../../infrastructure/meta/graph-api.client.js';
+import { ICacheService, cacheService } from '../../infrastructure/cache/cache.service.js';
 import { decryptToken } from '../../utils/crypto.helper.js';
 import { AppError } from '../errors/app-error.js';
 import { logger } from '../../utils/logger.js';
@@ -25,7 +26,8 @@ export type SafeConnectedPage = Omit<ConnectedPage, 'page_access_token'> & {
 export class PageService {
   constructor(
     private readonly pageRepo: ConnectedPageRepository = connectedPageRepository,
-    private readonly graphClient: MetaGraphApiClient = metaGraphApiClient
+    private readonly graphClient: MetaGraphApiClient = metaGraphApiClient,
+    private readonly cache: ICacheService = cacheService
   ) {}
 
   /**
@@ -62,16 +64,24 @@ export class PageService {
     pageIdOrDbId: string,
     userId: string
   ): Promise<{ page: SafeConnectedPage; stats: PageStats }> {
-    const page = await this.pageRepo.findByPageIdAndUserId(pageIdOrDbId, userId);
-    if (!page) {
-      throw new AppError('Không tìm thấy Fanpage hoặc bạn không có quyền truy cập', 404, 'NOT_FOUND');
-    }
+    const cacheKey = `cache:fanpage:${pageIdOrDbId}:info:${userId}`;
 
-    const stats = await this.pageRepo.getPageStats(page.id);
-    return {
-      page: this.toSafePage(page),
-      stats,
-    };
+    return this.cache.getOrSet(
+      cacheKey,
+      async () => {
+        const page = await this.pageRepo.findByPageIdAndUserId(pageIdOrDbId, userId);
+        if (!page) {
+          throw new AppError('Không tìm thấy Fanpage hoặc bạn không có quyền truy cập', 404, 'NOT_FOUND');
+        }
+
+        const stats = await this.pageRepo.getPageStats(page.id);
+        return {
+          page: this.toSafePage(page),
+          stats,
+        };
+      },
+      1800 // TTL 30 phút
+    );
   }
 
   /**
@@ -86,6 +96,9 @@ export class PageService {
     if (!updated) {
       throw new AppError('Không tìm thấy Fanpage để cập nhật trạng thái', 404, 'NOT_FOUND');
     }
+
+    await this.cache.del(`cache:fanpage:${pageIdOrDbId}:info:${userId}`).catch(() => {});
+    await this.cache.invalidateByPattern(`cache:fanpage:${updated.page_id}:*`).catch(() => {});
 
     logger.info({ pageId: updated.page_id, isActive }, '[PageService] ✔ Cập nhật trạng thái Fanpage');
     return this.toSafePage(updated);
@@ -111,6 +124,7 @@ export class PageService {
 
     // Cập nhật trạng thái vào database
     await this.pageRepo.updateWebhookSubscribed(page.page_id, success);
+    await this.cache.invalidateByPattern(`cache:fanpage:${page.page_id}:*`).catch(() => {});
 
     logger.info(
       { pageId: page.page_id, success },
@@ -128,6 +142,9 @@ export class PageService {
     if (!deleted) {
       throw new AppError('Không tìm thấy Fanpage để hủy kết nối', 404, 'NOT_FOUND');
     }
+
+    await this.cache.del(`cache:fanpage:${pageIdOrDbId}:info:${userId}`).catch(() => {});
+    await this.cache.invalidateByPattern(`cache:fanpage:${pageIdOrDbId}:*`).catch(() => {});
 
     logger.info({ pageIdOrDbId, userId }, '[PageService] ✔ Đã hủy kết nối Fanpage');
     return true;

@@ -15,6 +15,7 @@ import {
   Gauge,
   CheckCircle2,
   ShoppingBag,
+  BarChart3,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -43,6 +44,12 @@ export function Sidebar({ unreadInboxCount = 18 }: SidebarProps) {
       href: '/orders',
       icon: ShoppingBag,
       active: pathname.startsWith('/orders'),
+    },
+    {
+      name: 'Báo cáo phân tích',
+      href: '/analytics',
+      icon: BarChart3,
+      active: pathname.startsWith('/analytics'),
     },
     {
       name: 'Lịch đăng bài',

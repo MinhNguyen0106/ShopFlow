@@ -22,10 +22,12 @@ import {
   ChevronRight,
   AlertTriangle,
   Loader2,
+  Users,
 } from 'lucide-react';
 import { usePageStore, ConnectedPage } from '@/lib/page.store';
 import { apiClient } from '@/lib/api-client';
 import { ConnectPageModal } from '@/components/pages/connect-page-modal';
+import { PageMembersModal } from '@/components/pages/page-members-modal';
 
 export default function PagesManagementPage() {
   const router = useRouter();
@@ -41,6 +43,7 @@ export default function PagesManagementPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
+  const [memberModalPage, setMemberModalPage] = useState<ConnectedPage | null>(null);
   const [isConnectingOAuth, setIsConnectingOAuth] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [oauthCallbackInfo, setOauthCallbackInfo] = useState<{
@@ -533,6 +536,17 @@ export default function PagesManagementPage() {
                               <MessageSquare className="w-3.5 h-3.5 text-blue-600" />
                               <span>Vào Hộp Thư</span>
                             </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setMemberModalPage(page);
+                                setActiveMenuId(null);
+                              }}
+                              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 text-left"
+                            >
+                              <Users className="w-3.5 h-3.5 text-purple-600" />
+                              <span>Thành viên & Phân quyền</span>
+                            </button>
                             <Link
                               href="/automation"
                               onClick={() => setActiveMenuId(null)}
@@ -632,14 +646,24 @@ export default function PagesManagementPage() {
                       </span>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => handleEnterInbox(page)}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline"
-                    >
-                      <span>Vào Hộp Thư</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
+                    <div className="flex items-center gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => setMemberModalPage(page)}
+                        className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-purple-600 transition-colors"
+                      >
+                        <Users className="w-3.5 h-3.5 text-purple-500" />
+                        <span>Thành viên</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleEnterInbox(page)}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+                      >
+                        <span>Vào Hộp Thư</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -678,6 +702,14 @@ export default function PagesManagementPage() {
           fetchPages();
           showToast('Đã kết nối và đồng bộ Fanpage thành công!');
         }}
+      />
+
+      {/* Page Members & RBAC Modal */}
+      <PageMembersModal
+        isOpen={Boolean(memberModalPage)}
+        pageId={memberModalPage?.pageId || memberModalPage?.id || ''}
+        pageName={memberModalPage?.pageName || 'Fanpage'}
+        onClose={() => setMemberModalPage(null)}
       />
     </div>
   );
