@@ -2,6 +2,32 @@
 
 Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và trạng thái của dự án ShopFlow.
 
+## [2026-10-30] - Hoàn Thành TASK-27: Màn Hình Quản Lý Khách Hàng & Leads Tập Trung (`customer-crm`)
+- **Tác giả:** System Architect & Full-Stack Engineer (Antigravity Ecosystem)
+- **Nội dung hoàn thành:**
+  - Hoàn thành toàn diện 17/17 tasks trong OpenSpec change [customer-crm](file:///c:/Users/Dell/Desktop/ShopFlow/openspec/changes/archive/2026-10-30-customer-crm/tasks.md) tương ứng **[TASK-27]** trên [Task.md](file:///c:/Users/Dell/Desktop/ShopFlow/Task.md).
+  - **Tầng Backend DTOs & Domain Logic (`backend/src/api/dtos/`, `backend/src/core/services/`):**
+    - `customer.dto.ts`: Định nghĩa Zod schemas cho `CustomerPaginationQuerySchema` (hỗ trợ phân trang, tìm kiếm theo tên, SĐT, Facebook ID, và lọc theo danh sách tags), `CustomerUpdateSchema`, `AddTagSchema`, `RemoveTagSchema`. 12 unit tests pass 100%.
+    - `CustomerRepository` (`customer.repository.ts`): Bổ sung `findWithStats` sử dụng truy vấn SQL `LEFT JOIN` với bảng `orders` (bỏ qua các đơn có trạng thái `cancelled`), tính toán tổng đơn hàng và LTV (Life-Time Value) theo Fanpage mà không bị lỗi N+1; hỗ trợ `findDetailStatsById`, `getCustomerOrders`, `addTag`, `removeTag`, `getMetricsSummary`. 11 unit tests pass 100%.
+    - `CustomerService` (`customer.service.ts`): Xử lý toàn bộ nghiệp vụ quản lý khách hàng, tính toán chỉ số LTV/AOV, và thực thi chính sách bảo mật PII che giấu số điện thoại (`098****123`) đối với nhân viên có vai trò `staff` (`sanitizeCustomerForRole`). 10 unit tests pass 100%.
+  - **Tầng REST API Endpoints & Phân Quyền (`backend/src/api/routes/customer.routes.ts`):**
+    - `CustomerController` (`customer.controller.ts`): Cung cấp 7 API endpoints chuẩn `ApiResponse<T>`: `getCustomers`, `getMetrics`, `getCustomerById`, `getCustomerOrders`, `updateCustomer`, `addTag`, `removeTag`.
+    - `customer.routes.ts`: Được gắn vào ứng dụng tại `/api/v1/customers`, kiểm tra ngữ cảnh Fanpage (`requirePageRole('staff')`), phân quyền chỉnh sửa cho `manager` và `owner`. 9 integration tests pass 100%.
+  - **Tầng Frontend Types & Zustand Store (`frontend/src/lib/customer.store.ts`):**
+    - `frontend/src/types/customer.ts`: Khai báo interfaces `Customer`, `CustomerOrder`, `CustomerMetrics`, `CustomerFilters`, và hàm phòng vệ `normalizeCustomer`.
+    - `customer.store.ts`: Zustand store quản lý danh bạ khách hàng, phân trang, lọc theo tags (`VIP`, `Co_SDT`, `Da_Mua_Hang`, `Boom_Hang`), tìm kiếm đa năng, nạp thẻ metrics, và cơ chế cập nhật lạc quan (optimistic updates) khi gán/xóa tags kèm tự động rollback khi API thất bại. 10 unit tests pass 100%.
+  - **Tầng Giao Diện macOS Clean Utility Bento Grid (`/(dashboard)/customers`):**
+    - `CustomerMetrics.tsx`: Bento Grid 4 cards hiển thị KPI (Tổng khách hàng, Leads có SĐT, Khách VIP, Tổng LTV VND).
+    - `CustomerTable.tsx`: Bảng danh bạ khách hàng phong cách macOS Clean Utility, avatar gradient, masked số điện thoại, hiển thị TagChips (tối đa 3 chips + huy hiệu `+N`), định dạng tiền tệ VND, phân trang và hỗ trợ chọn xem chi tiết.
+    - `CustomerDetailDrawer.tsx`: Ngăn kéo trượt hiển thị hồ sơ khách hàng, timeline lịch sử đơn hàng, trình gán/xóa tags nhanh và form cập nhật ghi chú nội bộ.
+    - `frontend/src/app/(dashboard)/customers/page.tsx`: Tích hợp bộ chọn Fanpage, reload dữ liệu, metrics cards, thanh tìm kiếm & lọc tag, bảng danh bạ và ngăn kéo chi tiết.
+    - `Sidebar.tsx`: Bổ sung điều hướng "Khách hàng & Leads" (`/customers`, icon `Contact2`).
+    - Component test suite `customers-page.test.tsx` pass 100%.
+  - **Kiểm Thử Toàn Diện & Quality Gates:**
+    - Toàn bộ 77 backend test files (652 tests) pass 100%.
+    - Toàn bộ 23 frontend test files (153 tests) pass 100%.
+    - Backend build (`tsc`) & Next.js production build (`next build`) pass với 0 lỗi.
+
 ## [2026-10-24] - Hoàn Thành TASK-26: Tối Ưu Hóa Hiệu Năng & Hardening Môi Trường Production (`production-hardening`) - ĐÓNG SPRINT 5 (100% DONE)
 - **Tác giả:** System Architect & Full-Stack Engineer (Antigravity Ecosystem)
 - **Nội dung hoàn thành:**

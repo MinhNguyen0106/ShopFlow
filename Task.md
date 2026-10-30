@@ -1,7 +1,7 @@
 # BẢNG KẾ HOẠCH THỰC THI DỰ ÁN SHOPFLOW (TASK.MD)
 
 > **Sprint Hiện Tại:** Sprint 6 (CRM Leads Management, System Settings & Production Launch)  
-> **Cập nhật lần cuối:** 24/10/2026  
+> **Cập nhật lần cuối:** 30/10/2026  
 > **Tài liệu tham chiếu:** [docs/00_INDEX.md](file:///c:/Users/Dell/Desktop/ShopFlow/docs/00_INDEX.md) • [docs/02_ARCHITECTURE_AND_FLOWS.md](file:///c:/Users/Dell/Desktop/ShopFlow/docs/02_ARCHITECTURE_AND_FLOWS.md) • [docs/03_DATABASE_SCHEMA.md](file:///c:/Users/Dell/Desktop/ShopFlow/docs/03_DATABASE_SCHEMA.md) • [docs/04_API_AND_WEBSOCKET.md](file:///c:/Users/Dell/Desktop/ShopFlow/docs/04_API_AND_WEBSOCKET.md) • [docs/05_DESIGN_SYSTEM.md](file:///c:/Users/Dell/Desktop/ShopFlow/docs/05_DESIGN_SYSTEM.md) • [docs/06_UI_SCREENS_AND_COMPONENTS.md](file:///c:/Users/Dell/Desktop/ShopFlow/docs/06_UI_SCREENS_AND_COMPONENTS.md)
 
 ---
@@ -30,13 +30,6 @@
 ## 🚀 DANH MỤC CÔNG VIỆC SPRINT 6: CRM LEADS MANAGEMENT, SYSTEM SETTINGS & PRODUCTION LAUNCH
 
 ### 📋 TRẠNG THÁI: CHỜ THỰC HIỆN (TODO)
-
-#### [TASK-27] Màn Hình Quản Lý Khách Hàng & Leads Tập Trung (`/(dashboard)/customers`) - [P2]
-- [ ] **27.1.** Xây dựng API CRM khách hàng (`/api/v1/customers`): lọc theo tag (Có SĐT, Khách VIP, Đã mua hàng), tìm kiếm đa năng, lịch sử đơn hàng và tổng chi tiêu (LTV).
-- [ ] **27.2.** Thiết kế Zustand store `customer.store.ts` kết nối REST API quản lý danh bạ khách hàng kèm chức năng gán/xóa tags nhanh.
-- [ ] **27.3.** Xây dựng giao diện Khách hàng & Leads chuẩn macOS Clean Utility Bento Grid (`CustomerMetrics`, `CustomerTable`, `CustomerDetailDrawer` với lịch sử mua hàng và ghi chú nội bộ).
-- [ ] **27.4.** Viết unit & integration tests cho toàn bộ phân hệ quản lý quan hệ khách hàng CRM.
-*(Khi bắt đầu thực thi: Chạy `/opsx-propose customer-crm`)*
 
 #### [TASK-28] Màn Hình Cài Đặt Hệ Thống, Hồ Sơ & Giám Sát Meta API Limits (`/(dashboard)/settings`) - [P2]
 - [ ] **28.1.** Xây dựng API cập nhật hồ sơ cá nhân, đổi mật khẩu và API giám sát hạn mức Meta Graph API (`/api/v1/settings/meta-limits`).
@@ -100,6 +93,7 @@
 | 24/10/2026 | [TASK-24] Màn Hình Báo Cáo Phân Tích Doanh Thu & Hiệu Quả Bán Hàng (`/analytics`) | **DONE** | 5 REST APIs `/api/v1/analytics/*`, `AnalyticsRepository` SQL tối ưu, `AnalyticsService` tính PoP growth & zero-division safeguard, Zustand store `analytics.store.ts` có export CSV UTF-8 BOM, cụm Bento UI (Header, Metrics, RevenueTrendChart SVG, ChannelBreakdown, TopProducts, GoldenHourHeatmap), unit & integration tests pass 100%. Hoàn thành OpenSpec `analytics-dashboard`. |
 | 24/10/2026 | [TASK-25] Mở Rộng Quản Lý Đa Fanpage & Phân Quyền Nhân Viên (RBAC) | **DONE** | Bảng PostgreSQL `page_members` (`004_page_members_and_rbac.sql`) kèm backfill tự động, middleware `requirePageRole`, REST APIs `/api/v1/pages/:pageId/members/*`, chính sách bảo vệ PII che SĐT khách hàng cho vai trò `staff` (`sanitizeOrderForRole`), cụm UI macOS Bento (`PageMembersModal`, `InviteMemberModal`, `MemberRoleBadge`), Zustand store `page-member.store.ts`, pass toàn bộ unit & integration tests. Hoàn thành OpenSpec `multi-page-rbac`. |
 | 24/10/2026 | [TASK-26] Tối Ưu Hóa Hiệu Năng & Hardening Môi Trường Production | **DONE** | Tầng Redis Caching `CacheService` với invalidation tự động, nén HTTP Gzip/Brotli qua `compressionMiddleware`, bộ Rate Limiting phân tầng (`globalApiLimiter`, `authLimiter`, `heavyComputationLimiter`), gia cố `helmet`, multi-stage Dockerfiles (`backend/Dockerfile`, `frontend/Dockerfile` standalone mode), cụm `docker-compose.prod.yml` 5 containers + Nginx Gateway, test tải `scripts/load-test.ts` và OWASP Top 10 security test suite `owasp-security.test.ts`. Hoàn thành OpenSpec `production-hardening`. **HOÀN THÀNH SPRINT 5 (100%)**. |
+| 30/10/2026 | [TASK-27] Màn Hình Quản Lý Khách Hàng & Leads Tập Trung (`/(dashboard)/customers`) | **DONE** | Zod DTOs, `CustomerRepository` tối ưu SQL `LEFT JOIN` tính LTV/đơn hàng không N+1, `CustomerService` với PII phone masking cho role `staff`, 7 REST APIs `/api/v1/customers/*`, Zustand store `customer.store.ts` cập nhật lạc quan & rollback tự động, bộ 3 components Bento macOS Clean Utility (`CustomerMetrics`, `CustomerTable`, `CustomerDetailDrawer`), Sidebar navigation `/customers`, 100% tests & build pass. Hoàn thành OpenSpec `customer-crm`. |
 
 
 
