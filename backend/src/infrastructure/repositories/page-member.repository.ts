@@ -144,10 +144,7 @@ export class PageMemberRepository {
    * Xóa / Thu hồi quyền thành viên khỏi Fanpage.
    */
   async removeMember(id: string): Promise<boolean> {
-    const sql = `
-      DELETE FROM page_members
-      WHERE id = $1
-    `;
+    const sql = `DELETE FROM page_members WHERE id = $1`;
     const result = await query(sql, [id]);
     return (result.rowCount ?? 0) > 0;
   }

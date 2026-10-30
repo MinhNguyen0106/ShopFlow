@@ -129,6 +129,8 @@ describe('Analytics Dashboard Integration Tests (TASK-24)', () => {
       isLoading: false,
       error: null,
     });
+
+    vi.spyOn(useAnalyticsStore.getState(), 'fetchAnalytics').mockImplementation(() => Promise.resolve());
   });
 
   it('render đầy đủ tiêu đề, các nút điều khiển và 4 thẻ Bento KPIs', () => {

@@ -13,13 +13,11 @@ export interface OrderWithPhone {
   customerPhone?: string | null;
   shippingPhone?: string | null;
   customer_phone?: string | null;
-  [key: string]: unknown;
 }
 
 export interface CustomerWithPhone {
   phone?: string | null;
   phone_number?: string | null;
-  [key: string]: unknown;
 }
 
 /**

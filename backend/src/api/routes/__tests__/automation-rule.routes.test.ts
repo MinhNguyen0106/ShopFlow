@@ -10,6 +10,7 @@ import { automationRuleService } from '../../../core/services/automation-rule.se
 import { generateTokens } from '../../../utils/auth.helper.js';
 import { User } from '../../../core/entities/user.entity.js';
 import { AutomationRule } from '../../../infrastructure/repositories/automation-rule.repository.js';
+import { pageMemberRepository } from '../../../infrastructure/repositories/page-member.repository.js';
 
 describe('Automation Rule Routes Integration (/api/v1/pages/:pageId/rules)', () => {
   const app = createApp();
@@ -42,6 +43,16 @@ describe('Automation Rule Routes Integration (/api/v1/pages/:pageId/rules)', () 
 
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.spyOn(pageMemberRepository, 'findByPageAndUser').mockResolvedValue({
+      id: 'pm-1',
+      page_id: 'page-uuid-123',
+      user_id: testUser.id,
+      role: 'owner',
+      invited_by: null,
+      status: 'active',
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
   });
 
   describe('GET /api/v1/pages/:pageId/rules', () => {

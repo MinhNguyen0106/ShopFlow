@@ -9,6 +9,7 @@ import { createApp } from '../../../app.js';
 import { pageService } from '../../../core/services/page.service.js';
 import { generateTokens } from '../../../utils/auth.helper.js';
 import { User } from '../../../core/entities/user.entity.js';
+import { pageMemberRepository } from '../../../infrastructure/repositories/page-member.repository.js';
 
 describe('Connected Pages Routes Integration (/api/v1/pages)', () => {
   const app = createApp();
@@ -40,6 +41,16 @@ describe('Connected Pages Routes Integration (/api/v1/pages)', () => {
 
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.spyOn(pageMemberRepository, 'findByPageAndUser').mockResolvedValue({
+      id: 'pm-1',
+      page_id: 'meta-12345',
+      user_id: testUser.id,
+      role: 'owner',
+      invited_by: null,
+      status: 'active',
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
   });
 
   describe('GET /api/v1/pages', () => {

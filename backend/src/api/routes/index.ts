@@ -12,6 +12,7 @@ import { productRouter } from './product.routes.js';
 import { paymentRouter } from './payment.routes.js';
 import { shippingRouter } from './shipping.routes.js';
 import { analyticsRouter } from './analytics.routes.js';
+import { customerRouter } from './customer.routes.js';
 
 export const apiV1Router = Router();
 
@@ -53,3 +54,6 @@ apiV1Router.use('/shipments', shippingRouter);
 
 // Mount Business Analytics routes (TASK-24)
 apiV1Router.use('/analytics', analyticsRouter);
+
+// Mount Customer CRM routes (TASK-27)
+apiV1Router.use('/customers', customerRouter);

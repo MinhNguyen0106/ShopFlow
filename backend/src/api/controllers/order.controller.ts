@@ -79,7 +79,7 @@ export class OrderController {
         throw new UnauthorizedError('Chưa xác thực người dùng');
       }
 
-      const { orderId } = req.params;
+      const orderId = req.params['orderId'] as string;
       if (!orderId) {
         throw new BadRequestError('Thiếu orderId');
       }
@@ -115,7 +115,7 @@ export class OrderController {
         throw new UnauthorizedError('Chưa xác thực người dùng');
       }
 
-      const { orderId } = req.params;
+      const orderId = req.params['orderId'] as string;
       const { status, note } = req.body as { status: OrderStatus; note?: string };
 
       if (!orderId || !status) {

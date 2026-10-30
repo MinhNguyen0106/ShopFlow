@@ -33,6 +33,10 @@ export class CacheService implements ICacheService {
     }
   }
 
+  public getIsConnected(): boolean {
+    return this.isConnected;
+  }
+
   /**
    * Khởi tạo kết nối Redis client cho tầng Cache
    */

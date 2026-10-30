@@ -143,7 +143,7 @@ describe('Analytics Store (useAnalyticsStore)', () => {
     });
 
     it('xử lý an toàn khi API trả về dữ liệu rỗng hoặc lỗi', async () => {
-      (apiClient.get as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+      (apiClient.get as ReturnType<typeof vi.fn>).mockRejectedValue(
         new Error('Network Error')
       );
 

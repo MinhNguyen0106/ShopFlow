@@ -1,5 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import { MemberRoleBadge } from '../member-role-badge';
 import { PageMembersModal } from '../page-members-modal';
 import { InviteMemberModal } from '../invite-member-modal';
@@ -194,31 +195,37 @@ describe('Page Members Components & Store', () => {
 
   describe('Modal Rendering', () => {
     it('trả về null khi isOpen là false', () => {
-      const pageMembersModal = PageMembersModal({
-        isOpen: false,
-        pageId: 'page-1',
-        pageName: 'Shop A',
-        onClose: vi.fn(),
-      });
-      expect(pageMembersModal).toBeNull();
+      const { container: container1 } = render(
+        <PageMembersModal
+          isOpen={false}
+          pageId="page-1"
+          pageName="Shop A"
+          onClose={vi.fn()}
+        />
+      );
+      expect(container1.firstChild).toBeNull();
 
-      const inviteModal = InviteMemberModal({
-        isOpen: false,
-        pageId: 'page-1',
-        pageName: 'Shop A',
-        onClose: vi.fn(),
-      });
-      expect(inviteModal).toBeNull();
+      const { container: container2 } = render(
+        <InviteMemberModal
+          isOpen={false}
+          pageId="page-1"
+          pageName="Shop A"
+          onClose={vi.fn()}
+        />
+      );
+      expect(container2.firstChild).toBeNull();
     });
 
     it('render UI đầy đủ khi isOpen là true', () => {
-      const pageMembersModal = PageMembersModal({
-        isOpen: true,
-        pageId: 'page-1',
-        pageName: 'Shop Thời Trang',
-        onClose: vi.fn(),
-      });
-      expect(pageMembersModal).not.toBeNull();
+      render(
+        <PageMembersModal
+          isOpen={true}
+          pageId="page-1"
+          pageName="Shop Thời Trang"
+          onClose={vi.fn()}
+        />
+      );
+      expect(screen.getByText('Thành viên & Phân quyền')).toBeInTheDocument();
     });
   });
 });
