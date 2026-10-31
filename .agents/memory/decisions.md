@@ -225,3 +225,15 @@ Tài liệu ghi nhận các quyết định kiến trúc quan trọng kèm bối
   3. Gỡ bỏ triệt để các lớp container `max-w-7xl`, `max-w-[1400px]`, `mx-auto` tại toàn bộ 7 trang dashboard con (`/analytics`, `/automation`, `/customers`, `/pages`, `/posts`, `/posts/new`, `/orders`), thay bằng cấu trúc `w-full space-y-6`.
   4. Duy trì thanh cuộn độc lập cho main content workspace (`flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/50 w-full`), trong khi Sidebar và Topbar cố định vị trí.
 - **Hệ quả:** Tối đa hóa 100% không gian làm việc cho các chủ shop và nhân viên, các bảng dữ liệu và biểu đồ hiển thị thoáng đãng, mang lại trải nghiệm ứng dụng SaaS chuyên nghiệp mà vẫn giữ trọn vẹn thẩm mỹ macOS Clean Utility.
+
+---
+
+## ADR-020: Cơ Chế Tiền Xử Lý Làm Sạch DDL Migration Tự Động & Bóc Tách Lỗi Phòng Vệ API Contract
+- **Ngày quyết định:** 2026-11-01
+- **Trạng thái:** ACCEPTED
+- **Bối cảnh:** Các tệp SQL migration chứa các meta-command của `psql` CLI (`\set ON_ERROR_STOP on`) khiến Node.js `pg` driver báo lỗi cú pháp `syntax error at or near "\"`. Khi migration runner thất bại, bảng `page_members` không được tạo trong cơ sở dữ liệu PostgreSQL khiến endpoint `/api/v1/pages/:pageId/rules` ném lỗi HTTP 500 do middleware phân quyền `requirePageRole` không tìm thấy quan hệ bảng. Đồng thời ở Frontend, store lại đọc sai cấu trúc envelope lỗi (`err.response.data.message` thay vì `err.response.data.error.message`) dẫn đến hiển thị lỗi generic của Axios: `"Request failed with status code 500"`.
+- **Quyết định:**
+  1. Bổ sung hàm tiền xử lý `cleanSqlScript` trong `migrate.ts` sử dụng regex để tự động loại bỏ các dòng meta-command bắt đầu bằng `\` trước khi thực thi qua client `pg.Pool`, đồng thời hỗ trợ cờ `--dry-run` mô phỏng kiểm tra an toàn.
+  2. Bổ sung `DROP TRIGGER IF EXISTS` trước `CREATE TRIGGER` trong các migration `001`, `002`, `003` để đảm bảo tính Idempotent 100% khi chạy lại pipeline migration.
+  3. Chuẩn hóa hàm bóc tách lỗi `extractErrorMessage` trong `automation.store.ts` theo cơ chế phòng vệ đa tầng: `err.response?.data?.error?.message ?? err.response?.data?.message ?? (err as Error).message ?? fallback`.
+- **Hệ quả:** Lệnh migration `npm run db:migrate` chạy trơn tru và nhất quán trên mọi môi trường độc lập không cần binary `psql`, bảng `page_members` được tạo và backfill quyền `owner` đầy đủ, trang Automation hoạt động hoàn hảo đạt HTTP 200 OK, và thông điệp lỗi nếu phát sinh luôn được hiển thị chi tiết, rõ ràng cho người dùng.

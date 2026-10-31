@@ -67,6 +67,16 @@ async function ensureMigrationsTable(client: PoolClient): Promise<void> {
 }
 
 // =============================================================================
+// Làm sạch câu lệnh SQL: loại bỏ các meta-command của psql CLI (bắt đầu bằng \)
+// =============================================================================
+export function cleanSqlScript(sql: string): string {
+  return sql
+    .split('\n')
+    .filter((line) => !line.trim().startsWith('\\'))
+    .join('\n');
+}
+
+// =============================================================================
 // Lấy danh sách migration đã chạy
 // =============================================================================
 async function getAppliedMigrations(client: PoolClient): Promise<Set<string>> {
@@ -165,6 +175,12 @@ async function runMigrations(): Promise<void> {
     console.log(`[migrate] Số migration đã áp dụng trước đó: ${applied.size}`);
     console.log('');
 
+    const isDryRun = process.argv.includes('--dry-run');
+    if (isDryRun) {
+      console.log('[migrate] CHẾ ĐỘ DRY-RUN: Sẽ chỉ kiểm tra và mô phỏng tệp migration, không ghi vào database.');
+      console.log('');
+    }
+
     let skipped = 0;
     let executed = 0;
 
@@ -175,12 +191,18 @@ async function runMigrations(): Promise<void> {
         continue;
       }
 
-      const filePath  = path.join(MIGRATIONS_DIR, filename);
-      const sqlContent = fs.readFileSync(filePath, 'utf8');
-      const checksum  = await computeChecksum(sqlContent);
+      const filePath   = path.join(MIGRATIONS_DIR, filename);
+      const rawContent = fs.readFileSync(filePath, 'utf8');
+      const sqlContent = cleanSqlScript(rawContent);
+      const checksum   = await computeChecksum(rawContent);
 
-      await runMigration(client, filename, sqlContent, checksum);
-      executed++;
+      if (isDryRun) {
+        console.log(`  🔍 [dry-run] Tệp hợp lệ (${sqlContent.length} bytes): ${filename}`);
+        executed++;
+      } else {
+        await runMigration(client, filename, sqlContent, checksum);
+        executed++;
+      }
     }
 
     console.log('');
@@ -209,10 +231,12 @@ async function runMigrations(): Promise<void> {
 // =============================================================================
 // Entry point
 // =============================================================================
-runMigrations().catch((error: unknown) => {
-  console.error('');
-  console.error('[migrate] ✘ Migration thất bại!');
-  console.error((error as Error).message);
-  console.error('');
-  process.exit(1);
-});
+if (process.env.NODE_ENV !== 'test') {
+  runMigrations().catch((error: unknown) => {
+    console.error('');
+    console.error('[migrate] ✘ Migration thất bại!');
+    console.error((error as Error).message);
+    console.error('');
+    process.exit(1);
+  });
+}

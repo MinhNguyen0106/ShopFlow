@@ -308,24 +308,28 @@ CREATE INDEX IF NOT EXISTS idx_webhook_logs_payload_gin
 -- =============================================================================
 
 -- Trigger cho bảng users
+DROP TRIGGER IF EXISTS trg_update_users ON users;
 CREATE TRIGGER trg_update_users
     BEFORE UPDATE ON users
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
 -- Trigger cho bảng connected_pages
+DROP TRIGGER IF EXISTS trg_update_pages ON connected_pages;
 CREATE TRIGGER trg_update_pages
     BEFORE UPDATE ON connected_pages
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
 -- Trigger cho bảng posts_schedule
+DROP TRIGGER IF EXISTS trg_update_posts ON posts_schedule;
 CREATE TRIGGER trg_update_posts
     BEFORE UPDATE ON posts_schedule
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
 -- Trigger cho bảng automation_rules
+DROP TRIGGER IF EXISTS trg_update_rules ON automation_rules;
 CREATE TRIGGER trg_update_rules
     BEFORE UPDATE ON automation_rules
     FOR EACH ROW

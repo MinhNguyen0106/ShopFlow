@@ -28,6 +28,7 @@ Dự án áp dụng kiến trúc **Monorepo** chia 2 thư mục gốc độc l�
 * **Nền tảng runtime:** **Node.js 20+ LTS**, **Express.js (v4.x/v5.x)**, **TypeScript Strict Mode** (`strict: true`, cấm `any`).
 * **Cơ sở dữ liệu:** **PostgreSQL 15+** (Hỗ trợ extension `uuid-ossp`, cột kiểu `JSONB`, check constraints, trigger tự động `update_updated_at_column`, và partial indexes).
 * **Database Client:** **`pg` (node-postgres v8.x)** + `pg.Pool` Singleton + **Repository Pattern** có định kiểu, thực thi trực tiếp bộ SQL DDL runnable tại `docs/03_DATABASE_SCHEMA.md` với câu lệnh tham số hóa `$1, $2,...` chống SQL Injection (thay thế hoàn toàn Prisma).
+* **Database Migration Runner:** Script `migrate.ts` tự động quản lý phiên bản qua bảng `_schema_migrations`, tích hợp cơ chế làm sạch DDL (`cleanSqlScript`) tự động loại bỏ các lệnh meta-command của `psql` CLI (`\set ...`), đảm bảo thực thi migration an toàn, idempotent 100% trên mọi nền tảng không phụ thuộc `psql`. Hỗ trợ chế độ dry-run qua `npm run db:migrate:dry`.
 * **Validation Engine:** **`Zod` (v3.x)** kiểm thực toàn diện Request Body, Query String, URL Params và phân tích biến môi trường khởi chạy (`envSchema`).
 * **Hàng đợi & Caching:** **Redis 7+** & **BullMQ (v5.x)**
   * Điều tiết tải Webhook, quét Regex SĐT, xuất bản bài viết hẹn giờ, trả lời tự động.
@@ -50,7 +51,7 @@ Dự án áp dụng kiến trúc **Monorepo** chia 2 thư mục gốc độc l�
 ### 2.2. Frontend Dashboard (`frontend/`)
 * **Khung ứng dụng:** **Next.js 14+ (App Router)**, **React 18+**, **TypeScript Strict Mode**.
 * **Giao diện & Styling:** **Tailwind CSS**, **Lucide React**, kiến trúc **Edge-to-Edge Full-Width Canvas 100% Viewport** (loại bỏ hoàn toàn các khung container giới hạn cố định), phong cách **macOS Clean Utility Bento Grid**.
-* **Quản trị State & Realtime:** **Zustand** stores (kèm defensive normalizers và optimistic UI updates), **Socket.io-client**, **Axios** (kèm Bearer Token Interceptor & Auto Refresh).
+* **Quản trị State & Realtime:** **Zustand** stores (kèm defensive normalizers, bóc tách lỗi API Envelope phòng vệ `extractErrorMessage` và optimistic UI updates), **Socket.io-client**, **Axios** (kèm Bearer Token Interceptor & Auto Refresh).
 * **Danh Mục 8 Màn Hình Cốt Lõi:**
   1. `(auth)/login` & `(auth)/register`: Đăng nhập, đăng ký tài khoản có rate limiting và JWT token refresh.
   2. `(dashboard)/pages`: Quản lý danh sách Fanpage, kết nối Meta OAuth 2.0, đồng bộ webhook, quản lý thành viên RBAC (`PageMembersModal`, `InviteMemberModal`).

@@ -2,6 +2,27 @@
 
 Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và trạng thái của dự án ShopFlow.
 
+## [2026-11-01] - Khắc Phục Lỗi HTTP 500 Trang Kịch Bản Tự Động & Chuẩn Hóa Database Migration (`fix-automation-500-error`)
+- **Tác giả:** System Architect & Full-Stack Reliability Engineer (Antigravity Ecosystem)
+- **Nội dung hoàn thành:**
+  - Hoàn thành toàn diện các tasks trong OpenSpec change [fix-automation-500-error](file:///c:/Users/Dell/Desktop/ShopFlow/openspec/changes/fix-automation-500-error/tasks.md) giải quyết triệt để lỗi HTTP 500 khi truy cập `/automation`.
+  - **Chuẩn Hóa Migration Runner (`backend/src/infrastructure/database/migrate.ts`):**
+    - Bổ sung hàm tiền xử lý `cleanSqlScript(sql: string): string` tự động loại bỏ các lệnh meta-command của `psql` CLI (như `\set ON_ERROR_STOP on`, `\connect ...`) trước khi thực thi qua Node.js `pg.Pool`, loại bỏ hoàn toàn lỗi cú pháp `syntax error at or near "\"`.
+    - Hỗ trợ chế độ dry-run an toàn khi nhận cờ `--dry-run` qua `npm run db:migrate:dry`.
+    - Viết 4 unit tests cho `cleanSqlScript` trong `backend/src/infrastructure/database/__tests__/migrate.test.ts` pass 100%.
+  - **Thực Thi Migration PostgreSQL & Backfill Quyền Sở Hữu:**
+    - Bổ sung `DROP TRIGGER IF EXISTS` trước `CREATE TRIGGER` trong các migration `001`, `002`, `003` để bảo đảm tính idempotent 100%.
+    - Thực thi thành công toàn bộ 4 migration (`001` đến `004_page_members_and_rbac.sql`) vào cơ sở dữ liệu PostgreSQL thực tế, khởi tạo bảng `page_members` kèm chỉ mục, triggers và tự động backfill quyền `owner` cho các chủ Fanpage từ `connected_pages`.
+    - Endpoint `GET /api/v1/pages/:pageId/rules` được middleware `requirePageRole` xác thực thành công và phản hồi `HTTP 200 OK`.
+  - **Đồng Bộ Phòng Vệ API Contract Error Parsing (`frontend/src/lib/automation.store.ts`):**
+    - Bổ sung hàm tiện ích `extractErrorMessage(err: unknown, fallback: string): string` bóc tách thông báo lỗi theo chuẩn Envelope `{ success: false, error: { message, code } }` của Backend ShopFlow trước khi fallback về `(err as Error).message`.
+    - Áp dụng vào 5 phương thức: `fetchRules`, `createRule`, `updateRule`, `toggleRuleActive`, `deleteRule`.
+    - Bổ sung unit tests cho `extractErrorMessage` và error handling trong `frontend/src/lib/__tests__/automation.store.test.ts` (17/17 tests pass 100%).
+  - **Quality Gates:**
+    - Toàn bộ 78 backend test files (656 tests) pass 100%.
+    - Toàn bộ 23 frontend test files (157 tests) pass 100%.
+    - TypeScript compilation (`tsc --noEmit`) đạt 0 lỗi ở cả backend và frontend.
+
 ## [2026-10-31] - Hoàn Thành Chuyển Đổi Bố Cục Full-Width Canvas 100% Viewport (`full-width-layout`)
 - **Tác giả:** System Architect & Frontend UI/UX Engineer (Antigravity Ecosystem)
 - **Nội dung hoàn thành:**

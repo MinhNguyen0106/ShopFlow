@@ -46,6 +46,7 @@ CREATE INDEX IF NOT EXISTS idx_products_name ON products(page_id, name);
 -- =============================================================================
 -- TRIGGER TỰ ĐỘNG CẬP NHẬT UPDATED_AT
 -- =============================================================================
+DROP TRIGGER IF EXISTS trg_update_products ON products;
 CREATE TRIGGER trg_update_products
 BEFORE UPDATE ON products
 FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();

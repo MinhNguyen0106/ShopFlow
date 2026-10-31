@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useAutomationStore } from '../automation.store';
+import { useAutomationStore, extractErrorMessage } from '../automation.store';
 import { apiClient } from '../api-client';
 
 vi.mock('../api-client', () => ({
@@ -314,6 +314,48 @@ describe('Automation Store (useAutomationStore)', () => {
 
       expect(success).toBe(false);
       expect(useAutomationStore.getState().error).toBe('Kịch bản không tồn tại');
+    });
+  });
+
+  describe('extractErrorMessage()', () => {
+    it('ưu tiên trích xuất error.message từ chuẩn envelope Backend ShopFlow', () => {
+      const err = {
+        response: {
+          data: {
+            success: false,
+            error: {
+              code: 'INTERNAL_SERVER_ERROR',
+              message: 'relation "page_members" does not exist',
+            },
+          },
+        },
+      };
+
+      expect(extractErrorMessage(err, 'Lỗi mặc định')).toBe(
+        'relation "page_members" does not exist'
+      );
+    });
+
+    it('fallback sang data.message nếu error.message không có', () => {
+      const err = {
+        response: {
+          data: {
+            message: 'Tài nguyên không tìm thấy',
+          },
+        },
+      };
+
+      expect(extractErrorMessage(err, 'Lỗi mặc định')).toBe('Tài nguyên không tìm thấy');
+    });
+
+    it('fallback sang (err as Error).message khi không có response từ server', () => {
+      const err = new Error('Network timeout');
+      expect(extractErrorMessage(err, 'Lỗi mặc định')).toBe('Network timeout');
+    });
+
+    it('trả về fallback khi không có bất kỳ thông tin lỗi nào', () => {
+      expect(extractErrorMessage({}, 'Lỗi mặc định')).toBe('Lỗi mặc định');
+      expect(extractErrorMessage(null, 'Lỗi mặc định')).toBe('Lỗi mặc định');
     });
   });
 });

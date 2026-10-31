@@ -14,6 +14,27 @@ import {
   normalizeAutomationRule,
 } from '../types/automation';
 
+/**
+ * Bóc tách thông báo lỗi phòng vệ (Defensive Error Parsing) theo chuẩn API Envelope của ShopFlow:
+ * Hỗ trợ các định dạng:
+ * 1. res.data.error.message (chuẩn Envelope chính thức của Backend ShopFlow)
+ * 2. res.data.message (chuẩn cũ/fallback)
+ * 3. (err as Error).message (Axios network/client error)
+ * 4. fallback text
+ */
+export function extractErrorMessage(err: unknown, fallback: string): string {
+  const responseData = (err as { response?: { data?: unknown } })?.response?.data as
+    | { error?: { message?: string }; message?: string }
+    | undefined;
+
+  return (
+    responseData?.error?.message ||
+    responseData?.message ||
+    (err as Error)?.message ||
+    fallback
+  );
+}
+
 export interface AutomationState {
   rules: AutomationRule[];
   isLoading: boolean;
@@ -72,11 +93,7 @@ export const useAutomationStore = create<AutomationState>((set, get) => ({
       const normalizedRules = rawList.map(normalizeAutomationRule);
       set({ rules: normalizedRules, isLoading: false, error: null });
     } catch (err: unknown) {
-      const errorMsg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ||
-        (err as Error).message ||
-        'Không thể tải danh sách kịch bản tự động hóa';
+      const errorMsg = extractErrorMessage(err, 'Không thể tải danh sách kịch bản tự động hóa');
       set({ isLoading: false, error: errorMsg });
     }
   },
@@ -95,11 +112,7 @@ export const useAutomationStore = create<AutomationState>((set, get) => ({
       }));
       return newRule;
     } catch (err: unknown) {
-      const errorMsg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ||
-        (err as Error).message ||
-        'Không thể tạo kịch bản tự động hóa';
+      const errorMsg = extractErrorMessage(err, 'Không thể tạo kịch bản tự động hóa');
       set({ isLoading: false, error: errorMsg });
       return null;
     }
@@ -126,11 +139,7 @@ export const useAutomationStore = create<AutomationState>((set, get) => ({
       }));
       return updatedRule;
     } catch (err: unknown) {
-      const errorMsg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ||
-        (err as Error).message ||
-        'Không thể cập nhật kịch bản tự động hóa';
+      const errorMsg = extractErrorMessage(err, 'Không thể cập nhật kịch bản tự động hóa');
       set({ isLoading: false, error: errorMsg });
       return null;
     }
@@ -158,11 +167,7 @@ export const useAutomationStore = create<AutomationState>((set, get) => ({
       return true;
     } catch (err: unknown) {
       // Rollback on network failure
-      const errorMsg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ||
-        (err as Error).message ||
-        'Không thể đổi trạng thái hoạt động của kịch bản';
+      const errorMsg = extractErrorMessage(err, 'Không thể đổi trạng thái hoạt động của kịch bản');
 
       set({
         rules: previousRules,
@@ -183,11 +188,7 @@ export const useAutomationStore = create<AutomationState>((set, get) => ({
       }));
       return true;
     } catch (err: unknown) {
-      const errorMsg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ||
-        (err as Error).message ||
-        'Không thể xóa kịch bản tự động hóa';
+      const errorMsg = extractErrorMessage(err, 'Không thể xóa kịch bản tự động hóa');
       set({ isLoading: false, error: errorMsg });
       return false;
     }

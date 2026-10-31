@@ -127,10 +127,12 @@ CREATE INDEX IF NOT EXISTS idx_shipments_tracking_code ON shipments(tracking_cod
 -- =============================================================================
 -- TRIGGERS TỰ ĐỘNG CẬP NHẬT UPDATED_AT
 -- =============================================================================
+DROP TRIGGER IF EXISTS trg_update_orders ON orders;
 CREATE TRIGGER trg_update_orders
 BEFORE UPDATE ON orders
 FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trg_update_shipments ON shipments;
 CREATE TRIGGER trg_update_shipments
 BEFORE UPDATE ON shipments
 FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
