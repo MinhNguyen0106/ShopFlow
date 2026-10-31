@@ -618,19 +618,35 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 
 ---
 
-## [Kế Hoạch Tiếp Theo] - Đề Xuất Sprint 4: Order Management, AI Entity Extraction & Payment Integration
-- **Mục tiêu Sprint 4:** Hoàn thiện mắt xích quan trọng nhất của ShopFlow: Tự động hóa chuyển đổi từ tương tác mạng xã hội (bình luận / tin nhắn) thành đơn hàng thực tế; bóc tách thực thể thông minh qua Google Gemini AI kết hợp Regex phòng vệ tiếng Việt; quản lý kho hàng, tạo đơn hàng và thanh toán VietQR động.
-- **Danh mục nhiệm vụ cụ thể:**
-  - [ ] **[TASK-20] Mô-đun Trích Xuất Thực Thể Đơn Hàng Bằng Google Gemini AI (`OrderParserService`):**
-    - Tích hợp Google Gemini 2.5 Flash qua SDK `@google/genai` hoặc REST API với cấu hình JSON output mode.
-    - Xây dựng tầng Regex Fallback xử lý cú pháp bình luận đặt hàng phổ biến (`#SP01 2 đỏ L 0988xxx`).
-    - Trích xuất 7 trường thực thể: Sản phẩm, Mã SKU, Số lượng, Biến thể (Màu/Size), Tên khách hàng, SĐT, Địa chỉ nhận hàng.
-  - [ ] **[TASK-21] Quản Lý Danh Mục Sản Phẩm, Biến Thể & Tồn Kho (`/api/v1/products`):**
-    - Nghiệp vụ quản lý danh mục sản phẩm, biến thể (JSON attributes) và kiểm soát tồn kho (`stock_quantity`).
-    - Trừ kho tự động khi tạo đơn hàng và rollback khi hủy đơn.
-  - [ ] **[TASK-22] Màn Hình Giao Diện Quản Lý Đơn Hàng & Vận Đơn (`/orders`):**
-    - Giao diện macOS Clean Utility: Bảng dữ liệu phân trang, lọc theo trạng thái (`pending`, `confirmed`, `shipping`, `completed`, `cancelled`).
-    - Drawer/Modal chi tiết đơn hàng, lịch sử thay đổi, nhãn in vận đơn và đồng bộ socket `ORDER_STATUS_CHANGED`.
-  - [ ] **[TASK-23] Tích Hợp Thanh Toán VietQR Động & Cổng Vận Chuyển:**
-    - Sinh mã VietQR động theo chuẩn Napas 247 chứa đúng số tiền đơn hàng và mã nội dung chuyển khoản bảo mật.
-    - Webhook xác nhận thanh toán tự động chuyển trạng thái đơn hàng sang `confirmed`.
+## [Đã Hoàn Thành] - Sprint 4: Order Management, AI Entity Extraction & Payment Integration - 100%
+- [x] **[TASK-20]** Mô-đun Trích Xuất Thực Thể Đơn Hàng Bằng Google Gemini AI (`OrderParserService`) - 100% DONE
+- [x] **[TASK-21]** Nghiệp Vụ Quản Lý Danh Mục Sản Phẩm, Biến Thể & Tồn Kho (`/api/v1/products`) - 100% DONE
+- [x] **[TASK-22]** Màn Hình Giao Diện Quản Lý Đơn Hàng & Vận Đơn (`/orders`) - 100% DONE
+- [x] **[TASK-23]** Tích Hợp Cổng Thanh Toán VietQR Động & Đơn Vị Vận Chuyển - 100% DONE
+
+---
+
+## [Đã Hoàn Thành] - Sprint 5: Advanced Analytics, Multi-Page RBAC & Production Hardening - 100%
+- [x] **[TASK-24]** Màn Hình Báo Cáo Phân Tích Doanh Thu & Hiệu Quả Bán Hàng (`/analytics`) - 100% DONE
+- [x] **[TASK-25]** Mở Rộng Quản Lý Đa Fanpage & Phân Quyền Nhân Viên RBAC (`page_members`) - 100% DONE
+- [x] **[TASK-26]** Tối Ưu Hóa Hiệu Năng & Hardening Môi Trường Production - 100% DONE
+
+---
+
+## [Đang Thực Hiện] - Sprint 6: CRM Leads Management, System Settings & Production Launch
+- [x] **[TASK-27]** Màn Hình Quản Lý Khách Hàng & Leads Tập Trung (`/(dashboard)/customers`) - 100% DONE (Hoàn thành 30/10/2026)
+- [ ] **[TASK-28]** Màn Hình Cài Đặt Hệ Thống, Hồ Sơ & Giám Sát Meta API Limits (`/(dashboard)/settings`) - P2 TODO
+- [ ] **[TASK-29]** CI/CD Pipeline & Triển Khai Production Tự Động (GitHub Actions) - P1 TODO
+
+---
+
+## [Kế Hoạch Tiếp Theo: Giai Đoạn Vận Hành & Mở Rộng Hệ Sinh Thái Hậu Triển Khai]
+- **Mục tiêu Hậu Triển Khai:** Sau khi hoàn tất triển khai Sprint 6 lên môi trường live, đảm bảo hệ thống vận hành ổn định, giám sát sức khỏe dịch vụ và mở rộng các kênh bán hàng tiềm năng.
+- **Danh mục định hướng:**
+  1. **Giám Sát & Cảnh Báo Chủ Động (Observability & Alerting):**
+     - Tích hợp Prometheus & Grafana hoặc Sentry để cảnh báo lỗi runtime và tỷ lệ request lỗi của Meta Graph API.
+     - Thiết lập bot Telegram thông báo tức thì khi có biến động giao dịch ngân hàng VietQR hoặc tài khoản bị Meta gắn cờ Rate Limit.
+  2. **Trợ Lý AI Tự Động Chốt Đơn Chuyên Sâu (Conversational Sales Agent):**
+     - Tinh chỉnh mô hình Gemini 2.5 với Context Memory sâu theo từng khách hàng, tự động tư vấn size/màu và tạo đơn trực tiếp qua Messenger.
+  3. **Mở Rộng Bán Hàng Đa Kênh (Omnichannel Integration):**
+     - Tích hợp Zalo Official Account (Zalo OA) và TikTok Shop Webhook Ingestion vào cùng một giao diện Live Chat 4-Pane Bento duy nhất.
