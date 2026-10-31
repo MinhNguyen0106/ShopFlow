@@ -2,22 +2,9 @@ import Link from 'next/link';
 
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6">
-      {/* macOS Floating Window Container */}
-      <div className="w-full max-w-3xl overflow-hidden rounded-mac-window border border-slate-200/80 bg-white shadow-mac-window">
-        {/* macOS Title Bar */}
-        <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/70 px-5 py-3.5 backdrop-blur-md">
-          <div className="flex items-center space-x-2">
-            <span className="h-3 w-3 rounded-full bg-mac-close" />
-            <span className="h-3 w-3 rounded-full bg-mac-minimize" />
-            <span className="h-3 w-3 rounded-full bg-mac-maximize" />
-          </div>
-          <span className="text-xs font-medium text-slate-500">
-            ShopFlow Enterprise • macOS Clean Utility v1.0
-          </span>
-          <div className="w-12" />
-        </div>
-
+    <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-slate-50">
+      {/* Centered Welcome Card */}
+      <div className="w-full max-w-3xl overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-xl">
         {/* Content Body */}
         <div className="p-8 text-center sm:p-12">
           <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 shadow-inner">
