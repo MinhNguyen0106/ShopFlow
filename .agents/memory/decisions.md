@@ -211,3 +211,17 @@ Tài liệu ghi nhận các quyết định kiến trúc quan trọng kèm bối
      `COALESCE(SUM(o.final_amount) FILTER (WHERE o.status != 'cancelled'), 0) AS total_spent`.
   2. Gom nhóm theo `customers.id` và phân trang ở cấp độ database bằng `LIMIT` và `OFFSET`.
 - **Hệ quả:** Tốc độ tải danh bạ khách hàng luôn ổn định < 50ms cho mọi quy mô dữ liệu, loại bỏ 100% lỗi N+1 query.
+
+
+---
+
+## ADR-019: Kiến Trúc Bố Cục Full-Width Canvas (Edge-to-Edge Fluid Workspace) Thay Thế Khung Cửa Sổ Giới Hạn
+- **Ngày quyết định:** 2026-10-31
+- **Trạng thái:** ACCEPTED
+- **Bối cảnh:** Trước đây, toàn bộ giao diện bảng điều khiển của ShopFlow bị bó hẹp trong một khung cửa sổ giả lập macOS lơ lửng ở giữa trang với kích thước giới hạn cố định (`max-w-[1560px]`, `min-h-[92vh]`, viền padding ngoài `p-2 sm:p-4 md:p-6`) trên nền blueprint grid. Đồng thời, bên trong các trang nghiệp vụ con tiếp tục tồn tại các container giới hạn (`max-w-7xl mx-auto` hoặc `max-w-[1400px] mx-auto`). Thiết kế này gây lãng phí diện tích hiển thị trên các màn hình máy tính để bàn (Desktop / Ultra-wide monitors), hạn chế không gian hiển thị của các bảng dữ liệu lớn (Đơn hàng, Khách hàng CRM, Live Chat) và các biểu đồ phân tích SVG.
+- **Quyết định:**
+  1. Loại bỏ hoàn toàn khung bo góc cố định, bóng đổ và padding ngoài của `MacWindowShell`. Chuyển đổi container ngoài cùng thành Viewport Canvas toàn màn hình (`h-screen w-full flex flex-col overflow-hidden bg-white`).
+  2. Tái cấu trúc thanh tiêu đề macOS Header (nút traffic lights, tiêu đề hệ thống, huy hiệu trạng thái) trải dài 100% mép trên cùng của màn hình (Edge-to-Edge).
+  3. Gỡ bỏ triệt để các lớp container `max-w-7xl`, `max-w-[1400px]`, `mx-auto` tại toàn bộ 7 trang dashboard con (`/analytics`, `/automation`, `/customers`, `/pages`, `/posts`, `/posts/new`, `/orders`), thay bằng cấu trúc `w-full space-y-6`.
+  4. Duy trì thanh cuộn độc lập cho main content workspace (`flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/50 w-full`), trong khi Sidebar và Topbar cố định vị trí.
+- **Hệ quả:** Tối đa hóa 100% không gian làm việc cho các chủ shop và nhân viên, các bảng dữ liệu và biểu đồ hiển thị thoáng đãng, mang lại trải nghiệm ứng dụng SaaS chuyên nghiệp mà vẫn giữ trọn vẹn thẩm mỹ macOS Clean Utility.

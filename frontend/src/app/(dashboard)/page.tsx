@@ -65,7 +65,7 @@ export default function DashboardOverviewPage() {
   const displayName = user?.fullName || user?.email?.split('@')[0] || 'Chủ Shop';
 
   return (
-    <div className="space-y-6 pb-12 animate-in fade-in duration-300">
+    <div className="w-full space-y-6 pb-12 animate-in fade-in duration-300">
       {/* Header Banner & Filter */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
         <div className="space-y-1">

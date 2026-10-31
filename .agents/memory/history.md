@@ -2,6 +2,28 @@
 
 Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và trạng thái của dự án ShopFlow.
 
+## [2026-10-31] - Hoàn Thành Chuyển Đổi Bố Cục Full-Width Canvas 100% Viewport (`full-width-layout`)
+- **Tác giả:** System Architect & Frontend UI/UX Engineer (Antigravity Ecosystem)
+- **Nội dung hoàn thành:**
+  - Hoàn thành toàn diện 14/14 tasks trong OpenSpec change [full-width-layout](file:///c:/Users/Dell/Desktop/ShopFlow/openspec/changes/full-width-layout/tasks.md) theo yêu cầu nâng cấp giao diện toàn màn hình.
+  - **Tái Cấu Trúc Khung Layout Cha (`frontend/src/components/layout/mac-window-shell.tsx`):**
+    - Chuyển đổi khung ngoài thành `h-screen w-full flex flex-col overflow-hidden bg-white`, gỡ bỏ hoàn toàn khung bo góc cố định `max-w-[1560px]`, `min-h-[92vh]`, padding ngoài `p-2 sm:p-4 md:p-6`, nền blueprint thừa xung quanh, viền `border` và bóng đổ `shadow-mac-window`.
+    - Tái cấu trúc thanh tiêu đề macOS Header trải dài toàn bộ mép trên cùng của màn hình (Edge-to-Edge: `w-full h-10 border-b border-slate-200/80 px-4`), tích hợp Web Fullscreen API trên nút maximize.
+    - Cập nhật `frontend/src/app/(dashboard)/layout.tsx` đồng bộ hóa trạng thái tải `h-screen w-full bg-slate-50`.
+  - **Loại Bỏ Triệt Để Container Giới Hạn Tại Toàn Bộ 7 Trang Dashboard Con:**
+    - `analytics/page.tsx`: Gỡ bỏ `max-w-7xl mx-auto`, thay bằng `w-full space-y-6`, cho phép biểu đồ SVG Bézier và ma trận nhiệt Golden Hour Heatmap 24x7 hiển thị tràn 100% canvas.
+    - `automation/page.tsx`: Gỡ bỏ `max-w-7xl mx-auto`, thay bằng `flex-1 space-y-6 w-full`, mở rộng danh sách kịch bản toàn màn hình.
+    - `customers/page.tsx`: Gỡ bỏ `max-w-7xl mx-auto`, thay bằng `flex-1 flex flex-col space-y-6 w-full select-none`, mở rộng bảng dữ liệu CRM và 4 thẻ Bento KPIs.
+    - `pages/page.tsx`: Gỡ bỏ `max-w-[1400px] mx-auto`, thay bằng `w-full space-y-6`, dàn đều lưới Fanpage cards.
+    - `posts/page.tsx`: Gỡ bỏ `max-w-7xl mx-auto`, thay bằng `flex-1 space-y-6 w-full`, mở rộng danh sách bài viết và lưới lịch Calendar View.
+    - `posts/new/page.tsx`: Gỡ bỏ `max-w-7xl mx-auto`, thay bằng `flex-1 space-y-6 w-full`, tối ưu không gian soạn thảo Split-Pane đa ảnh và sticky Live Preview.
+    - `page.tsx` & `orders/page.tsx`: Đồng bộ `w-full space-y-6` thống nhất toàn hệ thống.
+  - **Kiểm Thử Toàn Diện & Quality Gates:**
+    - Toàn bộ 23 test files (153 tests) frontend pass 100%.
+    - Kiểm tra tĩnh TypeScript (`tsc --noEmit`) đạt 0 lỗi.
+    - Next.js 14 production build (`next build`) biên dịch thành công 14/14 static routes tối ưu.
+    - Thẩm định bộ nhớ `npm run memory:check` đạt 100% PASS.
+
 ## [2026-10-30] - Hoàn Thành TASK-27: Màn Hình Quản Lý Khách Hàng & Leads Tập Trung (`customer-crm`)
 - **Tác giả:** System Architect & Full-Stack Engineer (Antigravity Ecosystem)
 - **Nội dung hoàn thành:**

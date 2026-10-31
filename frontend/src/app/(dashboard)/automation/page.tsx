@@ -147,7 +147,7 @@ export default function AutomationPage() {
   };
 
   return (
-    <div className="flex-1 space-y-6 p-6 max-w-7xl mx-auto w-full animate-in fade-in duration-200">
+    <div className="flex-1 space-y-6 w-full animate-in fade-in duration-200">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
         <div>

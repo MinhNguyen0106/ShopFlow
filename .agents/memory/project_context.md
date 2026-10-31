@@ -49,7 +49,7 @@ Dự án áp dụng kiến trúc **Monorepo** chia 2 thư mục gốc độc l�
 
 ### 2.2. Frontend Dashboard (`frontend/`)
 * **Khung ứng dụng:** **Next.js 14+ (App Router)**, **React 18+**, **TypeScript Strict Mode**.
-* **Giao diện & Styling:** **Tailwind CSS**, **Lucide React**, phong cách **macOS Clean Utility Bento Grid**.
+* **Giao diện & Styling:** **Tailwind CSS**, **Lucide React**, kiến trúc **Edge-to-Edge Full-Width Canvas 100% Viewport** (loại bỏ hoàn toàn các khung container giới hạn cố định), phong cách **macOS Clean Utility Bento Grid**.
 * **Quản trị State & Realtime:** **Zustand** stores (kèm defensive normalizers và optimistic UI updates), **Socket.io-client**, **Axios** (kèm Bearer Token Interceptor & Auto Refresh).
 * **Danh Mục 8 Màn Hình Cốt Lõi:**
   1. `(auth)/login` & `(auth)/register`: Đăng nhập, đăng ký tài khoản có rate limiting và JWT token refresh.

@@ -30,7 +30,7 @@ export default function AnalyticsPage() {
   }, [fetchPages, fetchAnalytics]);
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 w-full">
       {/* 1. Header & Controls */}
       <AnalyticsHeader />
 

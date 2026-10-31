@@ -99,7 +99,7 @@ export default function CustomersPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col p-6 space-y-6 max-w-7xl mx-auto w-full select-none" data-testid="customers-page">
+    <div className="flex-1 flex flex-col space-y-6 w-full select-none" data-testid="customers-page">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
