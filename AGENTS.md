@@ -39,9 +39,13 @@ Tài liệu hướng dẫn tổng thể dành cho các AI Agent (Antigravity, Cu
 5. **Đồng Bộ Hợp Đồng Dữ Liệu (API Contract & DTO Sync):**
    - Đảm bảo tính nhất quán 100% giữa API response/request (Backend) và UI state/store (Frontend).
    - Bắt buộc tuân thủ chuẩn `ApiResponse<T>`, quy ước `camelCase`, và bóc tách dữ liệu phòng vệ (Defensive Data Parsing) theo [.agents/rules/api-contract-sync.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/rules/api-contract-sync.md).
-6. **Đồng Bộ Mã Nguồn Lên GitHub & Chuyển Giao Sprint:**
-   - Sau khi hoàn thành mỗi Task (vượt qua toàn bộ tests & review), bắt buộc commit và push mã nguồn lên GitHub (`git push origin <branch>/main`).
-   - Sau khi hoàn thành 100% một Sprint, bắt buộc đóng Sprint đó, đề xuất mục tiêu và danh sách tasks Sprint tiếp theo vào [.agents/memory/history.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/history.md), cập nhật lại [Task.md](file:///c:/Users/Dell/Desktop/ShopFlow/Task.md), và push bản cập nhật lên GitHub.
+6. **Giao Thức Bộ Ba Bộ Nhớ & Đồng Bộ GitHub (Triple-Memory Protocol & GitHub Push):**
+   - Sau khi hoàn thành mỗi Task, bắt buộc rà soát và cập nhật đồng bộ CẢ 3 TỆP trong [`.agents/memory/`](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory):
+     - [history.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/history.md): Ghi log chi tiết task ở đầu tệp VÀ cập nhật checklist trạng thái Sprint ở cuối tệp.
+     - [project_context.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/project_context.md): Cập nhật khi có bảng DB mới, API endpoints, UI screens, hoặc dependencies.
+     - [decisions.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/decisions.md): Bổ sung ADR mới nếu có quyết định kiến trúc, thuật toán, bảo mật hoặc tối ưu.
+   - Bắt buộc chạy lệnh kiểm tra tự động `npm run memory:check` đạt **100% PASS** trước khi commit và push mã nguồn lên GitHub (`git push origin <branch>/main`).
+   - Sau khi hoàn thành 100% một Sprint, bắt buộc thực hiện quy trình chuyển giao Sprint: Đóng Sprint, đề xuất mục tiêu và danh sách tasks Sprint tiếp theo vào [history.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/history.md), cập nhật lại [Task.md](file:///c:/Users/Dell/Desktop/ShopFlow/Task.md), và push bản cập nhật lên GitHub.
 
 ---
 

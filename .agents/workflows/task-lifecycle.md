@@ -1,12 +1,12 @@
 ---
 name: task-lifecycle
-description: Quy trình thực thi task chuẩn mực: Tách nhánh riêng -> Tự động test & sửa lỗi -> Merge vào main -> Triển khai lên server theo safe-deploy.md.
+description: Quy trình thực thi task chuẩn mực: Tách nhánh riêng -> Tự động test & sửa lỗi -> Merge vào main -> Đồng bộ Triple-Memory -> Triển khai lên server theo safe-deploy.md.
 trigger: task-start
 ---
 
 # Workflow: Quy Trình Vận Hành Task Chuẩn Mực (Task Lifecycle Workflow)
 
-Quy trình bắt buộc áp dụng cho mọi nhiệm vụ phát triển tính năng hoặc sửa lỗi trong dự án **ShopFlow**, đảm bảo nhánh `main` luôn ở trạng thái ổn định (Production-Ready) và mã nguồn được kiểm thử 100% trước khi triển khai.
+Quy trình bắt buộc áp dụng cho mọi nhiệm vụ phát triển tính năng hoặc sửa lỗi trong dự án **ShopFlow**, đảm bảo nhánh `main` luôn ở trạng thái ổn định (Production-Ready), mã nguồn được kiểm thử 100%, và toàn bộ bộ ba tệp bộ nhớ (`.agents/memory/`) luôn được đồng bộ hóa tự động trước khi triển khai.
 
 ---
 
@@ -14,7 +14,7 @@ Quy trình bắt buộc áp dụng cho mọi nhiệm vụ phát triển tính n�
 
 ```mermaid
 graph TD
-    A["1. Đọc Task từ Task.md (Macro Milestone)"] --> B["2. Tạo nhánh riêng: git checkout -b feature/..."]
+    A["1. Đọc Task từ Task.md & Nạp Memory"] --> B["2. Tạo nhánh riêng: git checkout -b feature/..."]
     B --> C["3. Khởi tạo OpenSpec: /opsx-propose <feature-name>"]
     C --> D["4. Lập trình & Viết Tests theo tasks.md (/opsx-apply)"]
     D --> E["5. Chạy toàn bộ Test Suite & Type-Check"]
@@ -22,9 +22,12 @@ graph TD
     F -->|Sửa xong mã| E
     E -->|✅ Test Pass 100%| G["7. Lưu trữ OpenSpec: /opsx-archive <feature-name>"]
     G --> H["8. Chuyển về main & Merge: git merge --no-ff"]
-    H --> I["9. Chạy quy trình Triển khai An toàn (safe-deploy.md)"]
-    I --> J["10. Đẩy nhánh main lên GitHub: git push origin main"]
-    J --> K["11. Cập nhật Task.md sang DONE & Ghi log history.md"]
+    H --> I["9. Đồng Bộ Triple-Memory & Chạy: npm run memory:check"]
+    I -->|❌ Lệch pha| I1["Chỉnh sửa tệp memory"]
+    I1 --> I
+    I -->|✅ Pass 100%| J["10. Chạy Triển khai An toàn (safe-deploy.md)"]
+    J --> K["11. Đẩy nhánh main lên GitHub: git push origin main"]
+    K --> L["12. Cập nhật Task.md sang DONE & Báo cáo kết quả"]
 ```
 
 ---
@@ -41,7 +44,7 @@ graph TD
    git pull origin main
    ```
 2. Khởi tạo và chuyển sang nhánh riêng theo quy ước đặt tên:
-   - Tính năng mới: `feature/<task-id>-<ten-ngan-gon>` (Ví dụ: `feature/task-16-posts-management`)
+   - Tính năng mới: `feature/<task-id>-<ten-ngan-gon>` (Ví dụ: `feature/task-28-settings-profile`)
    - Sửa lỗi: `fix/<task-id>-<ten-ngan-gon>` (Ví dụ: `fix/webhook-hmac-timing-attack`)
    ```bash
    git checkout -b feature/<task-id>-<ten-task>
@@ -80,15 +83,10 @@ graph TD
 
 ### Bước 4: Vòng Lặp Tự Động Phân Tích & Sửa Lỗi (Self-Healing Loop)
 Nếu bài kiểm tra hoặc lệnh type-check báo lỗi (**Test Failed / Compilation Error**):
-1. **Phân tích lỗi (Root Cause Analysis):**
-   - Đọc kỹ log lỗi, stack trace và dòng mã gây ra sự cố.
-   - Xác định rõ nguyên nhân (lỗi logic nghiệp vụ, sai DTO schema, thiếu mock dữ liệu, lỗi kiểu TypeScript).
-2. **Tự động sửa lỗi (Auto-Fix):**
-   - Điều chỉnh mã nguồn hoặc cập nhật fixture test phù hợp.
-3. **Kiểm chứng lại (Re-test):**
-   - Chạy lại bài test vừa thất bại để đảm bảo đã khắc phục triệt để.
-4. **Giới hạn an toàn:**
-   - Vòng lặp tự sửa tối đa **3 lần**. Nếu sau 3 lần vẫn chưa đạt kết quả, dừng lại, lập báo cáo phân tích và xin chỉ dẫn từ người dùng (tránh lặp vô hạn).
+1. **Phân tích lỗi (Root Cause Analysis):** Đọc kỹ log lỗi, stack trace và dòng mã gây sự cố.
+2. **Tự động sửa lỗi (Auto-Fix):** Điều chỉnh mã nguồn hoặc cập nhật fixture test phù hợp.
+3. **Kiểm chứng lại (Re-test):** Chạy lại bài test vừa thất bại để đảm bảo đã khắc phục triệt để.
+4. **Giới hạn an toàn:** Tối đa **3 lần** tự sửa lỗi; nếu sau 3 lần vẫn thất bại, dừng lại báo cáo người dùng.
 
 ---
 
@@ -114,38 +112,49 @@ Chỉ thực hiện bước này khi **100% test suites và type-check đều v�
    git checkout main
    git pull origin main
    ```
-3. Hợp nhất nhánh feature vào `main` với flag `--no-ff` (để bảo toàn lịch sử commit theo nhánh):
+3. Hợp nhất nhánh feature vào `main` với flag `--no-ff`:
    ```bash
    git merge feature/<task-id>-<ten-task> --no-ff -m "merge(<task-id>): hoàn thành và hợp nhất feature/<task-id>-<ten-task> vào main"
    ```
-4. Xóa nhánh feature cục bộ đã hợp nhất để giữ kho mã nguồn gọn gàng:
+4. Xóa nhánh feature cục bộ đã hợp nhất:
    ```bash
    git branch -d feature/<task-id>-<ten-task>
    ```
 
 ---
 
-### Bước 7: Triển Khai Lên Server Theo `safe-deploy.md`
+### Bước 7: Đồng Bộ Hóa Toàn Diện Bộ Ba Bộ Nhớ (Triple-Memory Synchronization)
+> [!IMPORTANT]
+> **Quy Chuẩn Bắt Buộc:** Mỗi khi một task kết thúc, Agent **BẮT BUỘC** cập nhật CẢ 3 TỆP trong [`.agents/memory/`](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory):
+> 1. **[history.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/history.md):** Ghi nhận cột mốc chi tiết ở đầu tệp VÀ cập nhật bảng checklist Sprint ở cuối tệp.
+> 2. **[project_context.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/project_context.md):** Cập nhật nếu task có thay đổi về Database Schema (bảng, cột), API Endpoints, UI Screens, hoặc Tech Stack.
+> 3. **[decisions.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/decisions.md):** Bổ sung ADR mới nếu task đưa ra giải pháp kiến trúc, thuật toán hoặc tối ưu bảo mật/hiệu năng.
+> 
+> Sau đó chạy lệnh kiểm tra tự động bắt buộc:
+> ```bash
+> npm run memory:check
+> ```
+> Chỉ khi lệnh này trả về **`100% PASS`** mới được chuyển sang Bước 8.
+
+---
+
+### Bước 8: Triển Khai Lên Server Theo `safe-deploy.md` & Cập Nhật Task.md
 Thực hiện nghiêm ngặt theo cấu hình của [.agents/workflows/safe-deploy.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/workflows/safe-deploy.md):
 1. **Pre-flight Check:**
    ```bash
    git status --porcelain
-   npm run lint
+   npm run memory:check
    npx tsc --noEmit
    ```
-2. **Thẩm định cơ sở dữ liệu:** Chạy `python .agents/skills/db-migration/scripts/validate.py` để đảm bảo schema toàn vẹn.
-3. **Đóng gói ứng dụng (Build):**
+2. **Đóng gói ứng dụng (Build):**
    ```bash
    npm run build:backend
    ```
-4. **Đẩy mã nguồn nhánh main lên GitHub:**
+3. **Đẩy mã nguồn nhánh main lên GitHub remote:**
    ```bash
    git push origin main
    ```
-5. **Kiểm tra sức khỏe dịch vụ (Health Check):**
-   - Kiểm tra `http://localhost:5000/health` phản hồi HTTP 200 OK.
-6. **Nghiệm thu & Lưu trữ trạng thái:**
+4. **Nghiệm thu & Lưu trữ trạng thái:**
    - Cập nhật tệp [Task.md](file:///c:/Users/Dell/Desktop/ShopFlow/Task.md): Đánh dấu `[x]` TASK tương ứng, chuyển task sang `### ✅ TRẠNG THÁI: DONE (ĐÃ HOÀN THÀNH)`, và ghi dòng nhật ký mới vào bảng Progress Log.
-   - Cập nhật tệp [.agents/memory/history.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/history.md) để lưu vết lịch sử phiên bản.
    - Cập nhật tệp `walkthrough.md` tổng kết các thay đổi.
    - Kết thúc lượt tương tác để kích hoạt hook âm thanh "ting".

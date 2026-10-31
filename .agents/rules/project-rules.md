@@ -86,10 +86,18 @@ ShopFlow/
 
 ---
 
-## 5. Quy Chuẩn Đồng Bộ GitHub & Chuyển Giao Sprint (GitHub Push & Sprint Transition)
+## 5. Quy Chuẩn Bộ Ba Bộ Nhớ, Đồng Bộ GitHub & Chuyển Giao Sprint (Triple-Memory & Sprint Transition)
 
-1. **Đẩy Mã Nguồn Lên GitHub Sau Mỗi Task:** Sau khi hoàn tất kiểm thử và review cho từng Task, AI Agent bắt buộc phải commit đầy đủ và push mã nguồn lên remote GitHub (`git push origin <branch>/main`).
-2. **Quy Trình Chuyển Giao Sprint (Sprint Completion & Transition Protocol):** Khi toàn bộ các tác vụ trong một Sprint đạt 100% hoàn thành (pass toàn bộ test suite, type-check, build production), AI Agent bắt buộc phải thực hiện quy trình chuyển giao 3 bước:
+1. **Giao Thức Bộ Ba Bộ Nhớ Bắt Buộc (Mandatory Triple-Memory Protocol):**
+   - Sau khi hoàn thành kiểm thử cho từng Task và trước khi commit, AI Agent **BẮT BUỘC** phải rà soát và cập nhật đồng bộ CẢ 3 TỆP trong [`.agents/memory/`](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory):
+     - **[history.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/history.md):** Ghi log chi tiết task ở đầu tệp VÀ cập nhật bảng checklist tiến độ Sprint ở cuối tệp.
+     - **[project_context.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/project_context.md):** Cập nhật khi có thay đổi về Database Schema (bảng, cột), REST APIs, Socket events, UI screens, third-party SDK hoặc biến môi trường.
+     - **[decisions.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/decisions.md):** Bổ sung Architecture Decision Record (ADR) mới nếu task đưa ra giải pháp kiến trúc, thuật toán cốt lõi, bảo mật PII/HMAC hoặc cơ chế caching/invalidation.
+   - **Thẩm định tự động:** Bắt buộc chạy lệnh `npm run memory:check` đạt **100% PASS** trước khi commit. Nghiêm cấm commit nếu script báo lỗi lệch pha.
+
+2. **Đẩy Mã Nguồn Lên GitHub Sau Mỗi Task:** Sau khi hoàn tất kiểm thử, review và audit bộ nhớ thành công cho từng Task, AI Agent bắt buộc phải commit đầy đủ và push mã nguồn lên remote GitHub (`git push origin <branch>/main`).
+
+3. **Quy Trình Chuyển Giao Sprint (Sprint Completion & Transition Protocol):** Khi toàn bộ các tác vụ trong một Sprint đạt 100% hoàn thành (pass toàn bộ test suite, type-check, build production), AI Agent bắt buộc phải thực hiện quy trình chuyển giao 3 bước:
    - **Đóng Sprint (Sprint Closure):** Đánh dấu Sprint vừa hoàn thành là 100% DONE, lưu trữ các task đã hoàn tất vào bảng *Nhật Ký Cập Nhật Tiến Độ Sprint* trong `Task.md` và ghi nhận mốc trong `history.md`.
    - **Đề Xuất Sprint Tiếp Theo (Propose Next Sprint to History):** Mô tả rõ ràng mục tiêu, phạm vi công việc, danh sách các tác vụ kế thừa (kèm mã `[TASK-xx]`) vào phần *[Kế Hoạch Tiếp Theo]* trong [.agents/memory/history.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/history.md).
    - **Cập Nhật Lại `Task.md` & Push Lên GitHub:** Cập nhật tiêu đề **Sprint Hiện Tại** ở đầu tệp `Task.md`, chuyển danh mục công việc của Sprint mới vào mục **TRẠNG THÁI: CHỜ THỰC HIỆN (TODO)** với checklist chi tiết sẵn sàng để khởi tạo OpenSpec change (`/opsx-propose`), sau đó push bản cập nhật lên GitHub.

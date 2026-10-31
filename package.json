@@ -13,7 +13,8 @@
     "build:frontend": "npm run build --workspace=frontend",
     "type-check": "npm run type-check --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "memory:check": "tsx scripts/verify-memory.ts"
   },
   "keywords": [
     "shopflow",

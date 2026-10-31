@@ -18,7 +18,12 @@ Quy trình triển khai dịch vụ **ShopFlow** lên GitHub và môi trường 
    git status --porcelain
    ```
    *Yêu cầu:* Working directory phải sạch, không có uncommitted changes ngoài ý muốn. Nhánh hiện tại phải là `main`.
-2. **Kiểm tra toàn bộ kiểm thử & kiểu dữ liệu:**
+2. **Kiểm tra đồng bộ bộ nhớ (Triple-Memory Audit):**
+   ```bash
+   npm run memory:check
+   ```
+   *Yêu cầu:* Bộ ba tệp trong `.agents/memory/` (`history.md`, `project_context.md`, `decisions.md`) phải đồng bộ 100% với `Task.md` và mã nguồn.
+3. **Kiểm tra toàn bộ kiểm thử & kiểu dữ liệu:**
    ```bash
    npm run type-check --workspaces
    npm test --workspaces --if-present
