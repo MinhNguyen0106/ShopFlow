@@ -52,10 +52,11 @@ export class MessageCommentRepository {
     type: 'comment_thread' | 'messenger' = 'comment_thread'
   ): Promise<Conversation> {
     const sql = `
-      INSERT INTO conversations (page_id, customer_id, type, meta_thread_id, status)
-      VALUES ($1, $2, $3, $4, 'open')
+      INSERT INTO conversations (page_id, customer_id, type, meta_thread_id, status, window_24h_expires_at)
+      VALUES ($1, $2, $3, $4, 'open', CASE WHEN $3 = 'messenger' THEN CURRENT_TIMESTAMP + INTERVAL '24 hours' ELSE NULL END)
       ON CONFLICT (meta_thread_id) DO UPDATE
-      SET last_message_at = CURRENT_TIMESTAMP
+      SET last_message_at = CURRENT_TIMESTAMP,
+          window_24h_expires_at = CASE WHEN EXCLUDED.type = 'messenger' THEN CURRENT_TIMESTAMP + INTERVAL '24 hours' ELSE conversations.window_24h_expires_at END
       RETURNING id, page_id, customer_id, type, meta_thread_id, last_message_text, status
     `;
 
@@ -276,7 +277,8 @@ export class MessageCommentRepository {
 
     await query(
       `UPDATE conversations
-       SET last_message_text = $1, last_message_at = CURRENT_TIMESTAMP, unread_count = unread_count + 1
+       SET last_message_text = $1, last_message_at = CURRENT_TIMESTAMP, unread_count = unread_count + 1,
+           window_24h_expires_at = CURRENT_TIMESTAMP + INTERVAL '24 hours'
        WHERE id = $2`,
       [params.content, params.conversationId]
     ).catch(() => {});
