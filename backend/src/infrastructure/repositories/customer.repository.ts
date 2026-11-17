@@ -104,6 +104,31 @@ export class CustomerRepository {
   }
 
   /**
+   * Tạo mới hoặc lấy thông tin khách hàng từ Facebook Messenger (khi chưa có SĐT).
+   */
+  async upsertMessengerCustomer(
+    pageInternalId: string,
+    customerFbId: string,
+    customerName?: string | null
+  ): Promise<Customer> {
+    const sql = `
+      INSERT INTO customers (page_id, customer_fb_id, customer_name, last_interaction_at)
+      VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+      ON CONFLICT (page_id, customer_fb_id) DO UPDATE
+      SET
+        customer_name = COALESCE(EXCLUDED.customer_name, customers.customer_name),
+        last_interaction_at = CURRENT_TIMESTAMP
+      RETURNING id, page_id, customer_fb_id, customer_name, phone_number, address, tags, notes, last_interaction_at, created_at
+    `;
+    const result = await query<Customer>(sql, [
+      pageInternalId,
+      customerFbId,
+      customerName ?? 'Khách hàng Facebook',
+    ]);
+    return result.rows[0]!;
+  }
+
+  /**
    * Tìm khách hàng theo Facebook ID và Fanpage UUID.
    */
   async findByFbId(

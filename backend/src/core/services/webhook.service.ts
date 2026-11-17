@@ -2,12 +2,13 @@
  * ShopFlow - Webhook Domain Service
  * File: backend/src/core/services/webhook.service.ts
  *
- * Xử lý xác thực Handshake từ Meta và tiếp nhận (Ingest) sự kiện Webhook.
+ * Xử lý xác thực Handshake từ Meta và tiếp nhận (Ingest) sự kiện Webhook (Comment, Messenger).
  */
 
 import { env } from '../../config/env.js';
 import {
   MetaWebhookPayload,
+  MetaWebhookMessagingItem,
   extractWebhookEvents,
   NormalizedWebhookEvent,
 } from '../../api/dtos/webhook.dto.js';
@@ -16,12 +17,33 @@ import {
   webhookLogRepository as defaultWebhookLogRepo,
 } from '../../infrastructure/repositories/webhook-log.repository.js';
 import {
+  ConnectedPageRepository,
+  connectedPageRepository as defaultConnectedPageRepo,
+} from '../../infrastructure/repositories/connected-page.repository.js';
+import {
+  CustomerRepository,
+  customerRepository as defaultCustomerRepo,
+} from '../../infrastructure/repositories/customer.repository.js';
+import {
+  MessageCommentRepository,
+  messageCommentRepository as defaultMessageCommentRepo,
+} from '../../infrastructure/repositories/message-comment.repository.js';
+import {
+  MetaGraphApiClient,
+  metaGraphApiClient as defaultMetaGraphClient,
+} from '../../infrastructure/meta/graph-api.client.js';
+import {
+  SocketService,
+  socketService as defaultSocketService,
+} from './socket.service.js';
+import {
   phoneMaskingQueue as defaultPhoneMaskingQueue,
   PhoneMaskingJobData,
   automationReplyQueue as defaultAutomationReplyQueue,
   AutomationReplyJobData,
 } from '../../infrastructure/queue/bullmq.client.js';
 import { Queue } from 'bullmq';
+import { decryptToken } from '../../utils/crypto.helper.js';
 import { ForbiddenError } from '../errors/app-error.js';
 import { logger } from '../../utils/logger.js';
 
@@ -29,7 +51,12 @@ export class WebhookService {
   constructor(
     private readonly webhookRepo: WebhookLogRepository = defaultWebhookLogRepo,
     private readonly phoneQueue: Queue<PhoneMaskingJobData> = defaultPhoneMaskingQueue,
-    private readonly replyQueue: Queue<AutomationReplyJobData> = defaultAutomationReplyQueue
+    private readonly replyQueue: Queue<AutomationReplyJobData> = defaultAutomationReplyQueue,
+    private readonly pageRepo: ConnectedPageRepository = defaultConnectedPageRepo,
+    private readonly customerRepo: CustomerRepository = defaultCustomerRepo,
+    private readonly messageCommentRepo: MessageCommentRepository = defaultMessageCommentRepo,
+    private readonly graphClient: MetaGraphApiClient = defaultMetaGraphClient,
+    private readonly socketSvc: SocketService = defaultSocketService
   ) {}
 
   /**
@@ -85,6 +112,94 @@ export class WebhookService {
           event_type: event.eventType,
           payload:    event.payload,
         });
+
+        // 1. Xử lý sự kiện tin nhắn Messenger (Customer Inbound Message)
+        if (event.eventType === 'message') {
+          const item = (event.payload || {}) as MetaWebhookMessagingItem;
+          const senderFbId = item.sender?.id;
+          const recipientFbId = item.recipient?.id;
+          const isEcho = Boolean((item.message as Record<string, unknown> | undefined)?.is_echo);
+          const messageText = item.message?.text || '';
+          const mid = item.message?.mid || event.eventId;
+          const attachments = item.message?.attachments;
+
+          // Bỏ qua tin nhắn echo từ chính Fanpage
+          if (senderFbId && !isEcho && senderFbId !== event.pageId) {
+            const connectedPage = await this.pageRepo.findByPageId(event.pageId || recipientFbId || '');
+            if (connectedPage) {
+              let senderName = 'Khách hàng Facebook';
+              try {
+                if (connectedPage.page_access_token) {
+                  const plainToken = decryptToken(connectedPage.page_access_token);
+                  const profile = await this.graphClient.getCustomerProfile(senderFbId, plainToken);
+                  if (profile?.name) {
+                    senderName = profile.name;
+                  } else if (profile?.first_name) {
+                    senderName = `${profile.first_name} ${profile.last_name || ''}`.trim();
+                  }
+                }
+              } catch {
+                // Bỏ qua lỗi gọi Meta Graph API
+              }
+
+              const customer = await this.customerRepo.upsertMessengerCustomer(
+                connectedPage.id,
+                senderFbId,
+                senderName
+              );
+
+              const conversation = await this.messageCommentRepo.ensureConversation(
+                connectedPage.id,
+                customer.id,
+                senderFbId,
+                'messenger'
+              );
+
+              const savedMessage = await this.messageCommentRepo.saveCustomerMessage({
+                conversationId: conversation.id,
+                pageId: connectedPage.id,
+                metaId: mid,
+                senderFbId,
+                content: messageText,
+                mediaPayload: attachments,
+              });
+
+              // Phát sự kiện Socket.io thời gian thực tới phòng Fanpage
+              this.socketSvc.emitNewInboxItem(connectedPage.id, {
+                event: 'NEW_INBOX_ITEM',
+                page_id: connectedPage.id,
+                conversation_id: conversation.id,
+                type: 'messenger',
+                customer: {
+                  id: customer.id,
+                  customer_fb_id: customer.customer_fb_id,
+                  customer_name: customer.customer_name,
+                  phone_number: customer.phone_number,
+                  tags: customer.tags || [],
+                },
+                message: {
+                  id: savedMessage.id,
+                  meta_id: savedMessage.meta_id,
+                  sender_type: 'customer',
+                  sender_fb_id: senderFbId,
+                  content: savedMessage.content,
+                  is_hidden: false,
+                  private_reply_sent: false,
+                  media_payload: savedMessage.media_payload,
+                  created_at: savedMessage.created_at,
+                },
+                unread_count: 1,
+                window_24h_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
+              });
+
+              logger.info(
+                { pageId: connectedPage.id, customerId: customer.id, messageId: savedMessage.id },
+                '[WebhookService] ✔ Đã tiếp nhận và đồng bộ tin nhắn Messenger vào Hộp thư Live Chat'
+              );
+            }
+          }
+        }
+
         // 2. Nếu là sự kiện bình luận (comment), đẩy ngay vào hàng đợi phone-masking-queue
         if (event.eventType === 'comment') {
           const val = (event.payload || {}) as Record<string, unknown>;

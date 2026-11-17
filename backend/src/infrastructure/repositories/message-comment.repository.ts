@@ -246,6 +246,45 @@ export class MessageCommentRepository {
   }
 
   /**
+   * Lưu tin nhắn đến từ khách hàng qua Facebook Messenger.
+   */
+  async saveCustomerMessage(params: {
+    conversationId: string;
+    pageId: string;
+    metaId: string;
+    senderFbId: string;
+    content: string;
+    mediaPayload?: unknown;
+  }): Promise<MessageOrComment> {
+    const sql = `
+      INSERT INTO messages_and_comments (
+        conversation_id, page_id, meta_id, sender_type, sender_fb_id, content, media_payload, created_at
+      )
+      VALUES ($1, $2, $3, 'customer', $4, $5, $6::jsonb, CURRENT_TIMESTAMP)
+      ON CONFLICT (meta_id) DO UPDATE
+      SET content = EXCLUDED.content
+      RETURNING id, conversation_id, page_id, meta_id, sender_type, sender_fb_id, content, is_hidden, private_reply_sent, media_payload, created_at
+    `;
+    const result = await query<MessageOrComment>(sql, [
+      params.conversationId,
+      params.pageId,
+      params.metaId,
+      params.senderFbId,
+      params.content,
+      JSON.stringify(params.mediaPayload ?? {}),
+    ]);
+
+    await query(
+      `UPDATE conversations
+       SET last_message_text = $1, last_message_at = CURRENT_TIMESTAMP, unread_count = unread_count + 1
+       WHERE id = $2`,
+      [params.content, params.conversationId]
+    ).catch(() => {});
+
+    return result.rows[0]!;
+  }
+
+  /**
    * Cập nhật trạng thái ẩn/hiện của bình luận.
    */
   async updateHideStatus(messageId: string, isHidden: boolean): Promise<MessageOrComment | null> {

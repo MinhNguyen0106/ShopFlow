@@ -2,6 +2,27 @@
 
 Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và trạng thái của dự án ShopFlow.
 
+## [2026-11-17] - Khắc Phục Lỗi Hộp Thư Live Chat Không Nhận Tin Nhắn & Hoàn Thiện Webhook Messenger Ingestion (`fix-livechat-messenger-webhook`)
+- **Tác giả:** System Architect & Full-Stack Reliability Engineer (Antigravity Ecosystem)
+- **Bối cảnh & Nguyên nhân lỗi:**
+  - Khi khách hàng nhắn tin cho Fanpage qua Facebook Messenger, hộp thư Live Chat tại `/inbox` không hiển thị tin nhắn.
+  - *Nguyên nhân 1 (Backend thiếu xử lý tin nhắn):* Trong `backend/src/core/services/webhook.service.ts`, sự kiện `eventType === 'message'` trước đó chỉ được ghi vào bảng `webhook_logs` mà hoàn toàn chưa tạo Customer, chưa tạo Conversation, chưa lưu vào bảng `messages_and_comments`, và chưa phát sóng WebSocket `NEW_INBOX_ITEM`.
+  - *Nguyên nhân 2 (Lệch pha Socket Room giữa Frontend và Backend):* `backend/src/infrastructure/socket/socket.server.ts` mong đợi tham số `join_page` dạng object `{ pageId }`, trong khi Frontend `useSocket.ts` truyền string `pageId`. Do đó socket client không bao giờ gia nhập phòng `room:page_<id>`.
+  - *Nguyên nhân 3 (Frontend Inbox Event Listener):* `frontend/src/app/(dashboard)/inbox/page.tsx` lắng nghe sự kiện qua `window.addEventListener('socket:NEW_INBOX_ITEM')` nhưng `useSocket.ts` không dispatch window event nào, khiến Live Chat không bao giờ kích hoạt nạp tin nhắn mới.
+  - *Nguyên nhân 4 (Môi trường Localhost Webhook):* Máy chủ chạy trên `localhost:5000`, Meta Cloud không thể gửi webhook trực tiếp nếu không qua Public Tunnel (như Ngrok).
+- **Nội dung xử lý:**
+  - **Backend Webhook Messenger Ingestion (`backend/src/core/services/webhook.service.ts`):**
+    - Bổ sung luồng xử lý toàn diện cho `eventType === 'message'`: Tự động tra cứu Fanpage, tạo/cập nhật khách hàng (`CustomerRepository.upsertMessengerCustomer`), đảm bảo cuộc hội thoại `Conversation` tồn tại, lưu tin nhắn vào `messages_and_comments` (`MessageCommentRepository.saveCustomerMessage`), và phát sóng thời gian thực `SocketService.emitNewInboxItem`.
+    - Tự động bỏ qua tin nhắn echo từ Fanpage để tránh tạo tin nhắn trùng lặp.
+  - **Socket.io Synchronization (`backend/src/infrastructure/socket/socket.server.ts` & `frontend`):**
+    - Chuẩn hóa `join_page`, `leave_page`, `join_conversation`, `leave_conversation` hỗ trợ cả kiểu `string` lẫn object `{ pageId }` / `{ conversationId }`.
+    - Cập nhật `frontend/src/app/(dashboard)/inbox/page.tsx` sử dụng trực tiếp các callback `onNewInboxItem`, `onInboxUpdated` từ `useSocket()` và tự động tham gia phòng Fanpage `joinPage(selectedPage.id)`.
+    - Tinh chỉnh `useInboxStore.handleSocketNewItem` với cơ chế chống trùng tin nhắn theo `message.id`.
+  - **Kiểm thử & Xác minh:**
+    - Test suites webhook (37 tests) và inbox (33 backend tests, 9 frontend tests) đạt 100% PASS.
+    - Giả lập request Webhook tin nhắn thực tế có chữ ký HMAC-SHA256 gửi tới `POST /api/v1/webhook`: Hệ thống phản hồi HTTP 200, tạo khách hàng, tạo hội thoại trong DB, phát WebSocket `NEW_INBOX_ITEM` và Live Chat tự động cập nhật ngay lập tức.
+    - `npm run type-check` và `npm run memory:check` đạt 100% PASS.
+
 ## [2026-11-17] - Sửa Lỗi HTTP 400 Khi Đăng Bài & Đồng Bộ DTO Tương Thích Cloudinary (`fix-post-creation-400`)
 - **Tác giả:** System Architect & Full-Stack Reliability Engineer (Antigravity Ecosystem)
 - **Bối cảnh & Nguyên nhân lỗi 400:**

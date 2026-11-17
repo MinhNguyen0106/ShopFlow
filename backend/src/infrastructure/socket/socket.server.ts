@@ -92,10 +92,11 @@ export function initSocketServer(httpServer: HttpServer): SocketIOServer {
     const userRoom = `room:user_${user.id}`;
     void socket.join(userRoom);
 
-    // Xử lý tham gia theo dõi Fanpage
-    socket.on('join_page', (data: { pageId?: string }) => {
-      if (data?.pageId) {
-        const pageRoom = `room:page_${data.pageId}`;
+    // Xử lý tham gia theo dõi Fanpage (hỗ trợ cả string id lẫn object { pageId })
+    socket.on('join_page', (data: string | { pageId?: string }) => {
+      const pageId = typeof data === 'string' ? data : data?.pageId;
+      if (pageId) {
+        const pageRoom = `room:page_${pageId}`;
         void socket.join(pageRoom);
         logger.debug(
           { socketId: socket.id, userId: user.id, pageRoom },
@@ -105,9 +106,10 @@ export function initSocketServer(httpServer: HttpServer): SocketIOServer {
     });
 
     // Xử lý rời theo dõi Fanpage
-    socket.on('leave_page', (data: { pageId?: string }) => {
-      if (data?.pageId) {
-        const pageRoom = `room:page_${data.pageId}`;
+    socket.on('leave_page', (data: string | { pageId?: string }) => {
+      const pageId = typeof data === 'string' ? data : data?.pageId;
+      if (pageId) {
+        const pageRoom = `room:page_${pageId}`;
         void socket.leave(pageRoom);
         logger.debug(
           { socketId: socket.id, userId: user.id, pageRoom },
@@ -117,9 +119,10 @@ export function initSocketServer(httpServer: HttpServer): SocketIOServer {
     });
 
     // Xử lý tham gia hội thoại chi tiết
-    socket.on('join_conversation', (data: { conversationId?: string }) => {
-      if (data?.conversationId) {
-        const convRoom = `room:conv_${data.conversationId}`;
+    socket.on('join_conversation', (data: string | { conversationId?: string }) => {
+      const conversationId = typeof data === 'string' ? data : data?.conversationId;
+      if (conversationId) {
+        const convRoom = `room:conv_${conversationId}`;
         void socket.join(convRoom);
         logger.debug(
           { socketId: socket.id, userId: user.id, convRoom },
@@ -129,9 +132,10 @@ export function initSocketServer(httpServer: HttpServer): SocketIOServer {
     });
 
     // Xử lý rời hội thoại chi tiết
-    socket.on('leave_conversation', (data: { conversationId?: string }) => {
-      if (data?.conversationId) {
-        const convRoom = `room:conv_${data.conversationId}`;
+    socket.on('leave_conversation', (data: string | { conversationId?: string }) => {
+      const conversationId = typeof data === 'string' ? data : data?.conversationId;
+      if (conversationId) {
+        const convRoom = `room:conv_${conversationId}`;
         void socket.leave(convRoom);
         logger.debug(
           { socketId: socket.id, userId: user.id, convRoom },

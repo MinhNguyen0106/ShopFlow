@@ -294,15 +294,21 @@ export const useInboxStore = create<InboxState>((set, get) => ({
     // Tự động nhận tin nhắn mới qua WebSocket
     const typed = item as {
       conversation_id?: string;
+      conversationId?: string;
       message?: MessageItem;
       type?: string;
     };
+    const convId = typed?.conversation_id || typed?.conversationId;
     const currentSelected = get().selectedConversation;
 
-    if (typed?.conversation_id && typed.conversation_id === currentSelected?.id && typed.message) {
-      set((state) => ({
-        messages: [...state.messages, typed.message!],
-      }));
+    if (convId && convId === currentSelected?.id && typed.message) {
+      set((state) => {
+        const alreadyExists = state.messages.some((m) => m.id === typed.message!.id);
+        if (alreadyExists) return state;
+        return {
+          messages: [...state.messages, typed.message!],
+        };
+      });
     }
     // Cập nhật lại danh sách hội thoại để cập nhật unread_count và last_message
     get().fetchConversations();

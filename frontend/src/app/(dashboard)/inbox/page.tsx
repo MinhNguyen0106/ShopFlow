@@ -16,8 +16,8 @@ import { useSocket } from '@/lib/useSocket';
 
 export default function InboxPage() {
   const { fetchConversations, handleSocketNewItem, handleSocketInboxUpdated } = useInboxStore();
-  const { fetchPages } = usePageStore();
-  const { isConnected } = useSocket();
+  const { pages, selectedPage, fetchPages } = usePageStore();
+  const { isConnected, joinPage, onNewInboxItem, onInboxUpdated } = useSocket();
 
   useEffect(() => {
     // Tải danh sách fanpages và danh sách hội thoại
@@ -25,8 +25,27 @@ export default function InboxPage() {
     fetchConversations();
   }, [fetchPages, fetchConversations]);
 
-  // Đăng ký nhận events realtime từ Socket.io
+  // Tự động tham gia phòng Socket của Fanpage đang chọn hoặc toàn bộ Fanpage
   useEffect(() => {
+    if (!isConnected) return;
+    if (selectedPage?.id) {
+      joinPage(selectedPage.id);
+    } else if (pages.length > 0) {
+      pages.forEach((p) => joinPage(p.id));
+    }
+  }, [isConnected, selectedPage, pages, joinPage]);
+
+  // Đăng ký nhận events realtime từ Socket.io trực tiếp
+  useEffect(() => {
+    const unsubNewItem = onNewInboxItem((data) => {
+      handleSocketNewItem(data);
+    });
+
+    const unsubUpdated = onInboxUpdated((data) => {
+      handleSocketInboxUpdated(data);
+    });
+
+    // Fallback cho window CustomEvents
     const handleNewItem = (e: CustomEvent) => {
       handleSocketNewItem(e.detail);
     };
@@ -39,10 +58,12 @@ export default function InboxPage() {
     window.addEventListener('socket:INBOX_UPDATED' as never, handleUpdated as never);
 
     return () => {
+      unsubNewItem();
+      unsubUpdated();
       window.removeEventListener('socket:NEW_INBOX_ITEM' as never, handleNewItem as never);
       window.removeEventListener('socket:INBOX_UPDATED' as never, handleUpdated as never);
     };
-  }, [handleSocketNewItem, handleSocketInboxUpdated]);
+  }, [onNewInboxItem, onInboxUpdated, handleSocketNewItem, handleSocketInboxUpdated]);
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] w-full overflow-hidden bg-slate-100/60 font-sans">

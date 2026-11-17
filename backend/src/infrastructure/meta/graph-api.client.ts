@@ -144,6 +144,23 @@ export class MetaGraphApiClient {
   }
 
   /**
+   * Lấy thông tin cơ bản của khách hàng qua PSID (Page-Scoped ID) từ Messenger.
+   */
+  async getCustomerProfile(
+    psid: string,
+    pageAccessToken: string
+  ): Promise<{ id: string; name?: string; first_name?: string; last_name?: string } | null> {
+    try {
+      const url = `${this.baseUrl}/${encodeURIComponent(psid)}?fields=name,first_name,last_name&access_token=${encodeURIComponent(pageAccessToken)}`;
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      return (await res.json()) as { id: string; name?: string; first_name?: string; last_name?: string };
+    } catch {
+      return null;
+    }
+  }
+
+  /**
    * Lấy danh sách các Fanpage mà Facebook User đang quản lý.
    */
   async getManageablePages(userAccessToken: string): Promise<MetaPageAccount[]> {
