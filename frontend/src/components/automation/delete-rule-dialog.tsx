@@ -48,7 +48,7 @@ export function DeleteRuleDialog({
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
               Bạn có chắc chắn muốn xóa vĩnh viễn kịch bản{' '}
               <span className="font-semibold text-slate-900 dark:text-slate-200">
-                "{rule.ruleName}"
+                &quot;{rule.ruleName}&quot;
               </span>
               ? Hệ thống sẽ ngừng phản hồi tự động đối với các từ khóa trong kịch bản này.
             </p>

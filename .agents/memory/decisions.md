@@ -252,3 +252,25 @@ Tài liệu ghi nhận các quyết định kiến trúc quan trọng kèm bối
   4. Thuật toán giám sát hạn ngạch Meta Graph API: Tổng hợp tự động các sự kiện trong 24h từ các bảng `webhook_logs`, `messages_and_comments`, `posts_schedule` để tính toán số cuộc gọi đã dùng, so sánh với trần 4,800 calls/24h, hiển thị cảnh báo phân tầng (`safe` / `warning` / `exceeded`), kiểm tra thời hạn hiệu lực của Long-Lived Page Access Token (chu kỳ 60 ngày), và hiển thị trạng thái chữ ký Webhook HMAC-SHA256 timing-safe cùng Redis Idempotency TTL (24h).
   5. Xây dựng giao diện Cài đặt `/settings` chuẩn macOS Clean Utility đa tab (`ProfileSettingsTab`, `SecurityPasswordTab`, `ApiLimitsMonitorTab`) với Segmented Tabs mượt mà và kết nối qua Zustand store `settings.store.ts` sử dụng defensive data parsing.
 - **Hệ quả:** Hoàn thiện 100% yêu cầu nghiệp vụ của TASK-28 (Sprint 6), cung cấp cho chủ shop công cụ quản trị bảo mật và bảng đồng hồ kỹ thuật theo dõi sức khỏe Meta API, ngăn ngừa triệt để nguy cơ vi phạm rate limit khi vận hành trên môi trường Production.
+
+---
+
+## ADR-022: Tự Động Hóa Đường Ống CI/CD với GitHub Actions, Đóng Gói Multi-Stage GHCR & Kế Hoạch Ứng Cứu Thảm Họa (Disaster Recovery)
+- **Ngày quyết định:** 2026-11-17
+- **Trạng thái:** ACCEPTED
+- **Bối cảnh:** Khi toàn bộ các tính năng cốt lõi của ShopFlow đạt phiên bản Release Candidate (Sprint 6), việc kiểm thử mã nguồn thủ công và triển khai không tự động tiềm ẩn nhiều rủi ro: mã lỗi có thể bị merge vào `main`, thiếu ma trận kiểm thử tự động trên Pull Request, và khi sự cố máy chủ hoặc thảm họa dữ liệu xảy ra thì thiếu quy trình ứng cứu bài bản với chỉ số RTO/RPO định lượng.
+- **Quyết định:**
+  1. **Xây dựng Continuous Integration Pipeline (`.github/workflows/ci.yml`):**
+     - Kích hoạt tự động trên mọi PR hướng vào `main` và direct push to `main`.
+     - Phân chia các jobs song song: `quality-gate` (ESLint, TypeScript `tsc --noEmit`, kiểm tra bộ nhớ `npm run memory:check`), `test-backend` (Vitest 82 files, 683 tests), `test-frontend` (Vitest 25 files, 164 tests), và `build-check` (build Next.js standalone & Express TypeScript).
+     - Áp dụng caching `actions/cache@v4` cho `~/.npm` và `frontend/.next/cache` giúp rút ngắn thời gian chạy CI xuống < 3 phút.
+  2. **Xây dựng Continuous Deployment Pipeline (`.github/workflows/deploy.yml`):**
+     - Tự động đóng gói multi-stage Docker images cho `backend` và `frontend`, gán tag Git SHA rút gọn và `latest`.
+     - Đăng nhập và đẩy images lên GitHub Container Registry (`ghcr.io`) an toàn sử dụng token cấp quyền của GitHub (`GITHUB_TOKEN`), không phụ thuộc tài khoản bên thứ 3.
+     - Cung cấp bước triển khai an toàn kèm kiểm tra healthcheck `/health` (backend HTTP 200) và `/` (frontend HTTP 200) cùng cơ chế rollback khi container không vượt qua kiểm tra sức khỏe.
+  3. **Biên soạn Sổ Tay Vận Hành Production (`docs/07_PRODUCTION_RUNBOOK.md`):**
+     - Chuẩn hóa toàn bộ cấu hình cụm 5 containers (`docker-compose.prod.yml`), bảng biến môi trường `.env.production`, quy trình khởi chạy lần đầu, quản lý xoay vòng secrets (JWT, Meta App Secret, AES Key), giám sát tài nguyên CPU/RAM, và Incident Playbook phân giải nhanh các sự cố thường gặp.
+  4. **Thiết lập Kế Hoạch Ứng Cứu Thảm Họa & Scripts Sao Lưu (`docs/08_DISASTER_RECOVERY.md`):**
+     - Cam kết chỉ số RTO (< 30 phút) và RPO (< 1 giờ).
+     - Xây dựng cặp script `scripts/backup-db.sh` (tự động pg_dump nén gzip, kiểm tra tính toàn vẹn SHA256, xoay vòng lưu trữ 30 ngày) và `scripts/restore-db.sh` (phục hồi dữ liệu an toàn vào container PostgreSQL).
+- **Hệ quả:** Hoàn thành 100% mục tiêu của TASK-29 và khép lại toàn bộ Sprint 6 với chất lượng đạt chuẩn Production-ready. Mọi thay đổi mã nguồn trong tương lai đều được bảo vệ bởi rào chắn CI/CD tự động, và đội ngũ vận hành có đầy đủ kịch bản đối phó với thảm họa dữ liệu.

@@ -3,7 +3,7 @@
 
 Chào mừng AI Coding Agent và đội ngũ kỹ sư phát triển dự án **ShopFlow**!
 
-Để tối ưu hóa Context Window của LLM, tránh tình trạng quá tải ngữ cảnh và loại bỏ hoàn toàn việc suy đoán logic, toàn bộ tài liệu thiết kế hệ thống được phân tách thành **6 tập tin chuyên biệt theo từng miền nghiệp vụ** dưới sự điều hướng của tệp chỉ mục này.
+Để tối ưu hóa Context Window của LLM, tránh tình trạng quá tải ngữ cảnh và loại bỏ hoàn toàn việc suy đoán logic, toàn bộ tài liệu thiết kế hệ thống được phân tách thành **8 tập tin chuyên biệt theo từng miền nghiệp vụ** dưới sự điều hướng của tệp chỉ mục này.
 
 ---
 
@@ -17,6 +17,8 @@ Chào mừng AI Coding Agent và đội ngũ kỹ sư phát triển dự án **S
 | [`04_API_AND_WEBSOCKET.md`](file:///C:/Users/Dell/Desktop/ShopFlow/docs/04_API_AND_WEBSOCKET.md) | **Đặc tả REST API Nội bộ, WebSocket & Quản lý Media**<br>• Chuẩn JSON Response Envelope (`success`, `data`, `meta`, `error`)<br>• Danh mục 24+ REST API Endpoints (Auth, OAuth, Pages, Posts, Inbox, Media)<br>• Đặc tả sự kiện Socket.io (`NEW_INBOX_ITEM`, `INBOX_UPDATED`, `POST_STATUS_CHANGED`)<br>• Giải pháp upload Media qua Multer + Cloudinary Stream Upload & Sơ đồ tuần tự Sequence Diagram | Bắt buộc đọc khi viết Controller, Service, Route Middleware ở Backend, hoặc viết API Callers, React Hooks, Socket Handlers ở Frontend. |
 | [`05_DESIGN_SYSTEM.md`](file:///C:/Users/Dell/Desktop/ShopFlow/docs/05_DESIGN_SYSTEM.md) | **Quy chuẩn Thiết kế Giao diện (Design System Specification)**<br>• Phong cách macOS Clean Utility & Linear Minimalist<br>• Hệ thống Design Tokens (Màu sắc, Typography, Bo góc Squircle, Đổ bóng đa tầng, Spacing 8pt)<br>• Cấu hình Tailwind CSS (`tailwind.config.ts`) và CSS Custom Properties<br>• Quy chuẩn UI Components (macOS Window & Traffic Lights, Pill CTA, Command Palette, Tables) | Bắt buộc đọc khi xây dựng giao diện người dùng, viết Components React/Next.js, cấu hình Tailwind, tạo theme hoặc chỉnh sửa CSS. |
 | [`06_UI_SCREENS_AND_COMPONENTS.md`](file:///C:/Users/Dell/Desktop/ShopFlow/docs/06_UI_SCREENS_AND_COMPONENTS.md) | **Đặc tả Danh mục Màn hình & Kiến trúc Thông tin (Screen Inventory)**<br>• Sơ đồ Điều hướng Site Map & Phân cấp Tuyến đường (App Router)<br>• Phân loại mức độ ưu tiên 14 màn hình (P0 Core MVP, P1 Release Candidate, P2 Roadmap)<br>• Đặc tả chi tiết từng màn hình (Inbox 3 cột, Pages, Posts, Automation)<br>• Danh mục Modals & Khung nhìn con (Command Palette, Preview, Connect Modal) | Bắt buộc đọc khi thiết kế UI/UX, phân chia công việc Frontend, tạo các Page và Layouts trong Next.js App Router. |
+| [`07_PRODUCTION_RUNBOOK.md`](file:///C:/Users/Dell/Desktop/ShopFlow/docs/07_PRODUCTION_RUNBOOK.md) | **Sổ Tay Vận Hành Hệ Thống (Production Runbook)**<br>• Kiến trúc cụm 5 containers Production (`docker-compose.prod.yml`)<br>• Bảng biến môi trường `.env.production` chuẩn hóa<br>• Quy trình triển khai lần đầu & kiểm tra sức khỏe (/health)<br>• Giám sát tài nguyên, quản lý logs & xoay vòng secrets<br>• Sổ tay phân giải sự cố nhanh (Incident Playbook) | Bắt buộc đọc khi triển khai hệ thống lên máy chủ Production, thiết lập biến môi trường, xử lý sự cố runtime hoặc cấu hình CI/CD. |
+| [`08_DISASTER_RECOVERY.md`](file:///C:/Users/Dell/Desktop/ShopFlow/docs/08_DISASTER_RECOVERY.md) | **Kế Hoạch Phòng Ngừa & Ứng Cứu Thảm Họa (Disaster Recovery)**<br>• Mục tiêu phục hồi RTO (< 30 phút) & RPO (< 1 giờ)<br>• Chiến lược sao lưu tự động PostgreSQL (`pg_dump`) & Redis (AOF)<br>• Quy trình rollback phiên bản tức thời khi release lỗi<br>• Kịch bản phục hồi thảm họa máy chủ (Bare-metal Recovery) | Bắt buộc đọc khi lập kế hoạch sao lưu dữ liệu định kỳ, xử lý mất mát dữ liệu hoặc khôi phục khẩn cấp sau thảm họa. |
 
 ---
 
@@ -59,6 +61,12 @@ Khi AI Coding Agent được giao một nhiệm vụ cụ thể, **bắt buộc 
 |                                      |                              | Tailwind config, Traffic lights   |
 |                                      | • 06_UI_SCREENS_AND_COMPONENTS| Site Map, Danh mục 14 màn hình    |
 |                                      |                              | Ưu tiên P0/P1/P2, bố cục 3 cột    |
++--------------------------------------+------------------------------+-----------------------------------+
+| 8. Triển khai Production & CI/CD    | • 07_PRODUCTION_RUNBOOK.md   | 5 Containers, .env.production,    |
+|    (GitHub Actions, Docker Compose)  | • 02_ARCHITECTURE_AND_FLOWS  | Health check /health, logs, nginx |
++--------------------------------------+------------------------------+-----------------------------------+
+| 9. Kế hoạch Phòng ngừa Thảm họa &   | • 08_DISASTER_RECOVERY.md    | RTO < 30m, RPO < 1h, pg_dump,     |
+|    Sao lưu Dữ liệu (Backup & Rollback)| • 03_DATABASE_SCHEMA.md      | Rollback container, Redis AOF     |
 +---------------------------------------------------------------------------------------------------------+
 ```
 

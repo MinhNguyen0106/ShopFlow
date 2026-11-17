@@ -31,17 +31,14 @@
 
 ### 📋 TRẠNG THÁI: CHỜ THỰC HIỆN (TODO)
 
-#### [TASK-29] CI/CD Pipeline & Triển Khai Production Tự Động (GitHub Actions) - [P1]
-- [ ] **29.1.** Thiết lập GitHub Actions Workflows `.github/workflows/ci.yml`: tự động chạy lint, type-check, unit tests và build trên mọi PR vào `main`.
-- [ ] **29.2.** Thiết lập GitHub Actions Workflow `.github/workflows/deploy.yml`: tự động build Docker images, push lên Container Registry và deploy cập nhật an toàn.
-- [ ] **29.3.** Hoàn tất tài liệu hướng dẫn vận hành Production Runbook và Disaster Recovery Plan.
-*(Khi bắt đầu thực thi: Chạy `/opsx-propose cicd-production-deploy`)*
+*(Toàn bộ các tác vụ Sprint 6 đã hoàn thành 100%. Sẵn sàng thực hiện quy trình chuyển giao sang Sprint tiếp theo).*
 
 ---
 
-### 📦 SPRINT 6: CÁC TASK ĐÃ HOÀN THÀNH
+### 📦 SPRINT 6: CÁC TASK ĐÃ HOÀN THÀNH (100% DONE)
 - [x] **[TASK-27]** Màn Hình Quản Lý Khách Hàng & Leads Tập Trung (`/(dashboard)/customers`) - 100% DONE
 - [x] **[TASK-28]** Màn Hình Cài Đặt Hệ Thống, Hồ Sơ & Giám Sát Meta API Limits (`/(dashboard)/settings`) - 100% DONE
+- [x] **[TASK-29]** CI/CD Pipeline & Triển Khai Production Tự Động (GitHub Actions) - 100% DONE
 
 ---
 
@@ -95,6 +92,7 @@
 | 24/10/2026 | [TASK-26] Tối Ưu Hóa Hiệu Năng & Hardening Môi Trường Production | **DONE** | Tầng Redis Caching `CacheService` với invalidation tự động, nén HTTP Gzip/Brotli qua `compressionMiddleware`, bộ Rate Limiting phân tầng (`globalApiLimiter`, `authLimiter`, `heavyComputationLimiter`), gia cố `helmet`, multi-stage Dockerfiles (`backend/Dockerfile`, `frontend/Dockerfile` standalone mode), cụm `docker-compose.prod.yml` 5 containers + Nginx Gateway, test tải `scripts/load-test.ts` và OWASP Top 10 security test suite `owasp-security.test.ts`. Hoàn thành OpenSpec `production-hardening`. **HOÀN THÀNH SPRINT 5 (100%)**. |
 | 30/10/2026 | [TASK-27] Màn Hình Quản Lý Khách Hàng & Leads Tập Trung (`/(dashboard)/customers`) | **DONE** | Zod DTOs, `CustomerRepository` tối ưu SQL `LEFT JOIN` tính LTV/đơn hàng không N+1, `CustomerService` với PII phone masking cho role `staff`, 7 REST APIs `/api/v1/customers/*`, Zustand store `customer.store.ts` cập nhật lạc quan & rollback tự động, bộ 3 components Bento macOS Clean Utility (`CustomerMetrics`, `CustomerTable`, `CustomerDetailDrawer`), Sidebar navigation `/customers`, 100% tests & build pass. Hoàn thành OpenSpec `customer-crm`. |
 | 17/11/2026 | [TASK-28] Màn Hình Cài Đặt Hệ Thống, Hồ Sơ & Giám Sát Meta API Limits (`/settings`) | **DONE** | 4 REST APIs `/api/v1/settings/*`, DTO Zod Schemas song song camelCase & snake_case, SettingsService với Bcrypt 12 rounds & thuật toán tính toán Meta Limits, Zustand store `settings.store.ts` defensive parsing, 3 Tabs components (`ProfileSettingsTab`, `SecurityPasswordTab`, `ApiLimitsMonitorTab`), Sidebar navigation `/settings`, 100% tests & type-check pass; hoàn thành OpenSpec `settings-profile`. |
+| 17/11/2026 | [TASK-29] CI/CD Pipeline & Triển Khai Production Tự Động (GitHub Actions) | **DONE** | Tự động hóa CI Pipeline (`.github/workflows/ci.yml`) ma trận 4 jobs song song, CD Pipeline (`.github/workflows/deploy.yml`) build multi-stage Docker images push GHCR, kịch bản rolling update kèm healthcheck `/health`, Sổ tay vận hành `docs/07_PRODUCTION_RUNBOOK.md`, Kế hoạch phục hồi thảm họa `docs/08_DISASTER_RECOVERY.md`, cặp script `backup-db.sh` & `restore-db.sh`; 100% tests & type-check pass. **HOÀN THÀNH SPRINT 6 (100%)**. |
 
 
 

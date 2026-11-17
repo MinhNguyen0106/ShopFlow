@@ -88,9 +88,9 @@ Cơ sở dữ liệu PostgreSQL 15+ của ShopFlow được tổ chức thành *
 
 ---
 
-## 4. Kiến Trúc Triển Khai Production & Gateway (Docker Ecosystem)
+## 4. Kiến Trúc Triển Khai Production, Gateway & Tự Động Hóa CI/CD (TASK-29)
 
-Môi trường Production của ShopFlow được đóng gói và điều phối qua `docker-compose.prod.yml` gồm **5 dịch vụ cô lập**:
+Môi trường Production của ShopFlow được đóng gói và điều phối qua `docker-compose.prod.yml` gồm **5 dịch vụ cô lập** kết hợp đường ống CI/CD tự động:
 1. **Nginx Reverse Proxy Gateway (Port 80/443):**
    - Định tuyến `/api/` & `/health` về backend Express.
    - Định tuyến `/socket.io/` với giao thức WebSocket Upgrade.
@@ -101,6 +101,10 @@ Môi trường Production của ShopFlow được đóng gói và điều phối
 3. **Backend Container (`backend/Dockerfile`):** Multi-stage build Node 20-alpine, dumb-init, chạy với non-root user `node` dung lượng < 150MB.
 4. **PostgreSQL 15 Container:** Cơ sở dữ liệu quan hệ trung tâm, cấu hình mount volume bền vững.
 5. **Redis 7 Container:** Lưu trữ hàng đợi BullMQ, cache phân tán và khóa Idempotency.
+6. **Đường Ống CI/CD Tự Động (GitHub Actions):**
+   - `.github/workflows/ci.yml`: Ma trận kiểm thử song song (ESLint, TypeScript `tsc --noEmit`, Triple-Memory audit `npm run memory:check`, Unit/Integration tests 683 backend + 164 frontend, bundle verification) trên mọi PR vào `main`.
+   - `.github/workflows/deploy.yml`: Tự động build Docker images phân tầng, đẩy lên GitHub Container Registry (`ghcr.io`), thực thi rolling update và kiểm tra xác thực `/health` (HTTP 200).
+   - Scripts sao lưu & phục hồi thảm họa: `scripts/backup-db.sh` (tự động pg_dump nén gzip, SHA256 checksum, xoay vòng lưu trữ 30 ngày) và `scripts/restore-db.sh`.
 
 ---
 
@@ -123,3 +127,5 @@ Môi trường Production của ShopFlow được đóng gói và điều phối
 - [`docs/04_API_AND_WEBSOCKET.md`](file:///C:/Users/Dell/Desktop/ShopFlow/docs/04_API_AND_WEBSOCKET.md): Chuẩn JSON Response Envelope, REST APIs, Socket.io payload và luồng tải media.
 - [`docs/05_DESIGN_SYSTEM.md`](file:///C:/Users/Dell/Desktop/ShopFlow/docs/05_DESIGN_SYSTEM.md): Quy chuẩn thiết kế giao diện macOS Clean Utility Bento Grid.
 - [`docs/06_UI_SCREENS_AND_COMPONENTS.md`](file:///C:/Users/Dell/Desktop/ShopFlow/docs/06_UI_SCREENS_AND_COMPONENTS.md): Chi tiết cấu tạo từng màn hình và component React.
+- [`docs/07_PRODUCTION_RUNBOOK.md`](file:///C:/Users/Dell/Desktop/ShopFlow/docs/07_PRODUCTION_RUNBOOK.md): Sổ tay vận hành Production, kiến trúc 5 containers, biến môi trường, giám sát logs và sổ tay phân giải sự cố.
+- [`docs/08_DISASTER_RECOVERY.md`](file:///C:/Users/Dell/Desktop/ShopFlow/docs/08_DISASTER_RECOVERY.md): Kế hoạch phòng ngừa và ứng cứu thảm họa, mục tiêu RTO (< 30m) & RPO (< 1h), sao lưu định kỳ và kịch bản rollback khẩn cấp.

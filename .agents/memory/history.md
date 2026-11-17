@@ -2,6 +2,31 @@
 
 Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và trạng thái của dự án ShopFlow.
 
+## [2026-11-17] - Hoàn Thành TASK-29: CI/CD Pipeline & Triển Khai Production Tự Động (GitHub Actions) (`cicd-production-deploy`)
+- **Tác giả:** System Architect & DevOps / Site Reliability Engineer (Antigravity Ecosystem)
+- **Nội dung hoàn thành:**
+  - Hoàn thành toàn diện 11/11 tasks trong OpenSpec change [cicd-production-deploy](file:///c:/Users/Dell/Desktop/ShopFlow/openspec/changes/cicd-production-deploy/tasks.md) tương ứng **[TASK-29]** trên [Task.md](file:///c:/Users/Dell/Desktop/ShopFlow/Task.md).
+  - **Tự Động Hóa CI Pipeline (`.github/workflows/ci.yml`):**
+    - Thiết lập triggers `pull_request` (target `main`) và `push` (branch `main`).
+    - Phân chia 4 jobs chạy song song: `quality-gate` (ESLint, TypeScript `tsc --noEmit`, Triple-Memory audit `npm run memory:check`), `test-backend` (Vitest 82 test files, 683 tests), `test-frontend` (Vitest 25 test files, 164 tests), và `build-check` (build Next.js standalone và Express.js).
+    - Tích hợp caching `actions/cache@v4` cho npm và `frontend/.next/cache` tối ưu thời gian chạy dưới 3 phút.
+  - **Tự Động Hóa Deploy Pipeline (`.github/workflows/deploy.yml`):**
+    - Thiết lập trigger `push` vào `main` và `workflow_dispatch` (deploy thủ công).
+    - Cấu hình Docker Buildx và đăng nhập GitHub Container Registry (`ghcr.io`) an toàn qua `GITHUB_TOKEN`.
+    - Tự động đóng gói multi-stage Docker images cho `backend` và `frontend`, gán tag commit SHA rút gọn (`${GITHUB_SHA::7}`) và `latest`.
+    - Cung cấp bước triển khai an toàn với kiểm tra xác thực health check `/health` (backend HTTP 200) và `/` (frontend HTTP 200) cùng cơ chế rollback khi container không vượt qua kiểm tra sức khỏe.
+  - **Sổ Tay Vận Hành Production (`docs/07_PRODUCTION_RUNBOOK.md`):**
+    - Kiến trúc cụm 5 containers (`docker-compose.prod.yml`), bảng biến môi trường `.env.production`, quy trình khởi chạy lần đầu, quản lý & xoay vòng secrets, giám sát tài nguyên CPU/RAM và Incident Playbook phân giải sự cố nhanh.
+  - **Kế Hoạch Phòng Ngừa & Ứng Cứu Thảm Họa (`docs/08_DISASTER_RECOVERY.md`) & Scripts:**
+    - Cam kết chỉ số RTO (< 30 phút) và RPO (< 1 giờ).
+    - Xây dựng cặp script `scripts/backup-db.sh` (tự động pg_dump nén gzip, SHA256 checksum, xoay vòng lưu trữ 30 ngày) và `scripts/restore-db.sh` (phục hồi dữ liệu an toàn vào container PostgreSQL).
+    - Cập nhật mục lục tài liệu hệ thống tại `docs/00_INDEX.md`.
+  - **Quality Gates & Khép Lại Sprint 6:**
+    - Toàn bộ test suites pass 100% (683 backend tests, 164 frontend tests).
+    - TypeScript compilation (`tsc --noEmit`) và `npm run lint` đạt 0 lỗi ở cả 2 workspaces.
+    - Thẩm định bộ ba bộ nhớ `npm run memory:check` đạt 100% PASS.
+    - **HOÀN THÀNH 100% SPRINT 6: CRM LEADS MANAGEMENT, SYSTEM SETTINGS & PRODUCTION LAUNCH.**
+
 ## [2026-11-17] - Hoàn Thành TASK-28: Màn Hình Cài Đặt Hệ Thống, Hồ Sơ & Giám Sát Meta API Limits (`settings-profile`)
 - **Tác giả:** System Architect & Full-Stack Reliability Engineer (Antigravity Ecosystem)
 - **Nội dung hoàn thành:**
@@ -699,7 +724,7 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 ## [Đang Thực Hiện] - Sprint 6: CRM Leads Management, System Settings & Production Launch
 - [x] **[TASK-27]** Màn Hình Quản Lý Khách Hàng & Leads Tập Trung (`/(dashboard)/customers`) - 100% DONE (Hoàn thành 30/10/2026)
 - [x] **[TASK-28]** Màn Hình Cài Đặt Hệ Thống, Hồ Sơ & Giám Sát Meta API Limits (`/(dashboard)/settings`) - 100% DONE (Hoàn thành 17/11/2026)
-- [ ] **[TASK-29]** CI/CD Pipeline & Triển Khai Production Tự Động (GitHub Actions) - P1 TODO
+- [x] **[TASK-29]** CI/CD Pipeline & Triển Khai Production Tự Động (GitHub Actions) - 100% DONE (Hoàn thành 17/11/2026)
 
 ---
 
