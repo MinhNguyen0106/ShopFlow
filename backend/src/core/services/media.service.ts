@@ -9,6 +9,7 @@
 import { Readable } from 'node:stream';
 import { UploadApiResponse, UploadApiOptions } from 'cloudinary';
 import { cloudinary } from '../../config/cloudinary.js';
+import { env } from '../../config/env.js';
 import { AppError } from '../errors/app-error.js';
 import { logger } from '../../utils/logger.js';
 
@@ -39,6 +40,44 @@ export class MediaService {
   ): Promise<UploadedMediaResult> {
     if (!buffer || buffer.length === 0) {
       throw new AppError('Dữ liệu tệp tải lên bị rỗng', 400, 'EMPTY_BUFFER');
+    }
+
+    // Đọc thông số cấu hình Cloudinary (hỗ trợ cả process.env động khi vừa cập nhật .env)
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME || env.CLOUDINARY_CLOUD_NAME;
+    const apiKey = process.env.CLOUDINARY_API_KEY || env.CLOUDINARY_API_KEY;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET || env.CLOUDINARY_API_SECRET;
+    const cloudinaryUrl = process.env.CLOUDINARY_URL || env.CLOUDINARY_URL;
+
+    const isTest = process.env.NODE_ENV === 'test';
+    const hasValidConfig =
+      isTest ||
+      Boolean(cloudinaryUrl && cloudinaryUrl.startsWith('cloudinary://')) ||
+      Boolean(
+        cloudName &&
+        apiKey &&
+        apiSecret &&
+        apiKey !== 'mock_cloudinary_api_key' &&
+        cloudName !== 'shopflow-dev'
+      );
+
+    if (!hasValidConfig) {
+      throw new AppError(
+        'Hệ thống chưa được cấu hình tài khoản Cloudinary thật trong backend/.env. Vui lòng điền CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET (hoặc CLOUDINARY_URL) để tải ảnh/video bài viết.',
+        400,
+        'CLOUDINARY_CONFIG_MISSING'
+      );
+    }
+
+    // Tự động nhận diện và cập nhật cấu hình cho Cloudinary SDK nếu người dùng vừa điền
+    if (cloudinaryUrl && cloudinaryUrl.startsWith('cloudinary://')) {
+      cloudinary.config({ cloudinary_url: cloudinaryUrl, secure: true });
+    } else if (cloudName && apiKey && apiSecret) {
+      cloudinary.config({
+        cloud_name: cloudName,
+        api_key: apiKey,
+        api_secret: apiSecret,
+        secure: true,
+      });
     }
 
     const isVideo = mimeType.startsWith('video/');
