@@ -44,7 +44,7 @@ Dự án áp dụng kiến trúc **Monorepo** chia 2 thư mục gốc độc l�
 * **Bảo mật & Hiệu năng Tầng Mạng:**
   * Mã hóa **AES-256-GCM** cho toàn bộ `page_access_token` và `user_access_token` trong DB (khóa 32-byte hex ngẫu nhiên).
   * Xác thực Webhook bằng HMAC-SHA256 với `crypto.timingSafeEqual` trên raw body buffer.
-  * Xác thực người dùng bằng JWT (Access Token 15 phút, Refresh Token 7 ngày trong HttpOnly Cookie).
+  * Xác thực người dùng bằng JWT (Access Token 24 giờ, Refresh Token 7 ngày trong HttpOnly Cookie).
   * Nén HTTP Gzip/Deflate tự động cho payload ≥ 1KB qua `compressionMiddleware`.
   * Bộ Rate Limiting phân tầng (`globalApiLimiter`, `authLimiter`, `heavyComputationLimiter`).
   * Gia cố HTTP Headers chuẩn OWASP bằng `helmet` (HSTS 180 ngày, nosniff, no-sniff CSP).

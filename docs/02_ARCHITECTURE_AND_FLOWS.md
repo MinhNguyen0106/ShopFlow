@@ -521,7 +521,7 @@ REDIS_PASSWORD=
 
 # Bảo mật Xác thực JWT
 JWT_SECRET=shopflow_super_secret_jwt_access_token_key_min_32_chars_123456
-JWT_EXPIRES_IN=15m
+JWT_EXPIRES_IN=24h
 JWT_REFRESH_SECRET=shopflow_super_secret_refresh_token_key_min_32_chars_abcdef
 JWT_REFRESH_EXPIRES_IN=7d
 

@@ -20,7 +20,7 @@ const envSchema = z.object({
   // JWT Security
   JWT_ACCESS_SECRET: z.string().min(16).default('shopflow_dev_jwt_access_secret_key_32chars_min!'),
   JWT_REFRESH_SECRET: z.string().min(16).default('shopflow_dev_jwt_refresh_secret_key_32chars_min!'),
-  JWT_ACCESS_EXPIRY: z.string().default('15m'),
+  JWT_ACCESS_EXPIRY: z.string().default('24h'),
   JWT_REFRESH_EXPIRY: z.string().default('7d'),
 
   // Meta Facebook Integration
