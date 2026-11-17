@@ -1,7 +1,7 @@
 # BẢNG KẾ HOẠCH THỰC THI DỰ ÁN SHOPFLOW (TASK.MD)
 
-> **Sprint Hiện Tại:** Sprint 6 (CRM Leads Management, System Settings & Production Launch)  
-> **Cập nhật lần cuối:** 30/10/2026  
+> **Sprint Hiện Tại:** Sprint 7 (Observability, Conversational AI Sales & Omnichannel Expansion)  
+> **Cập nhật lần cuối:** 17/11/2026  
 > **Tài liệu tham chiếu:** [docs/00_INDEX.md](file:///c:/Users/Dell/Desktop/ShopFlow/docs/00_INDEX.md) • [docs/02_ARCHITECTURE_AND_FLOWS.md](file:///c:/Users/Dell/Desktop/ShopFlow/docs/02_ARCHITECTURE_AND_FLOWS.md) • [docs/03_DATABASE_SCHEMA.md](file:///c:/Users/Dell/Desktop/ShopFlow/docs/03_DATABASE_SCHEMA.md) • [docs/04_API_AND_WEBSOCKET.md](file:///c:/Users/Dell/Desktop/ShopFlow/docs/04_API_AND_WEBSOCKET.md) • [docs/05_DESIGN_SYSTEM.md](file:///c:/Users/Dell/Desktop/ShopFlow/docs/05_DESIGN_SYSTEM.md) • [docs/06_UI_SCREENS_AND_COMPONENTS.md](file:///c:/Users/Dell/Desktop/ShopFlow/docs/06_UI_SCREENS_AND_COMPONENTS.md)
 
 ---
@@ -27,15 +27,31 @@
 
 ---
 
-## 🚀 DANH MỤC CÔNG VIỆC SPRINT 6: CRM LEADS MANAGEMENT, SYSTEM SETTINGS & PRODUCTION LAUNCH
+## 🚀 DANH MỤC CÔNG VIỆC SPRINT 7: OBSERVABILITY, CONVERSATIONAL AI SALES & OMNICHANNEL EXPANSION
 
 ### 📋 TRẠNG THÁI: CHỜ THỰC HIỆN (TODO)
 
-*(Toàn bộ các tác vụ Sprint 6 đã hoàn thành 100%. Sẵn sàng thực hiện quy trình chuyển giao sang Sprint tiếp theo).*
+#### [TASK-30] Hệ Thống Giám Sát, Đo Lường Chỉ Số & Cảnh Báo Sự Cố Tự Động (Observability, Prometheus Metrics & Telemetry) - [P1]
+- [ ] **30.1.** Tích hợp Prometheus metrics exporter (`express-prom-bundle`) cho Express backend và `/metrics` endpoint đo lường HTTP latency, throughput, error rates, DB pool stats, BullMQ queue stats.
+- [ ] **30.2.** Tích hợp cảnh báo thời gian thực qua Telegram Webhook / Sentry khi phát sinh lỗi hệ thống 5xx, lỗi Meta Rate Limit (Error 613) hoặc cạn kiệt số dư/hạn ngạch API.
+- [ ] **30.3.** Xây dựng bảng điều khiển sức khỏe hệ thống (System Health Dashboard) hoặc trang quản trị `/system-metrics` cho Admin.
+*(Khi bắt đầu thực thi: Chạy `/opsx-propose system-observability`)*
+
+#### [TASK-31] Trợ Lý AI Tư Vấn Bán Hàng & Chốt Đơn Chuyên Sâu Qua Messenger (Conversational AI Sales Agent) - [P1]
+- [ ] **31.1.** Thiết kế Conversation Memory Context Engine cho khách hàng (lưu lịch sử hội thoại, sở thích, giỏ hàng đang tư vấn trong Redis).
+- [ ] **31.2.** Xây dựng Prompt System Gemini 2.5 với Function Calling (`checkInventory`, `calculateShippingFee`, `createDraftOrder`) tự động tư vấn size/màu và chốt đơn thông minh.
+- [ ] **31.3.** Cung cấp nút chuyển giao người thật ("Human Handover") khi khách hàng yêu cầu gặp tư vấn viên trực tiếp.
+*(Khi bắt đầu thực thi: Chạy `/opsx-propose conversational-sales-agent`)*
+
+#### [TASK-32] Mở Rộng Bán Hàng Đa Kênh: Tích Hợp Zalo Official Account (Zalo OA Omnichannel Integration) - [P2]
+- [ ] **32.1.** Xây dựng Webhook Receiver và HMAC verification cho Zalo OA Webhooks.
+- [ ] **32.2.** Tích hợp Zalo OA Messaging API vào cùng giao diện Live Chat 4-Pane Bento (`/inbox`).
+- [ ] **32.3.** Đồng bộ danh bạ khách hàng Zalo vào Customer CRM với tag `Zalo_OA`.
+*(Khi bắt đầu thực thi: Chạy `/opsx-propose zalo-oa-integration`)*
 
 ---
 
-### 📦 SPRINT 6: CÁC TASK ĐÃ HOÀN THÀNH (100% DONE)
+### 📦 SPRINT ĐÃ HOÀN THÀNH: SPRINT 6 (100% DONE)
 - [x] **[TASK-27]** Màn Hình Quản Lý Khách Hàng & Leads Tập Trung (`/(dashboard)/customers`) - 100% DONE
 - [x] **[TASK-28]** Màn Hình Cài Đặt Hệ Thống, Hồ Sơ & Giám Sát Meta API Limits (`/(dashboard)/settings`) - 100% DONE
 - [x] **[TASK-29]** CI/CD Pipeline & Triển Khai Production Tự Động (GitHub Actions) - 100% DONE

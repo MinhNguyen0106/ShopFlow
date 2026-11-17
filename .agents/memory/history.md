@@ -721,20 +721,28 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 
 ---
 
-## [Đang Thực Hiện] - Sprint 6: CRM Leads Management, System Settings & Production Launch
+## [Đã Hoàn Thành] - Sprint 6: CRM Leads Management, System Settings & Production Launch - 100%
 - [x] **[TASK-27]** Màn Hình Quản Lý Khách Hàng & Leads Tập Trung (`/(dashboard)/customers`) - 100% DONE (Hoàn thành 30/10/2026)
 - [x] **[TASK-28]** Màn Hình Cài Đặt Hệ Thống, Hồ Sơ & Giám Sát Meta API Limits (`/(dashboard)/settings`) - 100% DONE (Hoàn thành 17/11/2026)
 - [x] **[TASK-29]** CI/CD Pipeline & Triển Khai Production Tự Động (GitHub Actions) - 100% DONE (Hoàn thành 17/11/2026)
 
 ---
 
-## [Kế Hoạch Tiếp Theo: Giai Đoạn Vận Hành & Mở Rộng Hệ Sinh Thái Hậu Triển Khai]
-- **Mục tiêu Hậu Triển Khai:** Sau khi hoàn tất triển khai Sprint 6 lên môi trường live, đảm bảo hệ thống vận hành ổn định, giám sát sức khỏe dịch vụ và mở rộng các kênh bán hàng tiềm năng.
+## [Đang Thực Hiện] - Sprint 7: Observability, Conversational AI Sales & Omnichannel Expansion
+- [ ] **[TASK-30]** Hệ Thống Giám Sát, Đo Lường Chỉ Số & Cảnh Báo Sự Cố Tự Động (Observability, Prometheus Metrics & Telemetry) - P1 TODO
+- [ ] **[TASK-31]** Trợ Lý AI Tư Vấn Bán Hàng & Chốt Đơn Chuyên Sâu Qua Messenger (Conversational AI Sales Agent) - P1 TODO
+- [ ] **[TASK-32]** Mở Rộng Bán Hàng Đa Kênh: Tích Hợp Zalo Official Account (Zalo OA Omnichannel Integration) - P2 TODO
+
+---
+
+## [Kế Hoạch Tiếp Theo: Giai Đoạn Mở Rộng Sàn Thương Mại Điện Tử & Marketing Tự Động Hóa]
+- **Mục tiêu Hậu Sprint 7:** Mở rộng kết nối sàn TMĐT (Shopee, TikTok Shop), tự động hóa marketing và đồng bộ tài chính kế toán.
 - **Danh mục định hướng:**
-  1. **Giám Sát & Cảnh Báo Chủ Động (Observability & Alerting):**
-     - Tích hợp Prometheus & Grafana hoặc Sentry để cảnh báo lỗi runtime và tỷ lệ request lỗi của Meta Graph API.
-     - Thiết lập bot Telegram thông báo tức thì khi có biến động giao dịch ngân hàng VietQR hoặc tài khoản bị Meta gắn cờ Rate Limit.
-  2. **Trợ Lý AI Tự Động Chốt Đơn Chuyên Sâu (Conversational Sales Agent):**
-     - Tinh chỉnh mô hình Gemini 2.5 với Context Memory sâu theo từng khách hàng, tự động tư vấn size/màu và tạo đơn trực tiếp qua Messenger.
-  3. **Mở Rộng Bán Hàng Đa Kênh (Omnichannel Integration):**
-     - Tích hợp Zalo Official Account (Zalo OA) và TikTok Shop Webhook Ingestion vào cùng một giao diện Live Chat 4-Pane Bento duy nhất.
+  1. **Đồng Bộ Đơn Hàng Sàn Thương Mại Điện Tử (TikTok Shop & Shopee Webhooks):**
+     - Đồng bộ tồn kho đa kênh theo thời gian thực (Omnichannel Realtime Inventory Sync).
+     - Quản lý tập trung đơn hàng sàn và đơn Fanpage trên một bảng điều khiển duy nhất.
+  2. **Marketing Tự Động Hóa & Phân Phối Voucher Cá Nhân Hóa:**
+     - AI đề xuất chương trình khuyến mãi theo phân khúc khách hàng (RFM Segmentation).
+     - Tự động phát voucher giữ chân khách hàng cũ và kéo lại khách hàng bỏ quên giỏ hàng.
+  3. **Tích Hợp Hóa Đơn Điện Tử & Kế Toán Bán Hàng (E-Invoicing & Accounting):**
+     - Xuất hóa đơn điện tử tự động (MISA / Viettel meInvoice) khi đơn hàng chuyển sang `completed`.
