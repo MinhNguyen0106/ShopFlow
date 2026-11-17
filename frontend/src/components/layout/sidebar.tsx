@@ -76,6 +76,12 @@ export function Sidebar({ unreadInboxCount = 18 }: SidebarProps) {
       icon: Layers,
       active: pathname.startsWith('/pages'),
     },
+    {
+      name: 'Cài đặt hệ thống',
+      href: '/settings',
+      icon: Settings,
+      active: pathname.startsWith('/settings'),
+    },
   ];
 
   return (

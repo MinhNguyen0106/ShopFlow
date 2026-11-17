@@ -44,7 +44,8 @@ Tài liệu hướng dẫn tổng thể dành cho các AI Agent (Antigravity, Cu
      - [history.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/history.md): Ghi log chi tiết task ở đầu tệp VÀ cập nhật checklist trạng thái Sprint ở cuối tệp.
      - [project_context.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/project_context.md): Cập nhật khi có bảng DB mới, API endpoints, UI screens, hoặc dependencies.
      - [decisions.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/decisions.md): Bổ sung ADR mới nếu có quyết định kiến trúc, thuật toán, bảo mật hoặc tối ưu.
-   - Bắt buộc chạy lệnh kiểm tra tự động `npm run memory:check` đạt **100% PASS** trước khi commit và push mã nguồn lên GitHub (`git push origin <branch>/main`).
+   - Bắt buộc chạy lệnh kiểm tra tự động `npm run memory:check` đạt **100% PASS** trước khi commit.
+   - **Quy trình GitHub PR bắt buộc:** Sau khi hoàn thành mỗi Task, bắt buộc tạo nhánh `feature/<task-name>`, commit, push nhánh lên GitHub (`git push -u origin feature/<task-name>`), tạo Pull Request (PR) hướng vào `main`, sau đó merge PR vào `main` và kéo cập nhật mới nhất về máy (`git checkout main && git pull origin main`).
    - Sau khi hoàn thành 100% một Sprint, bắt buộc thực hiện quy trình chuyển giao Sprint: Đóng Sprint, đề xuất mục tiêu và danh sách tasks Sprint tiếp theo vào [history.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/history.md), cập nhật lại [Task.md](file:///c:/Users/Dell/Desktop/ShopFlow/Task.md), và push bản cập nhật lên GitHub.
 
 ---

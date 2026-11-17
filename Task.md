@@ -13,7 +13,7 @@
 3. **Đồng Bộ Bộ Ba Bộ Nhớ & Kiểm Tra Tự Động (Triple-Memory Sync & Audit):** Sau khi hoàn thành trọn vẹn mỗi task, AI Agent bắt buộc phải rà soát và cập nhật đồng bộ CẢ 3 TỆP trong [.agents/memory/](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory) (`history.md`, `project_context.md`, `decisions.md`), đồng thời chạy lệnh kiểm tra bắt buộc `npm run memory:check` đạt **100% PASS** trước khi commit và push lên GitHub.
 4. **An Toàn Hệ Thống (Strict Safety Gate):** Tuyệt đối không thực hiện các hành động nguy hiểm (như xóa cơ sở dữ liệu, `DROP TABLE`, thay đổi cấu trúc kiến trúc gốc, `git push --force`) mà chưa ghi chú rõ ràng vào kế hoạch và nhận được sự xác nhận từ người dùng.
 5. **Chuẩn Mực Mã Nguồn (Code Quality):** Tuân thủ TypeScript Strict (`noImplicitAny`), Clean Architecture, không hardcode bí mật/token vào git, xác thực chữ ký Webhook HMAC-SHA256 với `timingSafeEqual`.
-6. **Quy Trình Nhánh, Triển Khai An Toàn & Đẩy Mã Lên GitHub (Task Lifecycle, Safe Deploy & GitHub Push):** Mọi task bắt buộc phải thực hiện trên một nhánh riêng (`feature/<task-name>`). Chạy toàn bộ test suite; nếu lỗi phải tự động phân tích và sửa lỗi; khi toàn bộ bài test đã pass thì merge vào nhánh `main`, tạo commit chuẩn mực và **bắt buộc push lên GitHub (`git push origin <branch>/main`)**, sau đó thực hiện quy trình triển khai an toàn theo [.agents/workflows/safe-deploy.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/workflows/safe-deploy.md).
+6. **Quy Trình Nhánh Feature, Pull Request & Merge GitHub (Feature Branch, PR & Merge Protocol):** Mọi task bắt buộc phải thực hiện trên một nhánh riêng (`feature/<task-name>`). Sau khi toàn bộ test suite và `npm run memory:check` đạt 100% PASS, AI Agent commit và push nhánh feature lên GitHub remote (`git push -u origin feature/<task-name>`), tạo Pull Request (PR) trên GitHub (`gh pr create`), merge PR vào nhánh `main` (`gh pr merge`), và đồng bộ lại nhánh `main` cục bộ (`git checkout main && git pull origin main`) trước khi chuyển sang task tiếp theo.
 7. **Phát Triển Hướng Đặc Tả với OpenSpec (Spec-Driven Development):**
    - Mọi tính năng lớn từ Sprint 3 được quản lý ở cấp độ Vĩ mô (Milestone) trên `Task.md`.
    - Khi bắt đầu thực thi một TASK, khởi tạo một change trong OpenSpec qua `/opsx-propose <feature-name>` để sinh `proposal.md`, `specs/`, `design.md`, và `tasks.md`.
@@ -31,17 +31,17 @@
 
 ### 📋 TRẠNG THÁI: CHỜ THỰC HIỆN (TODO)
 
-#### [TASK-28] Màn Hình Cài Đặt Hệ Thống, Hồ Sơ & Giám Sát Meta API Limits (`/(dashboard)/settings`) - [P2]
-- [ ] **28.1.** Xây dựng API cập nhật hồ sơ cá nhân, đổi mật khẩu và API giám sát hạn mức Meta Graph API (`/api/v1/settings/meta-limits`).
-- [ ] **28.2.** Xây dựng giao diện Cài đặt đa tab macOS Clean Utility (`ProfileSettingsTab`, `SecurityPasswordTab`, `ApiLimitsMonitorTab` đếm ngược hạn ngạch 4,800 cuộc gọi/24h và trạng thái Webhook Health).
-- [ ] **28.3.** Viết unit & integration tests cho phân hệ cấu hình hệ thống.
-*(Khi bắt đầu thực thi: Chạy `/opsx-propose settings-profile`)*
-
 #### [TASK-29] CI/CD Pipeline & Triển Khai Production Tự Động (GitHub Actions) - [P1]
 - [ ] **29.1.** Thiết lập GitHub Actions Workflows `.github/workflows/ci.yml`: tự động chạy lint, type-check, unit tests và build trên mọi PR vào `main`.
 - [ ] **29.2.** Thiết lập GitHub Actions Workflow `.github/workflows/deploy.yml`: tự động build Docker images, push lên Container Registry và deploy cập nhật an toàn.
 - [ ] **29.3.** Hoàn tất tài liệu hướng dẫn vận hành Production Runbook và Disaster Recovery Plan.
 *(Khi bắt đầu thực thi: Chạy `/opsx-propose cicd-production-deploy`)*
+
+---
+
+### 📦 SPRINT 6: CÁC TASK ĐÃ HOÀN THÀNH
+- [x] **[TASK-27]** Màn Hình Quản Lý Khách Hàng & Leads Tập Trung (`/(dashboard)/customers`) - 100% DONE
+- [x] **[TASK-28]** Màn Hình Cài Đặt Hệ Thống, Hồ Sơ & Giám Sát Meta API Limits (`/(dashboard)/settings`) - 100% DONE
 
 ---
 
@@ -94,6 +94,7 @@
 | 24/10/2026 | [TASK-25] Mở Rộng Quản Lý Đa Fanpage & Phân Quyền Nhân Viên (RBAC) | **DONE** | Bảng PostgreSQL `page_members` (`004_page_members_and_rbac.sql`) kèm backfill tự động, middleware `requirePageRole`, REST APIs `/api/v1/pages/:pageId/members/*`, chính sách bảo vệ PII che SĐT khách hàng cho vai trò `staff` (`sanitizeOrderForRole`), cụm UI macOS Bento (`PageMembersModal`, `InviteMemberModal`, `MemberRoleBadge`), Zustand store `page-member.store.ts`, pass toàn bộ unit & integration tests. Hoàn thành OpenSpec `multi-page-rbac`. |
 | 24/10/2026 | [TASK-26] Tối Ưu Hóa Hiệu Năng & Hardening Môi Trường Production | **DONE** | Tầng Redis Caching `CacheService` với invalidation tự động, nén HTTP Gzip/Brotli qua `compressionMiddleware`, bộ Rate Limiting phân tầng (`globalApiLimiter`, `authLimiter`, `heavyComputationLimiter`), gia cố `helmet`, multi-stage Dockerfiles (`backend/Dockerfile`, `frontend/Dockerfile` standalone mode), cụm `docker-compose.prod.yml` 5 containers + Nginx Gateway, test tải `scripts/load-test.ts` và OWASP Top 10 security test suite `owasp-security.test.ts`. Hoàn thành OpenSpec `production-hardening`. **HOÀN THÀNH SPRINT 5 (100%)**. |
 | 30/10/2026 | [TASK-27] Màn Hình Quản Lý Khách Hàng & Leads Tập Trung (`/(dashboard)/customers`) | **DONE** | Zod DTOs, `CustomerRepository` tối ưu SQL `LEFT JOIN` tính LTV/đơn hàng không N+1, `CustomerService` với PII phone masking cho role `staff`, 7 REST APIs `/api/v1/customers/*`, Zustand store `customer.store.ts` cập nhật lạc quan & rollback tự động, bộ 3 components Bento macOS Clean Utility (`CustomerMetrics`, `CustomerTable`, `CustomerDetailDrawer`), Sidebar navigation `/customers`, 100% tests & build pass. Hoàn thành OpenSpec `customer-crm`. |
+| 17/11/2026 | [TASK-28] Màn Hình Cài Đặt Hệ Thống, Hồ Sơ & Giám Sát Meta API Limits (`/settings`) | **DONE** | 4 REST APIs `/api/v1/settings/*`, DTO Zod Schemas song song camelCase & snake_case, SettingsService với Bcrypt 12 rounds & thuật toán tính toán Meta Limits, Zustand store `settings.store.ts` defensive parsing, 3 Tabs components (`ProfileSettingsTab`, `SecurityPasswordTab`, `ApiLimitsMonitorTab`), Sidebar navigation `/settings`, 100% tests & type-check pass; hoàn thành OpenSpec `settings-profile`. |
 
 
 

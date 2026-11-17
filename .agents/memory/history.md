@@ -2,6 +2,26 @@
 
 Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và trạng thái của dự án ShopFlow.
 
+## [2026-11-17] - Hoàn Thành TASK-28: Màn Hình Cài Đặt Hệ Thống, Hồ Sơ & Giám Sát Meta API Limits (`settings-profile`)
+- **Tác giả:** System Architect & Full-Stack Reliability Engineer (Antigravity Ecosystem)
+- **Nội dung hoàn thành:**
+  - Hoàn thành toàn diện 14/14 tasks trong OpenSpec change [settings-profile](file:///c:/Users/Dell/Desktop/ShopFlow/openspec/changes/settings-profile/tasks.md) theo chuẩn Spec-Driven Development.
+  - **Backend Settings Module (`/api/v1/settings/*`):**
+    - `settings.dto.ts`: Zod validation schemas (`UpdateProfileDtoSchema`, `ChangePasswordDtoSchema`) hỗ trợ song song cả camelCase lẫn snake_case qua Zod preprocess.
+    - `settings.service.ts`: Xử lý `getProfile`, `updateProfile`, `changePassword` (Bcrypt salt rounds = 12, xác thực mật khẩu cũ, chống trùng mật khẩu cũ), và `getMetaLimits` (tổng hợp dữ liệu hoạt động 24h, đếm hạn mức 4,800 calls/24h, tốc độ calls/phút, tình trạng Webhook HMAC timing-safe, Redis TTL 24h và thời hạn token Fanpage).
+    - `settings.controller.ts` & `settings.routes.ts`: 4 REST endpoints chuẩn Envelope `ApiResponse<T>`, bảo vệ bằng `authenticateToken` và `validateRequest`. Tích hợp route `/settings` vào `apiV1Router`.
+    - Viết 8 unit tests DTO, 7 unit tests Service, 5 unit tests Controller, và 7 integration tests Supertest đạt 100% PASS.
+  - **Frontend Settings Dashboard (`/(dashboard)/settings`):**
+    - `settings.store.ts`: Zustand store kết nối `apiClient` với defensive data parsing.
+    - `profile-settings-tab.tsx`: Form quản lý hồ sơ cá nhân, avatar initials, họ tên, email (read-only), số điện thoại, tên thương hiệu, múi giờ.
+    - `security-password-tab.tsx`: Form đổi mật khẩu an toàn, con mắt toggle ẩn/hiện, Password Strength Indicator 4 nấc theo 5 tiêu chí bảo mật, và danh sách thiết bị/phiên đăng nhập.
+    - `api-limits-monitor-tab.tsx`: Đồng hồ hạn ngạch Meta Graph API v19.0, đếm ngược hạn ngạch 4,800 cuộc gọi/24h, tốc độ gọi tức thời, nhãn an toàn Webhook HMAC-SHA256, nút sao chép Webhook endpoint và thời hạn token Fanpage.
+    - `settings/page.tsx`: Giao diện Segmented Tabs chuẩn macOS Clean Utility.
+    - Bổ sung menu `Cài đặt hệ thống` vào danh sách điều hướng chính của `sidebar.tsx`.
+  - **Quality Gates:**
+    - Toàn bộ test suites backend và frontend pass 100% (164 frontend tests, 39 backend tests).
+    - TypeScript compilation (`tsc --noEmit`) đạt 0 lỗi ở cả 2 workspaces.
+
 ## [2026-11-01] - Khắc Phục Lỗi HTTP 500 Trang Kịch Bản Tự Động & Chuẩn Hóa Database Migration (`fix-automation-500-error`)
 - **Tác giả:** System Architect & Full-Stack Reliability Engineer (Antigravity Ecosystem)
 - **Nội dung hoàn thành:**
@@ -678,7 +698,7 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 
 ## [Đang Thực Hiện] - Sprint 6: CRM Leads Management, System Settings & Production Launch
 - [x] **[TASK-27]** Màn Hình Quản Lý Khách Hàng & Leads Tập Trung (`/(dashboard)/customers`) - 100% DONE (Hoàn thành 30/10/2026)
-- [ ] **[TASK-28]** Màn Hình Cài Đặt Hệ Thống, Hồ Sơ & Giám Sát Meta API Limits (`/(dashboard)/settings`) - P2 TODO
+- [x] **[TASK-28]** Màn Hình Cài Đặt Hệ Thống, Hồ Sơ & Giám Sát Meta API Limits (`/(dashboard)/settings`) - 100% DONE (Hoàn thành 17/11/2026)
 - [ ] **[TASK-29]** CI/CD Pipeline & Triển Khai Production Tự Động (GitHub Actions) - P1 TODO
 
 ---

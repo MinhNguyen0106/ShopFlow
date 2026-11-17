@@ -6,6 +6,7 @@ import {
   startPhoneMaskingWorker,
   stopPhoneMaskingWorker,
 } from './infrastructure/queue/phone-masking.worker.js';
+import { scheduledPostWorker } from './infrastructure/queue/scheduled-post.worker.js';
 import { closeQueueConnections } from './infrastructure/queue/bullmq.client.js';
 import {
   initSocketServer,
@@ -33,6 +34,14 @@ const server = app.listen(env.PORT, () => {
     logger.info('⚡ Phone Masking BullMQ Worker đã khởi động và sẵn sàng xử lý tác vụ');
   } catch (err) {
     logger.error({ err: (err as Error).message }, 'Lỗi khởi động Phone Masking Worker');
+  }
+
+  // Khởi động BullMQ Worker xử lý xuất bản bài viết hẹn giờ
+  try {
+    scheduledPostWorker.start();
+    logger.info('⚡ Scheduled Post BullMQ Worker đã khởi động và sẵn sàng xử lý tác vụ');
+  } catch (err) {
+    logger.error({ err: (err as Error).message }, 'Lỗi khởi động Scheduled Post Worker');
   }
 
   // Kiểm tra kết nối Database ngay sau khi server khởi động
@@ -70,6 +79,7 @@ async function handleShutdown(signal: string): Promise<void> {
 
   // 3. Dừng Worker và đóng các hàng đợi BullMQ
   await stopPhoneMaskingWorker().catch(() => {});
+  await scheduledPostWorker.close().catch(() => {});
   await closeQueueConnections().catch(() => {});
 
   // 4. Đóng Database pool

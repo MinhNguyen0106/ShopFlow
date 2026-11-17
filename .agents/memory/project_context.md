@@ -17,6 +17,7 @@ Tài liệu ngữ cảnh dự án lưu giữ kiến thức nền tảng, kiến 
 8. **Phân Quyền Đa Fanpage & Bảo Vệ PII (Multi-Page RBAC):** Quản lý nhân viên theo từng Fanpage (`owner`, `manager`, `staff`), tự động che giấu số điện thoại khách hàng (`098****123`) cho vai trò `staff`.
 9. **Báo Cáo Phân Tích Doanh Thu Thời Gian Thực (Analytics Dashboard):** Ma trận nhiệt giờ vàng 24x7, biểu đồ xu hướng doanh thu SVG Bézier, tỷ lệ chuyển đổi chốt đơn CR và xuất báo cáo CSV UTF-8 BOM.
 10. **Quản Trị Khách Hàng & Leads Tập Trung (Customer CRM):** Bảng danh bạ khách hàng Bento, tối ưu SQL `LEFT JOIN` tính LTV và tổng đơn hàng không bị lỗi N+1 query, bộ tags đa năng (`VIP`, `Co_SDT`, `Da_Mua_Hang`, `Boom_Hang`).
+11. **Quản Trị Cài Đặt Hệ Thống & Giám Sát Meta Limits (System Settings):** Quản lý hồ sơ tài khoản cá nhân, cơ chế đổi mật khẩu bảo mật (Bcrypt 12 rounds), và bảng điều khiển kỹ thuật giám sát hạn ngạch Meta Graph API v19.0 (4,800 calls/24h) cùng sức khỏe hạ tầng Webhook HMAC-SHA256 và Redis Idempotency. (TASK-28)
 
 ---
 
@@ -61,7 +62,7 @@ Dự án áp dụng kiến trúc **Monorepo** chia 2 thư mục gốc độc l�
   6. `(dashboard)/orders`: Quản lý đơn hàng, Bento metrics, bảng đơn hàng lọc đa trạng thái, Drawer chi tiết đơn hàng (PII phone masking), in phiếu giao hàng A5/A6 máy in nhiệt.
   7. `(dashboard)/analytics`: Báo cáo phân tích doanh thu thuần, biểu đồ xu hướng SVG Bézier, ma trận nhiệt Golden Hour Heatmap 24x7, Top sản phẩm bán chạy và xuất báo cáo CSV UTF-8 BOM.
   8. `(dashboard)/customers`: Quản lý khách hàng & leads tập trung, Bento KPI thẻ, bảng danh bạ phong cách macOS Clean Utility, quản lý tags nhanh và Drawer lịch sử đơn hàng.
-  9. `(dashboard)/settings`: Màn hình cài đặt hệ thống & giám sát Meta API Limits (Dự kiến hoàn thiện tại TASK-28).
+  9. `(dashboard)/settings`: Màn hình Cài đặt hệ thống, hồ sơ cá nhân (`ProfileSettingsTab`), đổi mật khẩu bảo mật (`SecurityPasswordTab`) và giám sát Meta API Limits v19.0 cùng Webhook HMAC health (`ApiLimitsMonitorTab`). (Hoàn thành tại TASK-28).
 
 ---
 

@@ -237,3 +237,18 @@ Tài liệu ghi nhận các quyết định kiến trúc quan trọng kèm bối
   2. Bổ sung `DROP TRIGGER IF EXISTS` trước `CREATE TRIGGER` trong các migration `001`, `002`, `003` để đảm bảo tính Idempotent 100% khi chạy lại pipeline migration.
   3. Chuẩn hóa hàm bóc tách lỗi `extractErrorMessage` trong `automation.store.ts` theo cơ chế phòng vệ đa tầng: `err.response?.data?.error?.message ?? err.response?.data?.message ?? (err as Error).message ?? fallback`.
 - **Hệ quả:** Lệnh migration `npm run db:migrate` chạy trơn tru và nhất quán trên mọi môi trường độc lập không cần binary `psql`, bảng `page_members` được tạo và backfill quyền `owner` đầy đủ, trang Automation hoạt động hoàn hảo đạt HTTP 200 OK, và thông điệp lỗi nếu phát sinh luôn được hiển thị chi tiết, rõ ràng cho người dùng.
+
+
+---
+
+## ADR-021: Kiến Trúc Phân Hệ Cài Đặt Hồ Sơ & Giám Sát Hạn Ngạch Meta Graph API v19.0
+- **Ngày quyết định:** 2026-11-17
+- **Trạng thái:** ACCEPTED
+- **Bối cảnh:** ShopFlow là ứng dụng phụ thuộc chặt chẽ vào Meta Graph API (v19.0) và Webhooks để tự động hóa tương tác Fanpage. Tuy nhiên, nếu thiếu trung tâm quản trị cài đặt tập trung, người dùng không thể tự cập nhật hồ sơ cá nhân hoặc đổi mật khẩu an toàn trên giao diện. Đặc biệt, nếu không có công cụ giám sát trực quan hạn ngạch cuộc gọi API Graph, hệ thống có nguy cơ bị Meta chặn tạm thời do lỗi Error 613 (Calls to this API have exceeded the rate limit).
+- **Quyết định:**
+  1. Xây dựng cụm REST API `/api/v1/settings/*` độc lập, bảo vệ qua JWT middleware `authenticateToken`, tuân thủ Envelope `ApiResponse<T>` và quy ước `camelCase`.
+  2. Áp dụng Zod schema preprocess trong `settings.dto.ts` để tự động tương thích song song cả hai định dạng `camelCase` và `snake_case`, loại bỏ hoàn toàn nguy cơ lỗi HTTP 400 Bad Request do lệch chuẩn đặt tên trường giữa Client và Server.
+  3. Cơ chế đổi mật khẩu an toàn: Bắt buộc xác thực mật khẩu hiện tại trước khi thay đổi, kiểm tra độ phức tạp bằng regex (tối thiểu 8 ký tự, có chữ hoa, chữ thường, số, ký tự đặc biệt), cấm đặt lại mật khẩu mới trùng khớp với mật khẩu cũ, và mã hóa bằng Bcrypt với Salt Rounds = 12.
+  4. Thuật toán giám sát hạn ngạch Meta Graph API: Tổng hợp tự động các sự kiện trong 24h từ các bảng `webhook_logs`, `messages_and_comments`, `posts_schedule` để tính toán số cuộc gọi đã dùng, so sánh với trần 4,800 calls/24h, hiển thị cảnh báo phân tầng (`safe` / `warning` / `exceeded`), kiểm tra thời hạn hiệu lực của Long-Lived Page Access Token (chu kỳ 60 ngày), và hiển thị trạng thái chữ ký Webhook HMAC-SHA256 timing-safe cùng Redis Idempotency TTL (24h).
+  5. Xây dựng giao diện Cài đặt `/settings` chuẩn macOS Clean Utility đa tab (`ProfileSettingsTab`, `SecurityPasswordTab`, `ApiLimitsMonitorTab`) với Segmented Tabs mượt mà và kết nối qua Zustand store `settings.store.ts` sử dụng defensive data parsing.
+- **Hệ quả:** Hoàn thiện 100% yêu cầu nghiệp vụ của TASK-28 (Sprint 6), cung cấp cho chủ shop công cụ quản trị bảo mật và bảng đồng hồ kỹ thuật theo dõi sức khỏe Meta API, ngăn ngừa triệt để nguy cơ vi phạm rate limit khi vận hành trên môi trường Production.
