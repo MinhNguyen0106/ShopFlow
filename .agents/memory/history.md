@@ -2,6 +2,24 @@
 
 Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và trạng thái của dự án ShopFlow.
 
+## [2026-11-17] - Sửa Lỗi HTTP 400 Khi Đăng Bài & Đồng Bộ DTO Tương Thích Cloudinary (`fix-post-creation-400`)
+- **Tác giả:** System Architect & Full-Stack Reliability Engineer (Antigravity Ecosystem)
+- **Bối cảnh & Nguyên nhân lỗi 400:**
+  - Khi người dùng gửi yêu cầu đăng bài tại `/posts/new`, giao diện Frontend truyền dữ liệu sử dụng chuẩn `camelCase` (`pageId`, `contentText`, `mediaType`, `mediaUrls`, `scheduledTime`) và `pageId` là mã Facebook Page ID dạng chuỗi số (e.g. `1430597256795562`).
+  - Trong khi đó, Backend `CreatePostDtoSchema` chỉ chấp nhận `snake_case` và yêu cầu nghiêm ngặt `page_id: z.string().uuid()`. Do đó Zod validation từ chối request ngay tại middleware `validateRequest` với mã HTTP 400 Bad Request (`VALIDATION_ERROR`).
+- **Nội dung xử lý:**
+  - **Chuẩn hóa DTO Backend (`backend/src/api/dtos/post.dto.ts`):**
+    - Sử dụng `z.preprocess` tự động map tương thích song song cả `camelCase` và `snake_case` cho `CreatePostDtoSchema`, `UpdatePostDtoSchema`, và `QueryPostsDtoSchema`.
+    - Nới lỏng ràng buộc `page_id` thành `z.string().min(1)` cho phép chấp nhận cả UUID nội bộ của bảng `connected_pages` và Facebook Page ID dạng chuỗi số (tương thích hoàn hảo với câu truy vấn `(page_id = $1 OR id::text = $1)` trong `ConnectedPageRepository`).
+    - Bổ sung refinement kiểm tra bài viết có nội dung hoặc ít nhất một file media (ảnh/video).
+  - **Đồng bộ Frontend (`frontend/src/app/(dashboard)/posts/new/page.tsx` & `post-editor.tsx`):**
+    - Gửi đồng thời cả `pageId`/`page_id`, `contentText`/`content_text`, `mediaType`/`media_type`, `mediaUrls`/`media_urls`, `scheduledTime`/`scheduled_time` trong payload.
+    - Cập nhật selector chọn Fanpage dự phòng fallback giữa `p.pageId` và `p.id`.
+  - **Kiểm thử & Thẩm định:**
+    - Toàn bộ 51 tests backend (trong đó có 2 tests mới cho camelCase và photo-only posts) và 10 tests frontend pass 100%.
+    - Test trực tiếp end-to-end endpoint `POST /api/v1/posts` trả về HTTP 201 Created cùng ID bài viết mới, BullMQ delay job được khởi tạo chính xác.
+    - `npm run type-check` và `npm run memory:check` đạt 100% PASS.
+
 ## [2026-11-17] - Hoàn Thành TASK-29: CI/CD Pipeline & Triển Khai Production Tự Động (GitHub Actions) (`cicd-production-deploy`)
 - **Tác giả:** System Architect & DevOps / Site Reliability Engineer (Antigravity Ecosystem)
 - **Nội dung hoàn thành:**

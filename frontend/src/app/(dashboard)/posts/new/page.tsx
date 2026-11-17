@@ -64,12 +64,12 @@ export default function NewPostPage() {
   // Tự động chọn fanpage đầu tiên nếu chưa chọn
   useEffect(() => {
     if (!selectedPageId && pages.length > 0) {
-      setSelectedPageId(pages[0].pageId);
+      setSelectedPageId(pages[0].pageId || pages[0].id);
     }
   }, [pages, selectedPageId]);
 
   // Tên fanpage đang được chọn để preview
-  const selectedPageObj = pages.find((p) => p.pageId === selectedPageId);
+  const selectedPageObj = pages.find((p) => p.pageId === selectedPageId || p.id === selectedPageId);
   const selectedPageName = selectedPageObj ? selectedPageObj.pageName : 'ShopFlow Fanpage';
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,10 +103,15 @@ export default function NewPostPage() {
 
       const payload = {
         pageId: selectedPageId,
+        page_id: selectedPageId,
         contentText: contentText.trim(),
+        content_text: contentText.trim(),
         mediaType,
+        media_type: mediaType,
         mediaUrls,
+        media_urls: mediaUrls,
         scheduledTime: finalScheduledTime,
+        scheduled_time: finalScheduledTime,
       };
 
       const response = await apiClient.post('/posts', payload);

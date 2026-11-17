@@ -111,6 +111,51 @@ describe('Scheduled Post Routes Integration (/api/v1/posts)', () => {
       expect(res.body.success).toBe(true);
       expect(res.body.data.post.id).toBe('post-uuid-test');
     });
+
+    it('nên tương thích hoàn toàn với payload dạng camelCase và Facebook page ID dạng chuỗi số từ Frontend', async () => {
+      vi.spyOn(postScheduleService, 'createPost').mockResolvedValueOnce(mockPost);
+
+      const res = await request(app)
+        .post('/api/v1/posts')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          pageId: '1430597256795562',
+          contentText: 'Săn deal chớp nhoáng cùng ShopFlow!',
+          mediaType: 'photo',
+          mediaUrls: ['https://res.cloudinary.com/xnpaw2nq/image/upload/sample.jpg'],
+          scheduledTime: new Date(Date.now() + 3600000).toISOString(),
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.post.id).toBe('post-uuid-test');
+      expect(postScheduleService.createPost).toHaveBeenCalledWith(
+        testUser.id,
+        expect.objectContaining({
+          page_id: '1430597256795562',
+          content_text: 'Săn deal chớp nhoáng cùng ShopFlow!',
+          media_type: 'photo',
+        })
+      );
+    });
+
+    it('nên chấp nhận bài viết chỉ có hình ảnh không có văn bản', async () => {
+      vi.spyOn(postScheduleService, 'createPost').mockResolvedValueOnce(mockPost);
+
+      const res = await request(app)
+        .post('/api/v1/posts')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          pageId: '1430597256795562',
+          contentText: '',
+          mediaType: 'photo',
+          mediaUrls: ['https://res.cloudinary.com/xnpaw2nq/image/upload/sample.jpg'],
+          scheduledTime: new Date(Date.now() + 3600000).toISOString(),
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
   });
 
   describe('PUT /api/v1/posts/:postId', () => {

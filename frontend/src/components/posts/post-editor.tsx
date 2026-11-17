@@ -72,8 +72,8 @@ export const PostEditor: React.FC<PostEditorProps> = ({
           >
             <option value="">-- Chọn Fanpage đích --</option>
             {pages.map((p) => (
-              <option key={p.id} value={p.pageId}>
-                {p.pageName} (ID: {p.pageId})
+              <option key={p.id} value={p.pageId || p.id}>
+                {p.pageName} (ID: {p.pageId || p.id})
               </option>
             ))}
           </select>
