@@ -125,11 +125,16 @@ export class WebhookService {
 
           // Bỏ qua tin nhắn echo từ chính Fanpage
           if (senderFbId && !isEcho && senderFbId !== event.pageId) {
-            const connectedPage = await this.pageRepo.findByPageId(event.pageId || recipientFbId || '');
+            let connectedPage = await this.pageRepo.findByPageId(event.pageId || recipientFbId || '');
+            if (!connectedPage && (event.pageId === '0' || !event.pageId)) {
+              // Hỗ trợ gói tin thử nghiệm từ Meta Developer Dashboard (Meta luôn gửi page_id = '0')
+              connectedPage = await this.pageRepo.findFirstActive();
+            }
+
             if (connectedPage) {
-              let senderName = 'Khách hàng Facebook';
+              let senderName = event.pageId === '0' ? 'Khách hàng (Thử nghiệm Meta)' : 'Khách hàng Facebook';
               try {
-                if (connectedPage.page_access_token) {
+                if (connectedPage.page_access_token && event.pageId !== '0') {
                   const plainToken = decryptToken(connectedPage.page_access_token);
                   const profile = await this.graphClient.getCustomerProfile(senderFbId, plainToken);
                   if (profile?.name) {

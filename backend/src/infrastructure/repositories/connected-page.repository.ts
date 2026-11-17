@@ -130,6 +130,21 @@ export class ConnectedPageRepository {
   }
 
   /**
+   * Lấy Fanpage đang hoạt động đầu tiên (phục vụ fallback cho webhook test).
+   */
+  async findFirstActive(): Promise<ConnectedPage | null> {
+    const sql = `
+      SELECT id, user_id, fb_account_id, page_id, page_name, avatar_url, page_access_token, is_active, webhook_subscribed, created_at, updated_at
+      FROM connected_pages
+      WHERE is_active = true
+      ORDER BY created_at DESC
+      LIMIT 1
+    `;
+    const result = await query<ConnectedPage>(sql);
+    return result.rows[0] ?? null;
+  }
+
+  /**
    * Cập nhật trạng thái kích hoạt (is_active) của Fanpage.
    */
   async updateStatus(pageId: string, userId: string, isActive: boolean): Promise<ConnectedPage | null> {

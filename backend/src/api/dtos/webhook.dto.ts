@@ -116,6 +116,8 @@ export function extractWebhookEvents(payload: MetaWebhookPayload): NormalizedWeb
         let eventType: NormalizedWebhookEvent['eventType'] = 'feed';
         if (val?.item === 'comment' || !!commentId) {
           eventType = 'comment';
+        } else if (change.field === 'messages' || Boolean((val as Record<string, unknown> | undefined)?.message && typeof (val as Record<string, unknown> | undefined)?.message === 'object')) {
+          eventType = 'message';
         } else if (val?.item === 'reaction') {
           eventType = 'reaction';
         }
