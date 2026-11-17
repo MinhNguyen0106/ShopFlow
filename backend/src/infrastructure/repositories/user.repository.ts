@@ -80,6 +80,33 @@ export class UserRepository {
     const result = await query<User>(sql, [status, id]);
     return result.rows[0] ?? null;
   }
+
+  /**
+   * Cập nhật họ tên hồ sơ người dùng.
+   */
+  async updateProfile(id: string, fullName: string): Promise<User | null> {
+    const sql = `
+      UPDATE users
+      SET full_name = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING id, email, password_hash, full_name, role, status, created_at, updated_at
+    `;
+    const result = await query<User>(sql, [fullName.trim(), id]);
+    return result.rows[0] ?? null;
+  }
+
+  /**
+   * Cập nhật mật khẩu băm mới cho người dùng.
+   */
+  async updatePassword(id: string, passwordHash: string): Promise<boolean> {
+    const sql = `
+      UPDATE users
+      SET password_hash = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+    `;
+    const result = await query(sql, [passwordHash, id]);
+    return result.rowCount > 0;
+  }
 }
 
 // Export singleton instance để tái sử dụng

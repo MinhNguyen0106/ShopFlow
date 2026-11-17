@@ -95,7 +95,12 @@ ShopFlow/
      - **[decisions.md](file:///c:/Users/Dell/Desktop/ShopFlow/.agents/memory/decisions.md):** Bổ sung Architecture Decision Record (ADR) mới nếu task đưa ra giải pháp kiến trúc, thuật toán cốt lõi, bảo mật PII/HMAC hoặc cơ chế caching/invalidation.
    - **Thẩm định tự động:** Bắt buộc chạy lệnh `npm run memory:check` đạt **100% PASS** trước khi commit. Nghiêm cấm commit nếu script báo lỗi lệch pha.
 
-2. **Đẩy Mã Nguồn Lên GitHub Sau Mỗi Task:** Sau khi hoàn tất kiểm thử, review và audit bộ nhớ thành công cho từng Task, AI Agent bắt buộc phải commit đầy đủ và push mã nguồn lên remote GitHub (`git push origin <branch>/main`).
+2. **Quy Trình Nhánh Feature, Pull Request & Merge GitHub Sau Mỗi Task:**
+   - **Tạo nhánh riêng:** Mọi task bắt buộc phải thực hiện trên một nhánh riêng biệt: `feature/<task-name>` (ví dụ: `feature/task-28-settings-profile`).
+   - **Kiểm thử & Thẩm định:** Pass 100% test suites, `npm run type-check` và đạt 100% PASS kiểm tra bộ nhớ `npm run memory:check`.
+   - **Commit & Push nhánh:** Commit chuẩn Conventional Commits và push nhánh feature lên remote: `git push -u origin feature/<task-name>`.
+   - **Tạo Pull Request (PR):** Sử dụng GitHub CLI (`gh pr create --title "..." --body "..."`) hoặc GitHub API để mở Pull Request hướng vào nhánh `main`.
+   - **Merge vào main:** Thực hiện merge Pull Request vào nhánh `main` (`gh pr merge --merge --delete-branch` hoặc merge an toàn), sau đó chuyển về nhánh `main` cục bộ và đồng bộ: `git checkout main && git pull origin main`.
 
 3. **Quy Trình Chuyển Giao Sprint (Sprint Completion & Transition Protocol):** Khi toàn bộ các tác vụ trong một Sprint đạt 100% hoàn thành (pass toàn bộ test suite, type-check, build production), AI Agent bắt buộc phải thực hiện quy trình chuyển giao 3 bước:
    - **Đóng Sprint (Sprint Closure):** Đánh dấu Sprint vừa hoàn thành là 100% DONE, lưu trữ các task đã hoàn tất vào bảng *Nhật Ký Cập Nhật Tiến Độ Sprint* trong `Task.md` và ghi nhận mốc trong `history.md`.

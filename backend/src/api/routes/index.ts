@@ -13,6 +13,7 @@ import { paymentRouter } from './payment.routes.js';
 import { shippingRouter } from './shipping.routes.js';
 import { analyticsRouter } from './analytics.routes.js';
 import { customerRouter } from './customer.routes.js';
+import { settingsRouter } from './settings.routes.js';
 
 export const apiV1Router = Router();
 
@@ -57,3 +58,6 @@ apiV1Router.use('/analytics', analyticsRouter);
 
 // Mount Customer CRM routes (TASK-27)
 apiV1Router.use('/customers', customerRouter);
+
+// Mount System Settings & Profile routes (TASK-28)
+apiV1Router.use('/settings', settingsRouter);
