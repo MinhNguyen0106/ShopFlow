@@ -25,6 +25,7 @@ import {
 } from '../meta/graph-api.client.js';
 import { decryptToken } from '../../utils/crypto.helper.js';
 import { socketService, SocketService } from '../../core/services/socket.service.js';
+import { alertService } from '../../core/services/alert.service.js';
 import { logger } from '../../utils/logger.js';
 
 export class ScheduledPostWorkerService {
@@ -205,6 +206,16 @@ export class ScheduledPostWorkerService {
           { postId, error: errorDetail },
           '[ScheduledPostWorker] ✘ Xuất bản bài viết thất bại'
         );
+
+        if (errorDetail.includes('613') || errorDetail.toLowerCase().includes('rate limit')) {
+          alertService.sendAlert({
+            title: 'Meta API Rate Limit (Error 613)',
+            category: 'META_API_RATE_LIMIT',
+            severity: 'CRITICAL',
+            message: `Xuất bản bài viết ${postId} thất bại do chạm trần rate limit của Meta: ${errorDetail}`,
+            metadata: { postId, pageId: metaPageId },
+          }).catch(() => {});
+        }
 
         this.socketSvc.emitPostStatusChanged(metaPageId, {
           event: 'POST_STATUS_CHANGED',

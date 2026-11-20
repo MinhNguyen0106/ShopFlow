@@ -17,6 +17,10 @@ vi.mock('@/components/settings/api-limits-monitor-tab', () => ({
   ApiLimitsMonitorTab: () => <div data-testid="api-limits-monitor-tab">Mock Meta Limits Tab</div>,
 }));
 
+vi.mock('@/components/settings/system-health-tab', () => ({
+  SystemHealthTab: () => <div data-testid="system-health-tab">Mock System Health Tab</div>,
+}));
+
 describe('SettingsPage Component Tests', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -51,6 +55,16 @@ describe('SettingsPage Component Tests', () => {
     fireEvent.click(metaLimitsTabBtn);
 
     expect(screen.getByTestId('api-limits-monitor-tab')).toBeInTheDocument();
+    expect(screen.queryByTestId('profile-settings-tab')).not.toBeInTheDocument();
+  });
+
+  it('chuyển đổi sang tab Sức khỏe Hạ tầng & Telemetry khi nhấn nút', () => {
+    render(<SettingsPage />);
+
+    const healthTabBtn = screen.getByRole('button', { name: /Sức khỏe Hạ tầng/i });
+    fireEvent.click(healthTabBtn);
+
+    expect(screen.getByTestId('system-health-tab')).toBeInTheDocument();
     expect(screen.queryByTestId('profile-settings-tab')).not.toBeInTheDocument();
   });
 });

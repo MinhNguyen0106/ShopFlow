@@ -14,6 +14,7 @@ import { shippingRouter } from './shipping.routes.js';
 import { analyticsRouter } from './analytics.routes.js';
 import { customerRouter } from './customer.routes.js';
 import { settingsRouter } from './settings.routes.js';
+import { systemRouter } from './system.routes.js';
 
 export const apiV1Router = Router();
 
@@ -61,3 +62,6 @@ apiV1Router.use('/customers', customerRouter);
 
 // Mount System Settings & Profile routes (TASK-28)
 apiV1Router.use('/settings', settingsRouter);
+
+// Mount System Observability & Telemetry routes (TASK-30)
+apiV1Router.use('/system', systemRouter);

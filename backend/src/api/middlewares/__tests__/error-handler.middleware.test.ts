@@ -36,6 +36,13 @@ vi.mock('../../../config/env.js', () => ({
   },
 }));
 
+// Mock alertService
+vi.mock('../../../core/services/alert.service.js', () => ({
+  alertService: {
+    sendAlert: vi.fn().mockResolvedValue(true),
+  },
+}));
+
 function createMocks(overrides: Partial<Request> = {}) {
   const req = {
     method: 'GET',
@@ -223,7 +230,7 @@ describe('errorHandler() — SyntaxError (Invalid JSON Body)', () => {
 });
 
 describe('errorHandler() — Unhandled 500 Errors', () => {
-  it('nên trả về 500 INTERNAL_SERVER_ERROR khi gặp Error thông thường', () => {
+  it('nên trả về 500 INTERNAL_SERVER_ERROR khi gặp Error thông thường', async () => {
     const { req, res, next, statusMock, jsonMock } = createMocks();
     const unexpectedErr = new Error('Database connection crashed');
 
@@ -237,5 +244,14 @@ describe('errorHandler() — Unhandled 500 Errors', () => {
         message: 'Database connection crashed',
       },
     });
+
+    const { alertService } = await import('../../../core/services/alert.service.js');
+    expect(alertService.sendAlert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        category: 'HTTP_5XX',
+        severity: 'CRITICAL',
+        title: expect.stringContaining('500'),
+      })
+    );
   });
 });

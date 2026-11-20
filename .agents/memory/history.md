@@ -2,6 +2,42 @@
 
 Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và trạng thái của dự án ShopFlow.
 
+## [2026-11-20] - Hoàn Thành TASK-30: Hệ Thống Giám Sát, Đo Lường Chỉ Số & Cảnh Báo Sự Cố Tự Động (`system-observability`)
+- **Tác giả:** System Architect & Full-Stack Reliability Engineer (Antigravity Ecosystem)
+- **Nội dung xử lý:**
+  - Hoàn thành toàn diện 10/10 tasks trong OpenSpec change [system-observability](file:///c:/Users/Dell/Desktop/ShopFlow/openspec/changes/system-observability/tasks.md) theo chuẩn Spec-Driven Development.
+  - **Prometheus Metrics Engine (`backend/src/infrastructure/monitoring/metrics.service.ts`):**
+    - Cài đặt thư viện `prom-client`, tích hợp Registry chuẩn Prometheus gom nhóm default metrics (Node.js runtime, event loop lag, GC, memory heap).
+    - Tạo các Custom Gauges đo lường PostgreSQL Connection Pool (`shopflow_db_pool_total`, `shopflow_db_pool_idle`, `shopflow_db_pool_waiting`) và BullMQ Queues (`shopflow_bullmq_jobs` theo các trạng thái `waiting`, `active`, `failed`, `delayed`).
+    - Tạo Custom Counter (`shopflow_http_requests_total`) và Histogram (`shopflow_http_request_duration_seconds`) đo lường lưu lượng và độ trễ HTTP.
+    - Cung cấp tiện ích `normalizeRoute(path)` chuẩn hóa route URL (chuyển đổi UUIDs và ID số thành `:id`) ngăn chặn triệt để nguy cơ bùng nổ cardinality.
+  - **Bảo Vệ & Cung Cấp Endpoint `/metrics` (`metrics.middleware.ts` & `metrics.routes.ts`):**
+    - Middleware `metricsMiddleware` tự động tính thời gian phản hồi (`durationSeconds`) và ghi nhận mã trạng thái HTTP vào metrics.
+    - Endpoint `GET /metrics` được bảo vệ bởi xác thực token bí mật `METRICS_AUTH_TOKEN` (hỗ trợ cả header `Authorization: Bearer <token>` và `x-metrics-token`). Trả về định dạng Prometheus text `text/plain; version=0.0.4`.
+  - **Dịch Vụ Cảnh Báo Khẩn Cấp Qua Telegram Bot (`alert.service.ts`):**
+    - Xây dựng `AlertService` kết nối trực tiếp Telegram Bot API (`sendPhoto` / `sendMessage`), định dạng thông báo HTML theo 3 cấp độ: `CRITICAL` (🚨), `WARNING` (⚠️), `INFO` (ℹ️).
+    - Triển khai cơ chế chống bão thông báo (5-minute throttling): gom nhóm các sự cố cùng loại (`category:title`) trong cửa sổ 5 phút, chỉ gửi 1 tin nhắn kèm số lần sự cố lặp lại (`Occurred N times`).
+    - Tích hợp tự động vào Express Global Error Handler (bắt mọi lỗi HTTP 5xx / unhandled exceptions), BullMQ Queue Worker Error Listener (phát hiện DLQ spike > 10 jobs) và lỗi giới hạn hạn ngạch Meta Graph API (Error 613 / 80001).
+    - Cung cấp phương thức `testTelegramConnection()` gửi tin nhắn kiểm tra cấu hình.
+  - **REST APIs Sức Khỏe Hệ Thống (`system.controller.ts` & `system.routes.ts`):**
+    - `GET /api/v1/system/health-stats`: Trả về dữ liệu sức khỏe hạ tầng gồm Uptime, Memory/CPU Node.js, trạng thái DB Pool, chi tiết 5 hàng đợi BullMQ, và cấu hình Telegram Alert (được bảo vệ bởi timeout 300ms chống treo khi Redis offline).
+    - `POST /api/v1/system/test-alert`: Kích hoạt gửi tin nhắn thử nghiệm tới Telegram channel.
+    - Cả hai routes đều được bảo vệ nghiêm ngặt bởi middleware JWT `authenticateToken`.
+  - **Frontend System Health Dashboard (`system-health-tab.tsx`):**
+    - Mở rộng Zustand store `settings.store.ts` với state `healthStats`, action `fetchHealthStats()`, và `sendTestAlert()`.
+    - Xây dựng component `SystemHealthTab` theo ngôn ngữ thiết kế macOS Clean Utility Bento Grid:
+      - Cụm thẻ Bento Server Uptime, Node.js Memory Heap, DB Connection Pool (Total/Active/Idle/Waiting).
+      - Cụm thẻ hàng đợi BullMQ hiển thị trực quan trạng thái của cả 5 hàng đợi với badge màu riêng biệt.
+      - Cụm điều khiển Telegram Alerting hiển thị tình trạng kích hoạt, Chat ID và nút bấm `Gửi cảnh báo thử nghiệm` (kèm trạng thái loading & feedback toast).
+    - Tích hợp Tab thứ 4 `system-health` vào trang `frontend/src/app/(dashboard)/settings/page.tsx`.
+  - **Quality Gates:**
+    - 11/11 Metrics unit/integration tests passed.
+    - 5/5 AlertService unit tests passed.
+    - 4/4 System routes integration tests passed.
+    - 10/10 Settings frontend tests passed.
+    - TypeScript compilation (`npm run type-check`) đạt 0 lỗi trên cả 2 workspaces backend & frontend.
+    - Thẩm định bộ nhớ `npm run memory:check` đạt 100% PASS.
+
 ## [2026-11-20] - Hoàn Thành: Tự Động Đánh Dấu Đã Đọc & Xóa Huy Hiệu Chưa Đọc Live Chat Inbox (`mark-inbox-read-clear-unread-badges`)
 - **Tác giả:** System Architect & Full-Stack Reliability Engineer (Antigravity Ecosystem)
 - **Nội dung xử lý:**
@@ -817,7 +853,7 @@ Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và tr�
 ---
 
 ## [Đang Thực Hiện] - Sprint 7: Observability, Conversational AI Sales & Omnichannel Expansion
-- [ ] **[TASK-30]** Hệ Thống Giám Sát, Đo Lường Chỉ Số & Cảnh Báo Sự Cố Tự Động (Observability, Prometheus Metrics & Telemetry) - P1 TODO
+- [x] **[TASK-30]** Hệ Thống Giám Sát, Đo Lường Chỉ Số & Cảnh Báo Sự Cố Tự Động (Observability, Prometheus Metrics & Telemetry) - 100% DONE (Hoàn thành 20/11/2026)
 - [ ] **[TASK-31]** Trợ Lý AI Tư Vấn Bán Hàng & Chốt Đơn Chuyên Sâu Qua Messenger (Conversational AI Sales Agent) - P1 TODO
 - [ ] **[TASK-32]** Mở Rộng Bán Hàng Đa Kênh: Tích Hợp Zalo Official Account (Zalo OA Omnichannel Integration) - P2 TODO
 

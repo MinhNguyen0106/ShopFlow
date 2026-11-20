@@ -12,6 +12,8 @@ import { Queue, QueueOptions } from 'bullmq';
 import { Redis, RedisOptions } from 'ioredis';
 import { env } from '../../config/env.js';
 import { logger } from '../../utils/logger.js';
+import { alertService } from '../../core/services/alert.service.js';
+import { metricsService } from '../monitoring/metrics.service.js';
 
 // =============================================================================
 // Tên định danh các Hàng Đợi (Queue Names)
@@ -166,6 +168,41 @@ export const scheduledPostQueue = new Queue<ScheduledPostJobData>(
 scheduledPostQueue.on('error', (err) => {
   logger.debug({ err: err.message }, '[scheduledPostQueue] Redis connection status');
 });
+
+/**
+ * Thu thập và đồng bộ số liệu các hàng đợi BullMQ sang MetricsService
+ */
+export async function collectBullmqMetrics(): Promise<void> {
+  const queues = [
+    { name: QUEUE_NAMES.WEBHOOK_PROCESSING, queue: webhookProcessingQueue },
+    { name: QUEUE_NAMES.PHONE_MASKING, queue: phoneMaskingQueue },
+    { name: QUEUE_NAMES.AUTOMATION_REPLY, queue: automationReplyQueue },
+    { name: QUEUE_NAMES.SCHEDULED_POST, queue: scheduledPostQueue },
+  ];
+
+  for (const { name, queue } of queues) {
+    try {
+      const counts = await queue.getJobCounts('waiting', 'active', 'failed', 'delayed');
+      metricsService.updateQueueMetrics(name, 'waiting', counts.waiting || 0);
+      metricsService.updateQueueMetrics(name, 'active', counts.active || 0);
+      metricsService.updateQueueMetrics(name, 'failed', counts.failed || 0);
+      metricsService.updateQueueMetrics(name, 'delayed', counts.delayed || 0);
+
+      // Cảnh báo nếu số lượng job thất bại hoặc chờ xử lý vượt ngưỡng
+      if ((counts.failed || 0) > 10) {
+        alertService.sendAlert({
+          title: `BullMQ DLQ Warning: Queue ${name}`,
+          category: 'BULLMQ_DLQ',
+          severity: 'WARNING',
+          message: `Hàng đợi ${name} có ${counts.failed} jobs thất bại cần xử lý.`,
+          metadata: { queue: name, ...counts },
+        }).catch(() => {});
+      }
+    } catch {
+      // Bỏ qua lỗi nếu Redis chưa kết nối
+    }
+  }
+}
 
 /**
  * Đóng an toàn kết nối của toàn bộ hàng đợi khi tắt ứng dụng (Graceful Shutdown)

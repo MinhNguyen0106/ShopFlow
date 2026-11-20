@@ -45,6 +45,12 @@ const envSchema = z.object({
   // Google Gemini AI (TASK-20)
   GEMINI_API_KEY: z.string().optional().default('mock_gemini_api_key_dev'),
   GEMINI_MODEL: z.string().default('gemini-2.5-flash'),
+
+  // Observability & Telemetry (TASK-30)
+  METRICS_AUTH_TOKEN: z.string().optional(),
+  TELEGRAM_BOT_TOKEN: z.string().optional(),
+  TELEGRAM_CHAT_ID: z.string().optional(),
+  ALERT_ENABLED: z.coerce.boolean().default(false),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;

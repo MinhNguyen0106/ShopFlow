@@ -84,6 +84,20 @@ function getPool(): pg.Pool {
   return _pool;
 }
 
+/**
+ * Lấy số liệu thống kê kết nối của pool phục vụ telemetry/monitoring
+ */
+export function getPoolStats(): { total: number; idle: number; waiting: number } {
+  if (!_pool) {
+    return { total: 0, idle: 0, waiting: 0 };
+  }
+  return {
+    total: _pool.totalCount,
+    idle: _pool.idleCount,
+    waiting: _pool.waitingCount,
+  };
+}
+
 // =============================================================================
 // query() — Thực thi SQL với query profiling
 // =============================================================================

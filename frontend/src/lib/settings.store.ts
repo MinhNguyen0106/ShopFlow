@@ -9,12 +9,43 @@ import { create } from 'zustand';
 import { apiClient } from './api-client';
 import { UserProfile, MetaLimitsData } from '../types/settings';
 
+export interface SystemHealthStats {
+  uptimeSeconds: number;
+  nodeEnv: string;
+  memory: {
+    heapUsedMb: number;
+    heapTotalMb: number;
+    rssMb: number;
+  };
+  database: {
+    status: string;
+    totalConnections: number;
+    activeConnections: number;
+    idleConnections: number;
+    waitingRequests: number;
+  };
+  queues: {
+    webhookProcessing: { waiting: number; active: number; failed: number };
+    phoneMasking: { waiting: number; active: number; failed: number };
+    automationReply: { waiting: number; active: number; failed: number };
+    scheduledPost: { waiting: number; active: number; failed: number };
+  };
+  alerting: {
+    enabled: boolean;
+    hasBotToken: boolean;
+    hasChatId: boolean;
+  };
+}
+
 export interface SettingsState {
   profile: UserProfile | null;
   metaLimits: MetaLimitsData | null;
+  healthStats: SystemHealthStats | null;
   isLoadingProfile: boolean;
   isUpdatingProfile: boolean;
   isLoadingLimits: boolean;
+  isLoadingHealthStats: boolean;
+  isSendingTestAlert: boolean;
   isChangingPassword: boolean;
   error: string | null;
   successMessage: string | null;
@@ -32,15 +63,20 @@ export interface SettingsState {
     newPassword: string;
   }) => Promise<{ success: boolean; message: string }>;
   fetchMetaLimits: () => Promise<void>;
+  fetchHealthStats: () => Promise<void>;
+  sendTestAlert: () => Promise<{ success: boolean; message: string }>;
   clearMessages: () => void;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
   profile: null,
   metaLimits: null,
+  healthStats: null,
   isLoadingProfile: false,
   isUpdatingProfile: false,
   isLoadingLimits: false,
+  isLoadingHealthStats: false,
+  isSendingTestAlert: false,
   isChangingPassword: false,
   error: null,
   successMessage: null,
@@ -181,6 +217,38 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         (err as Error).message ||
         'Không thể tải dữ liệu giám sát Meta limits';
       set({ error: msg, isLoadingLimits: false });
+    }
+  },
+
+  fetchHealthStats: async () => {
+    set({ isLoadingHealthStats: true, error: null });
+    try {
+      const response = await apiClient.get('/system/health-stats');
+      const data = response.data?.data || null;
+      set({ healthStats: data, isLoadingHealthStats: false });
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        (err as Error).message ||
+        'Không thể tải số liệu giám sát sức khỏe hệ thống';
+      set({ error: msg, isLoadingHealthStats: false });
+    }
+  },
+
+  sendTestAlert: async () => {
+    set({ isSendingTestAlert: true, error: null, successMessage: null });
+    try {
+      const response = await apiClient.post('/system/test-alert');
+      const message = response.data?.message || 'Đã gửi thông báo kiểm tra thành công!';
+      set({ successMessage: message, isSendingTestAlert: false });
+      return { success: true, message };
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        (err as Error).message ||
+        'Gửi cảnh báo thử nghiệm thất bại';
+      set({ error: msg, isSendingTestAlert: false });
+      return { success: false, message: msg };
     }
   },
 

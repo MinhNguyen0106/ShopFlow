@@ -317,3 +317,30 @@ Tài liệu ghi nhận các quyết định kiến trúc quan trọng kèm bối
      - `ColumnChannels` (`column-channels.tsx`): Tự động tính toán lại `totalUnread` giảm trừ ngay lập tức và ẩn nhãn "X mới" khi toàn bộ tin nhắn đã được đọc (`totalUnread === 0`).
      - `Sidebar` (`sidebar.tsx`): Đọc danh sách hội thoại từ `useInboxStore` để tính toán tổng số tin chưa đọc động theo thời gian thực, loại bỏ hoàn toàn giá trị mock tĩnh `18`, và tự động ẩn huy hiệu khi `totalUnread === 0`.
 - **Hệ quả:** Trải nghiệm người dùng trong hộp thư Live Chat mượt mà, trực quan và chuẩn xác theo thời gian thực. Toàn bộ 37 Backend tests và 19 Frontend tests (15 inbox + 4 sidebar) đều đạt 100% PASS; TypeScript Type-Check đạt 0 lỗi.
+
+---
+
+## ADR-025: Kiến Trúc Quan Trắc Hệ Thống (Prometheus Metrics, Telegram Alerting Engine & System Health Dashboard)
+- **Ngày quyết định:** 2026-11-20
+- **Trạng thái:** ACCEPTED
+- **Bối cảnh:** Khi vận hành trên môi trường Production, ShopFlow xử lý lưu lượng tương tác lớn từ Meta Webhooks, các hàng đợi BullMQ ngầm và các cuộc gọi tới Meta Graph API v19+. Để đảm bảo độ tin cậy hệ thống (Site Reliability), đội ngũ kỹ sư cần một cơ chế giám sát chủ động (Proactive Observability): xuất bản metrics chuẩn Prometheus để các công cụ như Prometheus/Grafana thu thập, phát hiện sớm tình trạng nghẽn kết nối DB Pool hoặc bão jobs hàng đợi BullMQ, và tự động gửi cảnh báo khẩn cấp tới kênh Telegram của quản trị viên khi xảy ra sự cố nghiêm trọng (HTTP 5xx, lỗi giới hạn tốc độ Meta Error 613/80001, hoặc DLQ spike) mà không làm tràn bão tin nhắn.
+- **Quyết định:**
+  1. **Prometheus Metrics Engine & Quản Lý Cardinality:**
+     - Tích hợp thư viện `prom-client` vào `MetricsService` (`backend/src/infrastructure/monitoring/metrics.service.ts`).
+     - Kích hoạt default metrics (CPU, RAM, Event Loop Lag, GC) cùng các Custom Gauges cho PostgreSQL Connection Pool (`total`, `idle`, `waiting`) và BullMQ Queues (`waiting`, `active`, `failed`, `delayed`).
+     - Đo lường lưu lượng HTTP thông qua `metricsMiddleware` sử dụng Counter (`shopflow_http_requests_total`) và Histogram (`shopflow_http_request_duration_seconds`).
+     - Triển khai hàm `normalizeRoute(path)` chuẩn hóa các đường dẫn chứa UUID hoặc tham số số thành placeholder `:id` nhằm triệt tiêu nguy cơ bùng nổ cardinality trong Prometheus registry.
+  2. **Bảo Mật Endpoint `/metrics`:**
+     - Đăng ký endpoint `GET /metrics` (`metrics.routes.ts`) được bảo vệ bởi cơ chế kiểm tra token bí mật `METRICS_AUTH_TOKEN`.
+     - Hỗ trợ cả 2 dạng truyền token: header `Authorization: Bearer <token>` và `x-metrics-token`. Nếu không cấu hình token (môi trường dev cục bộ), endpoint tự động mở để tiện debug; nếu có token, mọi truy vấn không hợp lệ sẽ bị từ chối ngay với HTTP 401 Unauthorized.
+  3. **Động Cơ Cảnh Báo Khẩn Cấp Qua Telegram Bot (Telegram Alerting Engine):**
+     - Xây dựng `AlertService` (`backend/src/core/services/alert.service.ts`) kết nối Telegram Bot Webhook API qua HTTPS native `fetch`, định dạng tin nhắn HTML theo 3 cấp độ: `CRITICAL`, `WARNING`, `INFO`.
+     - Áp dụng thuật toán điều tiết chống bão (5-Minute Throttling & Deduplication): tạo khóa `dedupKey = `${category}:${title}``. Khi có sự cố lặp lại trong vòng 5 phút (300,000ms), hệ thống chỉ tăng bộ đếm số lần phát sinh mà không bắn thêm tin nhắn, giúp bảo vệ quản trị viên khỏi tình trạng nghẽn thông báo (alert fatigue).
+     - Tự động kích hoạt từ Express Global Error Handler (khi mã lỗi HTTP >= 500 hoặc unhandled exception), BullMQ Worker (khi phát hiện DLQ thất bại > 10 jobs) và khi Meta Graph API trả về mã lỗi 613 / 80001.
+  4. **REST APIs Sức Khỏe Hạ Tầng & Bảo Vệ Chống Treo:**
+     - Đăng ký `GET /api/v1/system/health-stats` và `POST /api/v1/system/test-alert` được bảo vệ bởi middleware JWT `authenticateToken`.
+     - Khi lấy thông tin số lượng job trong BullMQ, bọc trong cơ chế `Promise.race([queue.getJobCounts(), timeoutPromise(300)])` để đảm bảo API luôn phản hồi < 350ms, tránh bị treo vô tận khi Redis container bị ngắt kết nối.
+  5. **Bảng Điều Khiển Sức Khỏe Giao Diện Người Dùng (Frontend Bento Dashboard):**
+     - Mở rộng Zustand store `settings.store.ts` với defensive normalizer và error parsing.
+     - Xây dựng component `SystemHealthTab` tích hợp vào trang `(dashboard)/settings` theo phong cách macOS Clean Utility Bento Grid, hiển thị trực quan thông số Server Uptime, Node.js Memory, PostgreSQL Pool, tình trạng 5 hàng đợi BullMQ và bảng điều khiển gửi cảnh báo thử nghiệm Telegram.
+- **Hệ quả:** Hệ thống đạt được khả năng quan sát toàn diện và cảnh báo sự cố chủ động theo thời gian thực. Toàn bộ 11 tests metrics, 5 tests alert service, 4 tests system routes và 10 tests frontend settings đều đạt 100% PASS; TypeScript Type-Check đạt 0 lỗi.

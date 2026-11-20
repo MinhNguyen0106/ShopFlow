@@ -4,10 +4,12 @@ import cors from 'cors';
 import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
 import { healthRouter } from './api/routes/health.routes.js';
+import { metricsRouter } from './api/routes/metrics.routes.js';
 import { apiV1Router } from './api/routes/index.js';
 import { errorHandler, notFoundHandler } from './api/middlewares/error-handler.middleware.js';
 import { compressionMiddleware } from './api/middlewares/compression.middleware.js';
 import { globalApiLimiter } from './api/middlewares/rate-limiter.middleware.js';
+import { metricsMiddleware } from './api/middlewares/metrics.middleware.js';
 
 export function createApp(): express.Application {
   const app = express();
@@ -55,6 +57,9 @@ export function createApp(): express.Application {
     })
   );
 
+  // 5. Metrics Middleware đo lường hiệu năng HTTP
+  app.use(metricsMiddleware);
+
   // Body parser with raw body buffer retention for Meta Webhook HMAC-SHA256 verification
   app.use(
     express.json({
@@ -88,6 +93,9 @@ export function createApp(): express.Application {
 
   // Base Health Check
   app.use('/health', healthRouter);
+
+  // Prometheus Metrics Exporter
+  app.use('/metrics', metricsRouter);
 
   // API v1 Routes (Bảo vệ bởi Global Rate Limiter)
   app.use(env.API_PREFIX, globalApiLimiter, apiV1Router);

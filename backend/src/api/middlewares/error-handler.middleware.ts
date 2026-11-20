@@ -15,6 +15,7 @@ import { AppError } from '../../core/errors/app-error.js';
 import { formatZodIssues } from './validate-request.middleware.js';
 import { logger } from '../../utils/logger.js';
 import { env } from '../../config/env.js';
+import { alertService } from '../../core/services/alert.service.js';
 
 /**
  * 404 Not Found Middleware xử lý khi route không tồn tại.
@@ -52,6 +53,19 @@ export function errorHandler(
         },
         '[errorHandler] Lỗi hệ thống AppError'
       );
+
+      // Tự động kích hoạt cảnh báo Telegram cho lỗi hệ thống 5xx
+      alertService.sendAlert({
+        title: `AppError 5xx: ${err.code}`,
+        category: 'HTTP_5XX',
+        severity: 'CRITICAL',
+        message: err.message,
+        metadata: {
+          method: req.method,
+          url: req.originalUrl,
+          statusCode: err.statusCode,
+        },
+      }).catch(() => {});
     } else {
       logger.warn(
         {
@@ -126,6 +140,19 @@ export function errorHandler(
     },
     '[errorHandler] Unhandled Exception xảy ra'
   );
+
+  // Tự động kích hoạt cảnh báo Telegram cho Unhandled 500
+  alertService.sendAlert({
+    title: `Unhandled 500: ${err.name || 'Error'}`,
+    category: 'HTTP_5XX',
+    severity: 'CRITICAL',
+    message: err.message,
+    metadata: {
+      method: req.method,
+      url: req.originalUrl,
+      stack: err.stack ? err.stack.slice(0, 400) : undefined,
+    },
+  }).catch(() => {});
 
   const isProduction = env.NODE_ENV === 'production';
   res.status(500).json({

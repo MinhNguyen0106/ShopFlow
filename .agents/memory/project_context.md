@@ -40,6 +40,10 @@ Dự án áp dụng kiến trúc **Monorepo** chia 2 thư mục gốc độc l�
   * **VietQR Napas 247 Helper:** Định dạng TLV EMVCo QR Code và thuật toán mã băm CRC16-CCITT.
   * **Shipping Strategy Adapter:** `GhnCarrierAdapter`, `GhtkCarrierAdapter`, `MockCarrierAdapter`.
 * **Lưu trữ Media:** **Multer (MemoryStorage)** kết hợp **Cloudinary SDK v2** (Stream buffer trực tiếp từ RAM), cấp đường dẫn HTTPS công khai (`secure_url`) theo yêu cầu của Meta Graph API.
+* **Quan Trắc & Cảnh Báo Hệ Thống (Observability & Telemetry - TASK-30):**
+  * Thư viện **`prom-client`** xuất bản endpoint `/metrics` định dạng chuẩn Prometheus (Node.js runtime, HTTP latency/status codes, DB Connection Pool, BullMQ queue lengths) được bảo vệ bởi secret token `METRICS_AUTH_TOKEN`.
+  * **`AlertService`** gửi thông báo khẩn cấp tới **Telegram Bot** (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`) khi phát sinh lỗi HTTP 5xx, Meta Graph API Rate Limit (Error 613), hoặc BullMQ DLQ spike với cơ chế gom nhóm chống bão (throttle 5 phút).
+  * REST APIs `/api/v1/system/health-stats` và `/api/v1/system/test-alert` cung cấp số liệu hạ tầng thời gian thực có timeout guard 300ms.
 * **Giao tiếp Thời gian Thực:** **Socket.io (v4.x)** với phân vùng phòng `room:user_{id}`, `room:page_{id}`, `room:conv_{id}`.
 * **Bảo mật & Hiệu năng Tầng Mạng:**
   * Mã hóa **AES-256-GCM** cho toàn bộ `page_access_token` và `user_access_token` trong DB (khóa 32-byte hex ngẫu nhiên).
@@ -62,7 +66,7 @@ Dự án áp dụng kiến trúc **Monorepo** chia 2 thư mục gốc độc l�
   6. `(dashboard)/orders`: Quản lý đơn hàng, Bento metrics, bảng đơn hàng lọc đa trạng thái, Drawer chi tiết đơn hàng (PII phone masking), in phiếu giao hàng A5/A6 máy in nhiệt.
   7. `(dashboard)/analytics`: Báo cáo phân tích doanh thu thuần, biểu đồ xu hướng SVG Bézier, ma trận nhiệt Golden Hour Heatmap 24x7, Top sản phẩm bán chạy và xuất báo cáo CSV UTF-8 BOM.
   8. `(dashboard)/customers`: Quản lý khách hàng & leads tập trung, Bento KPI thẻ, bảng danh bạ phong cách macOS Clean Utility, quản lý tags nhanh và Drawer lịch sử đơn hàng.
-  9. `(dashboard)/settings`: Màn hình Cài đặt hệ thống, hồ sơ cá nhân (`ProfileSettingsTab`), đổi mật khẩu bảo mật (`SecurityPasswordTab`) và giám sát Meta API Limits v19.0 cùng Webhook HMAC health (`ApiLimitsMonitorTab`). (Hoàn thành tại TASK-28).
+  9. `(dashboard)/settings`: Màn hình Cài đặt hệ thống gồm 4 Tabs macOS Clean Utility: hồ sơ cá nhân (`ProfileSettingsTab`), đổi mật khẩu bảo mật (`SecurityPasswordTab`), giám sát Meta API Limits v19.0 (`ApiLimitsMonitorTab`) và giám sát sức khỏe hạ tầng thời gian thực Node.js/DB Pool/BullMQ/Telegram (`SystemHealthTab`). (Hoàn thành tại TASK-28 & TASK-30).
 
 ---
 

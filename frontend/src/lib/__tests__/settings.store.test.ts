@@ -128,4 +128,48 @@ describe('useSettingsStore Unit Tests', () => {
     expect(state.metaLimits?.fanpages).toHaveLength(1);
     expect(state.metaLimits?.webhookHealth.avgLatencyMs).toBe(32);
   });
+
+  it('fetchHealthStats nạp dữ liệu telemetry sức khỏe hệ thống', async () => {
+    vi.spyOn(apiClient, 'get').mockResolvedValueOnce({
+      data: {
+        success: true,
+        data: {
+          uptimeSeconds: 3600,
+          nodeEnv: 'test',
+          memory: { heapUsedMb: 64, heapTotalMb: 128, rssMb: 180 },
+          database: { status: 'connected', totalConnections: 5, activeConnections: 1, idleConnections: 4, waitingRequests: 0 },
+          queues: {
+            webhookProcessing: { waiting: 0, active: 0, failed: 0 },
+            phoneMasking: { waiting: 0, active: 0, failed: 0 },
+            automationReply: { waiting: 0, active: 0, failed: 0 },
+            scheduledPost: { waiting: 0, active: 0, failed: 0 },
+          },
+          alerting: { enabled: true, hasBotToken: true, hasChatId: true },
+        },
+      },
+    } as any);
+
+    await useSettingsStore.getState().fetchHealthStats();
+
+    const state = useSettingsStore.getState();
+    expect(state.healthStats?.uptimeSeconds).toBe(3600);
+    expect(state.healthStats?.database.status).toBe('connected');
+    expect(state.healthStats?.alerting.enabled).toBe(true);
+    expect(state.isLoadingHealthStats).toBe(false);
+  });
+
+  it('sendTestAlert gửi request và cập nhật successMessage', async () => {
+    vi.spyOn(apiClient, 'post').mockResolvedValueOnce({
+      data: {
+        success: true,
+        message: 'Gửi cảnh báo thử nghiệm tới Telegram thành công!',
+      },
+    } as any);
+
+    const res = await useSettingsStore.getState().sendTestAlert();
+
+    expect(res.success).toBe(true);
+    expect(useSettingsStore.getState().successMessage).toContain('thành công');
+    expect(useSettingsStore.getState().isSendingTestAlert).toBe(false);
+  });
 });

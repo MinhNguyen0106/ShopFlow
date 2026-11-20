@@ -31,11 +31,10 @@
 
 ### 📋 TRẠNG THÁI: CHỜ THỰC HIỆN (TODO)
 
-#### [TASK-30] Hệ Thống Giám Sát, Đo Lường Chỉ Số & Cảnh Báo Sự Cố Tự Động (Observability, Prometheus Metrics & Telemetry) - [P1]
-- [ ] **30.1.** Tích hợp Prometheus metrics exporter (`express-prom-bundle`) cho Express backend và `/metrics` endpoint đo lường HTTP latency, throughput, error rates, DB pool stats, BullMQ queue stats.
-- [ ] **30.2.** Tích hợp cảnh báo thời gian thực qua Telegram Webhook / Sentry khi phát sinh lỗi hệ thống 5xx, lỗi Meta Rate Limit (Error 613) hoặc cạn kiệt số dư/hạn ngạch API.
-- [ ] **30.3.** Xây dựng bảng điều khiển sức khỏe hệ thống (System Health Dashboard) hoặc trang quản trị `/system-metrics` cho Admin.
-*(Khi bắt đầu thực thi: Chạy `/opsx-propose system-observability`)*
+#### [TASK-30] Hệ Thống Giám Sát, Đo Lường Chỉ Số & Cảnh Báo Sự Cố Tự Động (Observability, Prometheus Metrics & Telemetry) - [P1] - **100% DONE**
+- [x] **30.1.** Tích hợp Prometheus metrics exporter (`prom-client`) cho Express backend và `/metrics` endpoint bảo vệ bởi `METRICS_AUTH_TOKEN` đo lường HTTP latency, throughput, status codes, DB pool stats, BullMQ queue stats.
+- [x] **30.2.** Tích hợp cảnh báo thời gian thực qua Telegram Bot Webhook (`AlertService`) khi phát sinh lỗi hệ thống HTTP 5xx, lỗi Meta Rate Limit (Error 613/80001) hoặc BullMQ DLQ spike với cơ chế throttle 5 phút chống dồn bão tin nhắn.
+- [x] **30.3.** Xây dựng bảng điều khiển sức khỏe hệ thống (System Health Tab) tại `(dashboard)/settings` hiển thị trạng thái Node.js CPU/Memory, PostgreSQL Pool, BullMQ Queues và nút bấm Test Alert Telegram.
 
 #### [TASK-31] Trợ Lý AI Tư Vấn Bán Hàng & Chốt Đơn Chuyên Sâu Qua Messenger (Conversational AI Sales Agent) - [P1]
 - [ ] **31.1.** Thiết kế Conversation Memory Context Engine cho khách hàng (lưu lịch sử hội thoại, sở thích, giỏ hàng đang tư vấn trong Redis).
@@ -109,6 +108,7 @@
 | 30/10/2026 | [TASK-27] Màn Hình Quản Lý Khách Hàng & Leads Tập Trung (`/(dashboard)/customers`) | **DONE** | Zod DTOs, `CustomerRepository` tối ưu SQL `LEFT JOIN` tính LTV/đơn hàng không N+1, `CustomerService` với PII phone masking cho role `staff`, 7 REST APIs `/api/v1/customers/*`, Zustand store `customer.store.ts` cập nhật lạc quan & rollback tự động, bộ 3 components Bento macOS Clean Utility (`CustomerMetrics`, `CustomerTable`, `CustomerDetailDrawer`), Sidebar navigation `/customers`, 100% tests & build pass. Hoàn thành OpenSpec `customer-crm`. |
 | 17/11/2026 | [TASK-28] Màn Hình Cài Đặt Hệ Thống, Hồ Sơ & Giám Sát Meta API Limits (`/settings`) | **DONE** | 4 REST APIs `/api/v1/settings/*`, DTO Zod Schemas song song camelCase & snake_case, SettingsService với Bcrypt 12 rounds & thuật toán tính toán Meta Limits, Zustand store `settings.store.ts` defensive parsing, 3 Tabs components (`ProfileSettingsTab`, `SecurityPasswordTab`, `ApiLimitsMonitorTab`), Sidebar navigation `/settings`, 100% tests & type-check pass; hoàn thành OpenSpec `settings-profile`. |
 | 17/11/2026 | [TASK-29] CI/CD Pipeline & Triển Khai Production Tự Động (GitHub Actions) | **DONE** | Tự động hóa CI Pipeline (`.github/workflows/ci.yml`) ma trận 4 jobs song song, CD Pipeline (`.github/workflows/deploy.yml`) build multi-stage Docker images push GHCR, kịch bản rolling update kèm healthcheck `/health`, Sổ tay vận hành `docs/07_PRODUCTION_RUNBOOK.md`, Kế hoạch phục hồi thảm họa `docs/08_DISASTER_RECOVERY.md`, cặp script `backup-db.sh` & `restore-db.sh`; 100% tests & type-check pass. **HOÀN THÀNH SPRINT 6 (100%)**. |
+| 20/11/2026 | [TASK-30] Hệ Thống Giám Sát, Đo Lường Chỉ Số & Cảnh Báo Sự Cố Tự Động | **DONE** | Tích hợp `prom-client` bảo vệ endpoint `/metrics`, `AlertService` cảnh báo Telegram Bot (chống bão 5 phút), 2 REST APIs `/api/v1/system/*`, `SystemHealthTab` Bento Grid tại `/settings`; 100% tests & type-check passed. |
 
 
 

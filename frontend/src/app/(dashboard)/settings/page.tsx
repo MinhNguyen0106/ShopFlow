@@ -14,13 +14,15 @@ import {
   User,
   Shield,
   Gauge,
+  Server,
   ChevronRight,
 } from 'lucide-react';
 import { ProfileSettingsTab } from '@/components/settings/profile-settings-tab';
 import { SecurityPasswordTab } from '@/components/settings/security-password-tab';
 import { ApiLimitsMonitorTab } from '@/components/settings/api-limits-monitor-tab';
+import { SystemHealthTab } from '@/components/settings/system-health-tab';
 
-export type SettingsTabId = 'profile' | 'security' | 'meta-limits';
+export type SettingsTabId = 'profile' | 'security' | 'meta-limits' | 'system-health';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTabId>('profile');
@@ -43,6 +45,12 @@ export default function SettingsPage() {
       icon: Gauge,
       isLive: true,
     },
+    {
+      id: 'system-health' as const,
+      name: 'Sức khỏe Hạ tầng & Telemetry',
+      icon: Server,
+      badge: 'Realtime',
+    },
   ];
 
   return (
@@ -61,7 +69,9 @@ export default function SettingsPage() {
               ? 'Hồ sơ & Tài khoản'
               : activeTab === 'security'
               ? 'Bảo mật & Mật khẩu'
-              : 'Giám sát Meta API'}
+              : activeTab === 'meta-limits'
+              ? 'Giám sát Meta API'
+              : 'Sức khỏe Hạ tầng & Telemetry'}
           </span>
         </div>
 
@@ -122,6 +132,7 @@ export default function SettingsPage() {
         {activeTab === 'profile' && <ProfileSettingsTab />}
         {activeTab === 'security' && <SecurityPasswordTab />}
         {activeTab === 'meta-limits' && <ApiLimitsMonitorTab />}
+        {activeTab === 'system-health' && <SystemHealthTab />}
       </div>
     </div>
   );
