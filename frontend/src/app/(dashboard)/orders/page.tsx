@@ -14,7 +14,6 @@ import {
   ShoppingBag,
   RefreshCw,
   Layers,
-  Sparkles,
   AlertCircle,
   Plus,
 } from 'lucide-react';
@@ -138,9 +137,6 @@ export default function OrdersPage() {
               <ShoppingBag className="w-5 h-5 text-primary" />
               Quản lý đơn hàng & Vận đơn
             </h1>
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-              AI Powered
-            </span>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
             Theo dõi đơn hàng tự động từ Messenger & bình luận, điều phối xuất kho và in phiếu giao hàng.
@@ -158,7 +154,7 @@ export default function OrdersPage() {
                   const target = pages.find((p) => p.id === e.target.value);
                   if (target) selectPage(target);
                 }}
-                className="pl-8 pr-8 py-1.5 text-xs bg-card border border-border/60 rounded-xl font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm hover:border-border transition-colors appearance-none"
+                className="pl-8 pr-8 py-1.5 text-xs bg-card border border-slate-300/80 dark:border-slate-700 rounded-xl font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm hover:border-slate-400 dark:hover:border-slate-600 transition-colors appearance-none"
               >
                 {pages.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -172,7 +168,7 @@ export default function OrdersPage() {
           <button
             onClick={handleRefresh}
             disabled={isLoading}
-            className="p-2 rounded-xl border border-border/60 bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shadow-sm disabled:opacity-50"
+            className="p-2 rounded-xl border border-slate-300/80 dark:border-slate-700 bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shadow-sm disabled:opacity-50"
             title="Làm mới danh sách"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />

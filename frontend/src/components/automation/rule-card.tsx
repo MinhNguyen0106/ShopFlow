@@ -49,10 +49,10 @@ export function RuleCard({
   return (
     <div
       data-testid={`rule-card-${rule.id}`}
-      className={`group relative flex flex-col justify-between rounded-2xl border bg-white dark:bg-slate-900 p-5 transition-all duration-200 hover:shadow-lg ${
+      className={`group relative flex flex-col justify-between rounded-xl border bg-white dark:bg-slate-900 p-5 transition-all duration-200 hover:shadow-md ${
         isEnabled
-          ? 'border-slate-200 dark:border-slate-800 shadow-sm'
-          : 'border-slate-200/60 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-900/40 opacity-80'
+          ? 'border-slate-300/80 dark:border-slate-800 shadow-sm'
+          : 'border-slate-200 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-900/40 opacity-80'
       }`}
     >
       {/* Top Header */}
@@ -147,7 +147,7 @@ export function RuleCard({
         {/* Response Templates Preview */}
         <div className="space-y-2.5 text-xs mb-4">
           {/* Public Comment Reply */}
-          <div className="rounded-xl bg-slate-50 dark:bg-slate-800/50 p-2.5 border border-slate-100 dark:border-slate-800">
+          <div className="rounded-xl bg-slate-50 dark:bg-slate-800/50 p-2.5 border border-slate-200 dark:border-slate-800">
             <div className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300 mb-1">
               <MessageSquare className="h-3.5 w-3.5 text-blue-500" />
               <span>Bình luận công khai:</span>
@@ -162,7 +162,7 @@ export function RuleCard({
           </div>
 
           {/* Private Messenger Reply */}
-          <div className="rounded-xl bg-slate-50 dark:bg-slate-800/50 p-2.5 border border-slate-100 dark:border-slate-800">
+          <div className="rounded-xl bg-slate-50 dark:bg-slate-800/50 p-2.5 border border-slate-200 dark:border-slate-800">
             <div className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300 mb-1">
               <MessageCircle className="h-3.5 w-3.5 text-indigo-500" />
               <span>Tin nhắn riêng Messenger:</span>
@@ -179,7 +179,7 @@ export function RuleCard({
       </div>
 
       {/* Card Actions Footer */}
-      <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+      <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800/80">
         <button
           type="button"
           onClick={() => onEdit(rule)}

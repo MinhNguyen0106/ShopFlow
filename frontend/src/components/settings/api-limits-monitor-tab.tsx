@@ -76,7 +76,7 @@ export function ApiLimitsMonitorTab() {
   return (
     <div className="space-y-6">
       {/* Top Banner: Giám Sát Hạn Ngạch Meta Graph API v19.0 */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-300/80 shadow-sm overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 bg-slate-50/80 border-b border-slate-200">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-[#FF5F56]" />
@@ -94,7 +94,7 @@ export function ApiLimitsMonitorTab() {
         </div>
 
         <div className="p-6">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 mb-6 border-b border-slate-100">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 mb-6 border-b border-slate-200">
             <div>
               <div className="flex items-center gap-2.5">
                 <span className="p-2 bg-blue-50 text-blue-600 rounded-xl">
@@ -137,7 +137,7 @@ export function ApiLimitsMonitorTab() {
 
           {/* Metrics Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/80">
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Hạn mức đã dùng (24h)</p>
               <div className="flex items-baseline gap-2 mt-2">
                 <span className="text-2xl font-bold text-slate-900">{rate.callsUsed.toLocaleString()}</span>
@@ -146,7 +146,7 @@ export function ApiLimitsMonitorTab() {
               <p className="text-xs text-emerald-600 font-medium mt-1">Đạt {rate.usagePercent}% hạn mức</p>
             </div>
 
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/80">
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tốc độ tức thời</p>
               <div className="flex items-baseline gap-2 mt-2">
                 <span className="text-2xl font-bold text-slate-900">{rate.callsPerMinute}</span>
@@ -155,7 +155,7 @@ export function ApiLimitsMonitorTab() {
               <p className="text-xs text-slate-400 mt-1">Ngưỡng an toàn: &lt; 80 calls/phút</p>
             </div>
 
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/80">
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Đặt lại hạn ngạch sau</p>
               <div className="flex items-baseline gap-2 mt-2">
                 <span className="text-2xl font-bold text-slate-900">{rate.resetHoursLeft}</span>
@@ -164,7 +164,7 @@ export function ApiLimitsMonitorTab() {
               <p className="text-xs text-slate-400 mt-1">Cửa sổ 24 giờ trượt (Rolling 24h)</p>
             </div>
 
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/80">
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Điều tiết hàng đợi BullMQ</p>
               <div className="flex items-baseline gap-2 mt-2">
                 <span className="text-2xl font-bold text-slate-900">5.0s</span>
@@ -195,8 +195,8 @@ export function ApiLimitsMonitorTab() {
       {/* Grid 2 Cột: Webhook Health & Fanpages Token Expiry */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Card: Sức Khỏe Webhook & Cache Redis */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-          <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-100">
+        <div className="bg-white rounded-xl border border-slate-300/80 shadow-sm p-6">
+          <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-200">
             <div className="flex items-center gap-2.5">
               <span className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
                 <Radio className="w-5 h-5" />
@@ -262,8 +262,8 @@ export function ApiLimitsMonitorTab() {
         </div>
 
         {/* Card: Trạng Thái Token Fanpage */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-          <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-100">
+        <div className="bg-white rounded-xl border border-slate-300/80 shadow-sm p-6">
+          <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-200">
             <div className="flex items-center gap-2.5">
               <span className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
                 <ShieldCheck className="w-5 h-5" />
@@ -285,7 +285,7 @@ export function ApiLimitsMonitorTab() {
               {fanpages.map((page) => (
                 <div
                   key={page.pageId}
-                  className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between"
+                  className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between"
                 >
                   <div>
                     <p className="text-sm font-semibold text-slate-900">{page.pageName}</p>

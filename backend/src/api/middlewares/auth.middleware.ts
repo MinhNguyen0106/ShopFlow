@@ -10,6 +10,7 @@ import { verifyAccessToken } from '../../utils/auth.helper.js';
 import { JwtUserPayload, UserRole } from '../../core/entities/user.entity.js';
 import { UnauthorizedError, ForbiddenError, BadRequestError } from '../../core/errors/app-error.js';
 import { pageMemberRepository, PageRole } from '../../infrastructure/repositories/page-member.repository.js';
+import { tokenBlacklistService } from '../../core/services/token-blacklist.service.js';
 
 export interface PageMemberContext {
   id: string;
@@ -31,34 +32,56 @@ declare global {
 
 /**
  * Middleware xác thực Access Token từ Header Authorization: Bearer <token>.
+ * Hỗ trợ kiểm tra token blacklist trên Redis để ngăn chặn token đã đăng xuất.
  */
-export function authenticateToken(
+export async function authenticateToken(
   req: Request,
   _res: Response,
   next: NextFunction
-): void {
+): Promise<void> {
   const authHeader = req.headers['authorization'];
   if (!authHeader) {
-    throw new UnauthorizedError(
-      'Không tìm thấy tiêu đề xác thực Authorization. Vui lòng đăng nhập.'
+    next(
+      new UnauthorizedError(
+        'Không tìm thấy tiêu đề xác thực Authorization. Vui lòng đăng nhập.'
+      )
     );
+    return;
   }
 
   const parts = authHeader.split(' ');
   if (parts.length !== 2 || parts[0] !== 'Bearer') {
-    throw new UnauthorizedError(
-      'Định dạng Authorization header không hợp lệ. Chuẩn bắt buộc: Bearer <token>.'
+    next(
+      new UnauthorizedError(
+        'Định dạng Authorization header không hợp lệ. Chuẩn bắt buộc: Bearer <token>.'
+      )
     );
+    return;
   }
 
   const token = parts[1];
   if (!token) {
-    throw new UnauthorizedError('Token xác thực trống.');
+    next(new UnauthorizedError('Token xác thực trống.'));
+    return;
   }
 
-  const payload = verifyAccessToken(token);
-  req.user = payload;
-  next();
+  try {
+    const isBlacklisted = await tokenBlacklistService.isTokenBlacklisted(token);
+    if (isBlacklisted) {
+      next(
+        new UnauthorizedError(
+          'Phiên đăng nhập đã kết thúc do đăng xuất. Vui lòng đăng nhập lại.'
+        )
+      );
+      return;
+    }
+
+    const payload = verifyAccessToken(token);
+    req.user = payload;
+    next();
+  } catch (error) {
+    next(error);
+  }
 }
 
 /**

@@ -375,7 +375,7 @@ export default function PagesManagementPage() {
       {/* 4 Bento Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Tổng số trang */}
-        <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm space-y-2">
+        <div className="p-4 rounded-xl bg-white border border-slate-300/80 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500 text-xs">
             <span className="font-medium">Tổng số trang kết nối</span>
             <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
@@ -397,7 +397,7 @@ export default function PagesManagementPage() {
         </div>
 
         {/* Card 2: Trạng thái Webhook */}
-        <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm space-y-2">
+        <div className="p-4 rounded-xl bg-white border border-slate-300/80 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500 text-xs">
             <span className="font-medium">Trạng thái Webhook &amp; Token</span>
             <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -415,7 +415,7 @@ export default function PagesManagementPage() {
         </div>
 
         {/* Card 3: Lưu lượng hôm nay */}
-        <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm space-y-2">
+        <div className="p-4 rounded-xl bg-white border border-slate-300/80 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500 text-xs">
             <span className="font-medium">Lưu lượng hôm nay</span>
             <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
@@ -432,7 +432,7 @@ export default function PagesManagementPage() {
         </div>
 
         {/* Card 4: Tốc độ phản hồi SLA */}
-        <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm space-y-2">
+        <div className="p-4 rounded-xl bg-white border border-slate-300/80 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500 text-xs">
             <span className="font-medium">Tốc độ phản hồi trung bình</span>
             <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
@@ -493,7 +493,7 @@ export default function PagesManagementPage() {
               return (
                 <div
                   key={page.id}
-                  className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-4 group"
+                  className="p-5 rounded-xl bg-white border border-slate-300/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-4 group"
                 >
                   {/* Card Header: Avatar & Info */}
                   <div className="space-y-3">
@@ -578,7 +578,7 @@ export default function PagesManagementPage() {
                     </div>
 
                     {/* Page ID with Copy */}
-                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-200">
                       <div className="flex items-center gap-1.5 text-[11px] font-mono text-slate-500 truncate">
                         <span className="text-slate-400">ID:</span>
                         <span className="font-semibold">{page.pageId}</span>
@@ -624,7 +624,7 @@ export default function PagesManagementPage() {
                   </div>
 
                   {/* Card Footer: Toggle Switch & Actions */}
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {/* Switch Button */}
                       <button
@@ -673,7 +673,7 @@ export default function PagesManagementPage() {
       </div>
 
       {/* Compliance & Security Banner */}
-      <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="p-4 rounded-xl bg-white border border-slate-300/80 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
             <ShieldCheck className="w-5 h-5" />

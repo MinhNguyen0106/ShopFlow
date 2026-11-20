@@ -71,7 +71,7 @@ export function OrderStatusBadge({
     default:
       return (
         <span
-          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border ${className}`}
+          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-slate-300/80 dark:border-slate-700 ${className}`}
         >
           {status}
         </span>

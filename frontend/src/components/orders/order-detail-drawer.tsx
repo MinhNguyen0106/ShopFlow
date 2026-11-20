@@ -75,9 +75,9 @@ export function OrderDetailDrawer({
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-lg md:max-w-xl bg-card border-l border-border shadow-2xl flex flex-col justify-between">
+        <div className="w-screen max-w-lg md:max-w-xl bg-card border-l border-slate-300 dark:border-slate-800 shadow-2xl flex flex-col justify-between">
           {/* 1. Header */}
-          <div className="p-5 border-b border-border/60 flex items-center justify-between bg-muted/20">
+          <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-muted/20">
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-mono text-base font-bold text-foreground">
@@ -95,13 +95,13 @@ export function OrderDetailDrawer({
               <button
                 onClick={() => onOpenPrint(order)}
                 title="In phiếu giao hàng"
-                className="p-2 rounded-xl border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                className="p-2 rounded-xl border border-slate-300/80 dark:border-slate-700 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
               >
                 <Printer className="w-4 h-4" />
               </button>
               <button
                 onClick={onClose}
-                className="p-2 rounded-xl border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                className="p-2 rounded-xl border border-slate-300/80 dark:border-slate-700 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -111,7 +111,7 @@ export function OrderDetailDrawer({
           {/* 2. Scrollable Body Content */}
           <div className="flex-1 overflow-y-auto p-5 space-y-5 text-xs">
             {/* Card Khách Hàng */}
-            <div className="p-4 rounded-xl bg-muted/30 border border-border/60 space-y-3">
+            <div className="p-4 rounded-xl bg-muted/30 border border-slate-300/80 dark:border-slate-800 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-foreground flex items-center gap-1.5 text-sm">
                   <User className="w-4 h-4 text-primary" />
@@ -170,14 +170,14 @@ export function OrderDetailDrawer({
               </div>
 
               {order.notes && (
-                <div className="pt-2 border-t border-border/40 text-muted-foreground text-[11px]">
+                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 text-muted-foreground text-[11px]">
                   <span className="font-medium text-foreground">Ghi chú:</span> {order.notes}
                 </div>
               )}
             </div>
 
             {/* Card Danh Sách Sản Phẩm */}
-            <div className="p-4 rounded-xl bg-muted/30 border border-border/60 space-y-3">
+            <div className="p-4 rounded-xl bg-muted/30 border border-slate-300/80 dark:border-slate-800 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-foreground flex items-center gap-1.5 text-sm">
                   <Package className="w-4 h-4 text-primary" />
@@ -189,11 +189,11 @@ export function OrderDetailDrawer({
                 />
               </div>
 
-              <div className="divide-y divide-border/40">
+              <div className="divide-y divide-slate-200/80 dark:divide-slate-800">
                 {order.items.map((item, idx) => (
                   <div key={idx} className="py-2.5 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-9 h-9 rounded-lg bg-muted border border-border/60 flex items-center justify-center shrink-0 text-muted-foreground font-mono font-bold text-xs">
+                      <div className="w-9 h-9 rounded-lg bg-muted border border-slate-300/80 dark:border-slate-700 flex items-center justify-center shrink-0 text-muted-foreground font-mono font-bold text-xs">
                         {item.sku.slice(0, 3)}
                       </div>
                       <div className="min-w-0">
@@ -222,7 +222,7 @@ export function OrderDetailDrawer({
               </div>
 
               {/* Bảng Chi Phí & Tổng Tiền */}
-              <div className="pt-3 border-t border-border/60 space-y-1.5 text-muted-foreground">
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-1.5 text-muted-foreground">
                 <div className="flex justify-between">
                   <span>Tạm tính tiền hàng:</span>
                   <span className="text-foreground">{formatCurrency(order.totalAmount)}</span>
@@ -237,7 +237,7 @@ export function OrderDetailDrawer({
                     <span>-{formatCurrency(order.discountAmount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between pt-2 border-t border-border/40 font-bold text-sm text-foreground">
+                <div className="flex justify-between pt-2 border-t border-slate-200 dark:border-slate-800 font-bold text-sm text-foreground">
                   <span>Tổng tiền thanh toán:</span>
                   <span className="text-primary text-base">{formatCurrency(order.finalAmount)}</span>
                 </div>
@@ -245,13 +245,13 @@ export function OrderDetailDrawer({
             </div>
 
             {/* Card Lịch Sử Trạng Thái (Timeline) */}
-            <div className="p-4 rounded-xl bg-muted/30 border border-border/60 space-y-3">
+            <div className="p-4 rounded-xl bg-muted/30 border border-slate-300/80 dark:border-slate-800 space-y-3">
               <span className="font-semibold text-foreground flex items-center gap-1.5 text-sm">
                 <Calendar className="w-4 h-4 text-primary" />
                 Lịch sử xử lý đơn hàng
               </span>
 
-              <div className="relative pl-6 space-y-4 before:content-[''] before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-border/60">
+              <div className="relative pl-6 space-y-4 before:content-[''] before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-300 dark:before:bg-slate-700">
                 {order.timeline.map((event, idx) => (
                   <div key={idx} className="relative">
                     <div className="absolute -left-6 top-1 w-2.5 h-2.5 rounded-full bg-primary border-2 border-card" />
@@ -273,10 +273,10 @@ export function OrderDetailDrawer({
           </div>
 
           {/* 3. Footer Actions */}
-          <div className="p-4 border-t border-border/60 bg-muted/20 flex flex-wrap items-center justify-between gap-2">
+          <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-muted/20 flex flex-wrap items-center justify-between gap-2">
             <button
               onClick={() => onOpenPrint(order)}
-              className="px-3.5 py-2 rounded-xl border border-border/60 hover:bg-muted text-foreground font-medium flex items-center gap-1.5 transition-colors"
+              className="px-3.5 py-2 rounded-xl border border-slate-300/80 dark:border-slate-700 hover:bg-muted text-foreground font-medium flex items-center gap-1.5 transition-colors"
             >
               <Printer className="w-4 h-4" />
               In phiếu

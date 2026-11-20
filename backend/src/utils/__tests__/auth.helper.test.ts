@@ -50,13 +50,31 @@ describe('auth.helper — JWT Tokens generation & verification', () => {
     role:  'owner' as const,
   };
 
-  it('nên tạo cặp Access Token và Refresh Token hợp lệ', () => {
+  it('nên tạo cặp Access Token và Refresh Token hợp lệ (mặc định 24h khi rememberMe = false)', () => {
     const tokens = generateTokens(mockUser);
 
     expect(tokens.accessToken).toBeDefined();
     expect(tokens.refreshToken).toBeDefined();
     expect(tokens.tokenType).toBe('Bearer');
-    expect(tokens.expiresIn).toBe(env.JWT_ACCESS_EXPIRY);
+    expect(tokens.expiresIn).toBe('24h');
+
+    const decoded = jwt.decode(tokens.accessToken) as { exp: number; iat: number; remember_me: boolean };
+    expect(decoded.remember_me).toBe(false);
+    expect(decoded.exp - decoded.iat).toBe(24 * 3600); // 86400s (1 ngày)
+  });
+
+  it('nên tạo cặp Token có thời hạn 30 ngày khi rememberMe = true', () => {
+    const tokens = generateTokens(mockUser, true);
+
+    expect(tokens.expiresIn).toBe('30d');
+
+    const decoded = jwt.decode(tokens.accessToken) as { exp: number; iat: number; remember_me: boolean };
+    expect(decoded.remember_me).toBe(true);
+    expect(decoded.exp - decoded.iat).toBe(30 * 24 * 3600); // 2592000s (30 ngày)
+
+    const decodedRefresh = jwt.decode(tokens.refreshToken) as { exp: number; iat: number; remember_me: boolean };
+    expect(decodedRefresh.remember_me).toBe(true);
+    expect(decodedRefresh.exp - decodedRefresh.iat).toBe(30 * 24 * 3600);
   });
 
   it('nên giải mã và xác thực Access Token thành công', () => {

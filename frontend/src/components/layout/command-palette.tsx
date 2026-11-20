@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Search,
-  LayoutDashboard,
+  BarChart3,
   MessageSquare,
   Calendar,
   Bot,
@@ -48,10 +48,10 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
 
   const navigationItems = [
     {
-      title: 'Tổng quan hệ thống',
-      desc: 'Bảng điều khiển KPIs và phân tích',
-      icon: LayoutDashboard,
-      href: '/',
+      title: 'Báo cáo phân tích',
+      desc: 'Bảng điều khiển KPIs và phân tích hiệu suất',
+      icon: BarChart3,
+      href: '/analytics',
     },
     {
       title: 'Hộp thư Live Chat',

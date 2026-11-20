@@ -76,9 +76,9 @@ export function CustomerTable({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden flex flex-col" data-testid="customer-table">
+    <div className="bg-white dark:bg-slate-900 border border-slate-300/80 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden flex flex-col" data-testid="customer-table">
       {/* Top Search & Filter Bar */}
-      <div className="p-4 border-b border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+      <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -119,7 +119,7 @@ export function CustomerTable({
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               <th className="py-3 px-4">Khách hàng</th>
               <th className="py-3 px-4">Số điện thoại</th>
               <th className="py-3 px-4">Nhãn phân loại</th>
@@ -267,7 +267,7 @@ export function CustomerTable({
       </div>
 
       {/* Pagination Footer */}
-      <div className="p-4 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/20 flex items-center justify-between">
+      <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/20 flex items-center justify-between">
         <span className="text-xs text-slate-500 dark:text-slate-400">
           Hiển thị trang <strong className="text-slate-800 dark:text-slate-200">{pagination.page}</strong> / {pagination.totalPages} (Tổng cộng {pagination.total} khách hàng)
         </span>

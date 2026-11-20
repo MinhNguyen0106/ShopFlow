@@ -124,9 +124,9 @@ export function CustomerDetailDrawer({
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-xl bg-white dark:bg-slate-900 shadow-2xl flex flex-col border-l border-slate-200/80 dark:border-slate-800 animate-in slide-in-from-right duration-200">
+        <div className="w-screen max-w-xl bg-white dark:bg-slate-900 shadow-2xl flex flex-col border-l border-slate-300/80 dark:border-slate-800 animate-in slide-in-from-right duration-200">
           {/* Header với macOS Traffic Lights */}
-          <div className="p-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/40">
+          <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/40">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1.5 mr-2">
                 <div className="w-3 h-3 rounded-full bg-red-400" />
@@ -149,7 +149,7 @@ export function CustomerDetailDrawer({
           {/* Drawer Body Scrollable */}
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
             {/* Customer Avatar & Bio Card */}
-            <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-slate-800/40 dark:to-slate-800/20 border border-slate-200/80 dark:border-slate-800 flex items-start gap-4">
+            <div className="p-5 rounded-xl bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-slate-800/40 dark:to-slate-800/20 border border-slate-300/80 dark:border-slate-800 flex items-start gap-4">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-md shrink-0">
                 {initials}
               </div>

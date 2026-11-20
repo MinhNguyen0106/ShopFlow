@@ -54,6 +54,17 @@ authRouter.post(
 );
 
 /**
+ * @route   POST /api/v1/auth/logout
+ * @desc    Đăng xuất & thu hồi token (đưa vào blacklist)
+ * @access  Private (Cần Bearer Token)
+ */
+authRouter.post(
+  '/logout',
+  authenticateToken,
+  authController.logout
+);
+
+/**
  * @route   GET /api/v1/auth/me
  * @desc    Lấy thông tin tài khoản hiện tại
  * @access  Private (Cần Bearer Token)

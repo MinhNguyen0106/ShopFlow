@@ -16,7 +16,11 @@ interface AuthState {
   isLoading: boolean;
   isCheckingAuth: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (
+    email: string,
+    password: string,
+    rememberMe?: boolean
+  ) => Promise<boolean>;
   register: (
     email: string,
     password: string,
@@ -38,10 +42,14 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   clearError: () => set({ error: null }),
 
-  login: async (email, password) => {
+  login: async (email, password, rememberMe = false) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await apiClient.post('/auth/login', { email, password });
+      const response = await apiClient.post('/auth/login', {
+        email,
+        password,
+        rememberMe,
+      });
       const responseData = response.data?.data || {};
       const user = responseData.user;
       const tokens = responseData.tokens || {};
@@ -155,8 +163,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
+    const refreshToken =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('shopflow_refresh_token')
+        : null;
     try {
-      await apiClient.post('/auth/logout').catch(() => {});
+      await apiClient.post('/auth/logout', { refreshToken }).catch(() => {});
     } finally {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('shopflow_access_token');

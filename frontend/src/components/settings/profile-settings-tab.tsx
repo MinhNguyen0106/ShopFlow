@@ -99,7 +99,7 @@ export function ProfileSettingsTab() {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-xl border border-slate-300/80 shadow-sm overflow-hidden">
       {/* macOS Window Header Accent */}
       <div className="flex items-center justify-between px-6 py-4 bg-slate-50/80 border-b border-slate-200">
         <div className="flex items-center gap-2">
@@ -259,7 +259,7 @@ export function ProfileSettingsTab() {
             </div>
           </div>
 
-          <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
+          <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-200">
             <button
               type="button"
               onClick={handleReset}

@@ -91,7 +91,7 @@ export const PostsListView: React.FC<PostsListViewProps> = ({ onNewPostClick }) 
     return (
       <div
         data-testid="posts-empty-state"
-        className="w-full bg-card/40 border border-border/50 rounded-2xl p-12 text-center backdrop-blur-md flex flex-col items-center justify-center min-h-[360px]"
+        className="w-full bg-card/40 border border-slate-300/80 dark:border-slate-800 rounded-xl p-12 text-center backdrop-blur-md flex flex-col items-center justify-center min-h-[360px]"
       >
         <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4 ring-8 ring-primary/5">
           <FileText className="w-7 h-7" />
@@ -126,11 +126,11 @@ export const PostsListView: React.FC<PostsListViewProps> = ({ onNewPostClick }) 
   return (
     <div className="space-y-4">
       {/* Table Container */}
-      <div className="w-full bg-card/60 border border-border/50 rounded-2xl overflow-hidden backdrop-blur-md shadow-sm">
+      <div className="w-full bg-card/60 border border-slate-300/80 dark:border-slate-800 rounded-xl overflow-hidden backdrop-blur-md shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm border-collapse">
             <thead>
-              <tr className="border-b border-border/50 bg-muted/30 text-muted-foreground font-medium text-xs">
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-muted/30 text-muted-foreground font-medium text-xs">
                 <th className="py-3 px-4 w-[45%]">Bài viết & Nội dung</th>
                 <th className="py-3 px-4 w-[15%]">Fanpage</th>
                 <th className="py-3 px-4 w-[18%]">Thời gian đăng</th>
@@ -138,7 +138,7 @@ export const PostsListView: React.FC<PostsListViewProps> = ({ onNewPostClick }) 
                 <th className="py-3 px-4 w-[10%] text-right">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/30">
+            <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800">
               {posts.map((post: ScheduledPostItem) => {
                 const mediaUrls = post.mediaUrls || post.media_urls || [];
                 const mediaType = post.mediaType || post.media_type || 'none';
@@ -157,7 +157,7 @@ export const PostsListView: React.FC<PostsListViewProps> = ({ onNewPostClick }) 
                     <td className="py-3.5 px-4 align-top">
                       <div className="flex items-start gap-3">
                         {/* Media Preview Thumbnail */}
-                        <div className="w-14 h-14 rounded-lg bg-muted/40 border border-border/40 shrink-0 overflow-hidden flex items-center justify-center relative">
+                        <div className="w-14 h-14 rounded-lg bg-muted/40 border border-slate-300/80 dark:border-slate-700 shrink-0 overflow-hidden flex items-center justify-center relative">
                           {mediaUrls.length > 0 ? (
                             mediaType === 'video' ? (
                               <div className="relative w-full h-full flex items-center justify-center bg-zinc-900 text-white">
@@ -225,7 +225,7 @@ export const PostsListView: React.FC<PostsListViewProps> = ({ onNewPostClick }) 
 
                     {/* Column 2: Fanpage */}
                     <td className="py-3.5 px-4 align-top text-muted-foreground font-medium">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/40 border border-border/40 text-xs text-foreground">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/40 border border-slate-300/80 dark:border-slate-700 text-xs text-foreground">
                         {pageId}
                       </span>
                     </td>
@@ -314,7 +314,7 @@ export const PostsListView: React.FC<PostsListViewProps> = ({ onNewPostClick }) 
 
         {/* Pagination footer */}
         {meta.totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-border/40 bg-muted/20 text-xs text-muted-foreground">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-slate-800 bg-muted/20 text-xs text-muted-foreground">
             <div>
               Trang <span className="font-semibold text-foreground">{meta.page}</span> /{' '}
               <span className="font-semibold text-foreground">{meta.totalPages}</span> (Tổng{' '}
@@ -325,7 +325,7 @@ export const PostsListView: React.FC<PostsListViewProps> = ({ onNewPostClick }) 
                 onClick={() => changePage(Math.max(1, meta.page - 1))}
                 disabled={meta.page <= 1 || isLoading}
                 data-testid="pagination-prev-btn"
-                className="p-1.5 rounded-lg border border-border/40 bg-card hover:bg-muted/40 disabled:opacity-40 transition-all"
+                className="p-1.5 rounded-lg border border-slate-300/80 dark:border-slate-700 bg-card hover:bg-muted/40 disabled:opacity-40 transition-all"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -333,7 +333,7 @@ export const PostsListView: React.FC<PostsListViewProps> = ({ onNewPostClick }) 
                 onClick={() => changePage(Math.min(meta.totalPages, meta.page + 1))}
                 disabled={meta.page >= meta.totalPages || isLoading}
                 data-testid="pagination-next-btn"
-                className="p-1.5 rounded-lg border border-border/40 bg-card hover:bg-muted/40 disabled:opacity-40 transition-all"
+                className="p-1.5 rounded-lg border border-slate-300/80 dark:border-slate-700 bg-card hover:bg-muted/40 disabled:opacity-40 transition-all"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>

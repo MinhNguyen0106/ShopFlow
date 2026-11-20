@@ -68,7 +68,7 @@ export const PostEditor: React.FC<PostEditorProps> = ({
             disabled={disabled}
             data-testid="post-editor-page-select"
             aria-label="Chọn Fanpage đăng bài"
-            className="w-full pl-10 pr-8 py-2.5 rounded-xl border border-border/60 bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer disabled:opacity-60"
+            className="w-full pl-10 pr-8 py-2.5 rounded-xl border border-slate-300/80 dark:border-slate-700 bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer disabled:opacity-60"
           >
             <option value="">-- Chọn Fanpage đích --</option>
             {pages.map((p) => (
@@ -97,7 +97,7 @@ export const PostEditor: React.FC<PostEditorProps> = ({
           </span>
         </div>
 
-        <div className="relative border border-border/60 rounded-2xl bg-card/60 backdrop-blur-sm overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all">
+        <div className="relative border border-slate-300/80 dark:border-slate-700 rounded-xl bg-card/60 backdrop-blur-sm overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all">
           <textarea
             value={content}
             onChange={(e) => onChange(e.target.value)}
@@ -109,7 +109,7 @@ export const PostEditor: React.FC<PostEditorProps> = ({
           />
 
           {/* Quick Toolbar (Hashtags & Emojis) */}
-          <div className="p-3 border-t border-border/30 bg-muted/20 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="p-3 border-t border-slate-200 dark:border-slate-800 bg-muted/20 flex flex-wrap items-center justify-between gap-2 text-xs">
             {/* Quick Emojis */}
             <div className="flex items-center gap-1">
               <span className="text-muted-foreground mr-1 flex items-center gap-1">

@@ -2,6 +2,55 @@
 
 Nhật ký theo dõi các mốc phát triển, thay đổi kiến trúc và trạng thái của dự án ShopFlow.
 
+## [2026-11-20] - Hoàn Thành: Tự Động Đánh Dấu Đã Đọc & Xóa Huy Hiệu Chưa Đọc Live Chat Inbox (`mark-inbox-read-clear-unread-badges`)
+- **Tác giả:** System Architect & Full-Stack Reliability Engineer (Antigravity Ecosystem)
+- **Nội dung xử lý:**
+  - Hoàn thành toàn diện 8/8 tasks trong OpenSpec change [mark-inbox-read-clear-unread-badges](file:///c:/Users/Dell/Desktop/ShopFlow/openspec/changes/mark-inbox-read-clear-unread-badges/tasks.md).
+  - **Backend REST API & WebSocket Notification:**
+    - Đăng ký endpoint chuẩn RESTful `PATCH /api/v1/inbox/conversations/:conversationId/read` được bảo vệ bởi middleware `authenticateToken`.
+    - Dọn dẹp các method trùng lặp trong `InboxController`, chuẩn hóa method `markAsRead(req, res, next)`.
+    - Triển khai `markAsRead(conversationId, userId)` trong `InboxService`: Xác thực quyền sở hữu/truy cập Fanpage, kiểm tra nếu `unread_count > 0` thì cập nhật `unread_count = 0` trong bảng `conversations` và phát sóng sự kiện WebSocket `INBOX_UPDATED` tới phòng Fanpage `room:page_<id>`.
+    - Bổ sung integration test suite Supertest trong `inbox.routes.test.ts` (37/37 backend tests passed).
+  - **Frontend State Management & Optimistic Read Update (`inbox.store.ts`):**
+    - Mở rộng hàm `selectConversation(conversation)`:
+      - Thực hiện Optimistic UI Update: lập tức gán `unreadCount = 0` và `unread_count = 0` cho hội thoại được chọn trong cả `selectedConversation` lẫn mảng `conversations`.
+      - Khi hội thoại có tin nhắn chưa đọc (`unread > 0`), tự động gửi API `PATCH /inbox/conversations/:id/read` tới máy chủ.
+    - Cung cấp hàm độc lập `markConversationAsRead(conversationId)`.
+    - Cập nhật `fetchConversations`: Đảm bảo không ghi đè lại số đếm tin chưa đọc của hội thoại đang mở (`currentSelected`).
+    - Cập nhật `handleSocketNewItem`: Khi nhận được tin nhắn mới qua WebSocket cho hội thoại đang mở, tự động gọi `PATCH /read` lên máy chủ.
+  - **Giao Diện Người Dùng & Đồng Bộ Realtime:**
+    - `ColumnThreads` (`column-threads.tsx`): Xóa huy hiệu số tin chưa đọc (unread badge), chuyển kiểu chữ tiêu đề và nội dung tin nhắn từ in đậm (bold) về bình thường ngay khi click xem.
+    - `ColumnChannels` (`column-channels.tsx`): Tự động giảm trừ số tin mới ngay lập tức và ẩn hoàn toàn nhãn "X mới" khi `totalUnread = 0`.
+    - `Sidebar` (`sidebar.tsx`): Kết nối trực tiếp với `useInboxStore` để tính toán `dynamicUnread` theo thời gian thực, loại bỏ giá trị mock tĩnh `18`, và tự động ẩn badge khi không có tin chưa đọc (`totalUnread === 0`).
+  - **Kiểm Thử & Đảm Bảo Chất Lượng:**
+    - 37/37 Backend Inbox tests đạt **100% PASS**.
+    - 15/15 Frontend Inbox tests và 4/4 Sidebar tests đạt **100% PASS**.
+    - `npm run type-check` đạt **100% PASS** (0 lỗi kiểu dữ liệu).
+    - `npm run memory:check` đạt **100% PASS**.
+
+## [2026-11-19] - Hoàn Thành: Động Hóa Thời Hạn JWT Theo Remember Me & Thu Hồi Token Bằng Redis Blacklist (`auth-remember-me-and-token-expiry`)
+- **Tác giả:** System Architect & Full-Stack Reliability Engineer (Antigravity Ecosystem)
+- **Nội dung xử lý:**
+  - Hoàn thành toàn diện 11/11 tasks trong OpenSpec change [auth-remember-me-and-token-expiry](file:///c:/Users/Dell/Desktop/ShopFlow/openspec/changes/auth-remember-me-and-token-expiry/tasks.md).
+  - **Động hóa thời hạn JWT (1 ngày vs 30 ngày):**
+    - Mở rộng `LoginDtoSchema` tiếp nhận `rememberMe?: boolean` (mặc định `false`).
+    - Nâng cấp `generateTokens(user, rememberMe)`:
+      - Khi `rememberMe = false`: Access Token và Refresh Token có thời hạn **24 giờ** (`24h` / 1 ngày).
+      - Khi `rememberMe = true`: Access Token và Refresh Token có thời hạn **30 ngày** (`30d`).
+    - Gắn claim `remember_me` vào Refresh Token payload để endpoint `/auth/refresh-token` tự động kế thừa đúng thời hạn 30 ngày ban đầu.
+  - **Server-side Token Invalidation qua Redis Blacklist:**
+    - Xây dựng `TokenBlacklistService` băm SHA-256 token và lưu vào Redis key `bl:token:<hash>` kèm TTL tự động bằng đúng số giây còn lại của JWT (`exp - now`).
+    - Thêm endpoint `POST /api/v1/auth/logout` thu hồi access token và refresh token.
+    - Cập nhật middleware `authenticateToken` kiểm tra blacklist trên Redis; nếu token đã đăng xuất, từ chối ngay lập tức với HTTP 401 Unauthorized.
+    - Graceful Fail-Open: Nếu Redis mất kết nối, middleware ghi log cảnh báo và không làm gián đoạn người dùng hợp lệ.
+  - **Frontend Integration:**
+    - Nâng cấp form `frontend/src/app/(auth)/login/page.tsx` và Zustand store `auth.store.ts` truyền `rememberMe` lên API `/auth/login`.
+    - Nâng cấp hàm `logout` trong `auth.store.ts` gọi `POST /api/v1/auth/logout` lên máy chủ kèm refresh token trước khi làm sạch `localStorage`.
+  - **Kiểm thử & Thẩm định chất lượng:**
+    - Toàn bộ 83 test files Backend (698 tests) và 25 test files Frontend (164 tests) đạt **100% PASS**.
+    - `npm run type-check --prefix backend` và `npm run type-check --prefix frontend` đạt **100% PASS**.
+    - `npm run memory:check` đạt **100% PASS**.
+
 ## [2026-11-17] - Khắc Phục Lỗi Hộp Thư Live Chat Không Nhận Tin Nhắn & Hoàn Thiện Webhook Messenger Ingestion (`fix-livechat-messenger-webhook`)
 - **Tác giả:** System Architect & Full-Stack Reliability Engineer (Antigravity Ecosystem)
 - **Bối cảnh & Nguyên nhân lỗi:**

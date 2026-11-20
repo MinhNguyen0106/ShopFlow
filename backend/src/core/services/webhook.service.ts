@@ -119,9 +119,25 @@ export class WebhookService {
           const senderFbId = item.sender?.id;
           const recipientFbId = item.recipient?.id;
           const isEcho = Boolean((item.message as Record<string, unknown> | undefined)?.is_echo);
-          const messageText = item.message?.text || '';
+          let messageText = item.message?.text || '';
           const mid = item.message?.mid || event.eventId;
           const attachments = item.message?.attachments;
+
+          // Nếu tin nhắn không có text (ví dụ khách gửi sticker, ảnh, video, audio), gán nhãn mô tả
+          if (!messageText && Array.isArray(attachments) && attachments.length > 0) {
+            const firstAttachment = attachments[0] as { type?: string } | undefined;
+            if (firstAttachment?.type === 'sticker') {
+              messageText = '[Sticker]';
+            } else if (firstAttachment?.type === 'image') {
+              messageText = '[Hình ảnh]';
+            } else if (firstAttachment?.type === 'video') {
+              messageText = '[Video]';
+            } else if (firstAttachment?.type === 'audio') {
+              messageText = '[Ghi âm]';
+            } else {
+              messageText = '[Tệp đính kèm]';
+            }
+          }
 
           // Bỏ qua tin nhắn echo từ chính Fanpage
           if (senderFbId && !isEcho && senderFbId !== event.pageId) {

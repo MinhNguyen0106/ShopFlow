@@ -53,17 +53,17 @@ export function MetaWindowWidget({ leads = DEFAULT_META_LEADS }: MetaWindowWidge
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs flex flex-col justify-between">
+    <div className="rounded-xl border border-slate-300/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs flex flex-col justify-between">
       <div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400">
               <Clock className="h-4 w-4" />
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                 Cảnh Báo Cửa Sổ 24h Meta
-                <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/60">
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/60">
                   {leads.filter((l) => l.isUrgent).length} Gấp
                 </span>
               </h3>
@@ -95,7 +95,7 @@ export function MetaWindowWidget({ leads = DEFAULT_META_LEADS }: MetaWindowWidge
             {leads.map((lead) => (
               <div
                 key={lead.id}
-                className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 transition-all"
+                className="flex items-center justify-between gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold">
@@ -118,7 +118,7 @@ export function MetaWindowWidget({ leads = DEFAULT_META_LEADS }: MetaWindowWidge
 
                 <div className="flex items-center gap-2 shrink-0">
                   <span
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold ${
                       lead.isUrgent
                         ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 animate-pulse'
                         : 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300'
@@ -129,7 +129,7 @@ export function MetaWindowWidget({ leads = DEFAULT_META_LEADS }: MetaWindowWidge
                   </span>
                   <Link
                     href="/inbox"
-                    className="px-2.5 py-1 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs"
+                    className="px-2.5 py-1 rounded-md text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs"
                   >
                     Chat ngay
                   </Link>
@@ -140,7 +140,7 @@ export function MetaWindowWidget({ leads = DEFAULT_META_LEADS }: MetaWindowWidge
         )}
       </div>
 
-      <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 dark:text-slate-500 flex items-center justify-between">
+      <div className="pt-3 mt-3 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-400 dark:text-slate-500 flex items-center justify-between">
         <span>Quy chuẩn Meta: Sau 24h chỉ được gửi 1 lần Message Tag được duyệt</span>
         <Link href="/inbox" className="text-blue-600 dark:text-blue-400 hover:underline">
           Xem tất cả ({leads.length})

@@ -3,11 +3,12 @@
  * File: backend/src/api/middlewares/__tests__/auth.middleware.test.ts
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
 import { authenticateToken, requireRole } from '../auth.middleware.js';
 import { generateTokens } from '../../../utils/auth.helper.js';
 import { UnauthorizedError, ForbiddenError } from '../../../core/errors/app-error.js';
+import { tokenBlacklistService } from '../../../core/services/token-blacklist.service.js';
 
 function createMocks(headers: Record<string, string> = {}) {
   const req = {
@@ -21,43 +22,75 @@ function createMocks(headers: Record<string, string> = {}) {
 }
 
 describe('authenticateToken() middleware', () => {
-  it('nên throw UnauthorizedError khi không có header Authorization', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('nên gọi next với UnauthorizedError khi không có header Authorization', async () => {
     const { req, res, next } = createMocks();
 
-    expect(() => authenticateToken(req, res, next)).toThrow(UnauthorizedError);
-    expect(next).not.toHaveBeenCalled();
+    await authenticateToken(req, res, next);
+    expect(next).toHaveBeenCalledWith(expect.any(UnauthorizedError));
   });
 
-  it('nên throw UnauthorizedError khi header không có tiền tố Bearer', () => {
+  it('nên gọi next với UnauthorizedError khi header không có tiền tố Bearer', async () => {
     const { req, res, next } = createMocks({ authorization: 'Basic dXNlcjpwYXNz' });
 
-    expect(() => authenticateToken(req, res, next)).toThrow(
-      'Định dạng Authorization header không hợp lệ. Chuẩn bắt buộc: Bearer <token>.'
+    await authenticateToken(req, res, next);
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Định dạng Authorization header không hợp lệ. Chuẩn bắt buộc: Bearer <token>.',
+      })
     );
-    expect(next).not.toHaveBeenCalled();
   });
 
-  it('nên throw UnauthorizedError khi token bị thiếu sau Bearer', () => {
+  it('nên gọi next với UnauthorizedError khi token bị thiếu sau Bearer', async () => {
     const { req, res, next } = createMocks({ authorization: 'Bearer ' });
 
-    expect(() => authenticateToken(req, res, next)).toThrow();
-    expect(next).not.toHaveBeenCalled();
+    await authenticateToken(req, res, next);
+    expect(next).toHaveBeenCalledWith(expect.any(UnauthorizedError));
   });
 
-  it('nên giải mã token, gán vào req.user và gọi next() khi token hợp lệ', () => {
+  it('nên từ chối và gọi next với UnauthorizedError khi token đã bị đưa vào blacklist', async () => {
+    const mockUser = {
+      id:    'blacklisted-user-id',
+      email: 'loggedout@shopflow.vn',
+      role:  'owner' as const,
+    };
+    const { accessToken } = generateTokens(mockUser);
+    vi.spyOn(tokenBlacklistService, 'isTokenBlacklisted').mockResolvedValueOnce(true);
+
+    const { req, res, next } = createMocks({
+      authorization: `Bearer ${accessToken}`,
+    });
+
+    await authenticateToken(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Phiên đăng nhập đã kết thúc do đăng xuất. Vui lòng đăng nhập lại.',
+      })
+    );
+    expect(req.user).toBeUndefined();
+  });
+
+  it('nên giải mã token, gán vào req.user và gọi next() khi token hợp lệ', async () => {
     const mockUser = {
       id:    'valid-uuid-user',
       email: 'verified@shopflow.vn',
       role:  'owner' as const,
     };
     const { accessToken } = generateTokens(mockUser);
+    vi.spyOn(tokenBlacklistService, 'isTokenBlacklisted').mockResolvedValueOnce(false);
+
     const { req, res, next } = createMocks({
       authorization: `Bearer ${accessToken}`,
     });
 
-    authenticateToken(req, res, next);
+    await authenticateToken(req, res, next);
 
     expect(next).toHaveBeenCalledTimes(1);
+    expect(next).toHaveBeenCalledWith();
     expect(req.user).toBeDefined();
     expect(req.user?.sub).toBe(mockUser.id);
     expect(req.user?.email).toBe(mockUser.email);

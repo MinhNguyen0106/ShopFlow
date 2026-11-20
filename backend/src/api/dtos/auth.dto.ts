@@ -51,9 +51,10 @@ export const LoginDtoSchema = z.object({
   password: z
     .string({ required_error: 'Mật khẩu không được để trống' })
     .min(1, 'Mật khẩu không được để trống'),
+  rememberMe: z.boolean().optional().default(false),
 });
 
-export type LoginDto = z.infer<typeof LoginDtoSchema>;
+export type LoginDto = z.input<typeof LoginDtoSchema>;
 
 export const RefreshTokenDtoSchema = z.object({
   refreshToken: z

@@ -44,7 +44,7 @@ export function TopProductsTable() {
   };
 
   return (
-    <div className="bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+    <div className="bg-white dark:bg-slate-900 border border-slate-300/80 dark:border-slate-800 rounded-xl p-5 shadow-xs flex flex-col justify-between">
       <div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">

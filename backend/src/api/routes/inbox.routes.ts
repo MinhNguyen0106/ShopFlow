@@ -38,6 +38,12 @@ export function createInboxRouter(): Router {
     inboxController.getConversationDetail
   );
 
+  // 2.1 Đánh dấu hội thoại đã đọc
+  router.patch(
+    '/conversations/:conversationId/read',
+    inboxController.markAsRead
+  );
+
   // 3. Lấy tin nhắn theo cursor pagination
   router.get(
     '/conversations/:conversationId/messages',

@@ -51,9 +51,9 @@ export function OrderPrintModal({
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-2xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden z-10 flex flex-col my-auto max-h-[90vh]">
+      <div className="relative w-full max-w-2xl bg-card border border-slate-300 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden z-10 flex flex-col my-auto max-h-[90vh]">
         {/* Modal Toolbar (Không in) */}
-        <div className="p-4 border-b border-border flex items-center justify-between bg-muted/30 print:hidden">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-muted/30 print:hidden">
           <div className="flex items-center gap-2">
             <Printer className="w-5 h-5 text-primary" />
             <span className="font-semibold text-foreground text-sm">
@@ -71,7 +71,7 @@ export function OrderPrintModal({
             </button>
             <button
               onClick={onClose}
-              className="p-2 rounded-xl border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              className="p-2 rounded-xl border border-slate-300/80 dark:border-slate-700 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
             >
               <X className="w-4 h-4" />
             </button>

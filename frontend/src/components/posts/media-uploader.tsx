@@ -155,10 +155,10 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
           if (!disabled && !isUploading) fileInputRef.current?.click();
         }}
         data-testid="media-dropzone"
-        className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all cursor-pointer flex flex-col items-center justify-center min-h-[140px] ${
+        className={`border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer flex flex-col items-center justify-center min-h-[140px] ${
           dragOver
             ? 'border-primary bg-primary/10'
-            : 'border-border/60 bg-muted/20 hover:bg-muted/30 hover:border-border'
+            : 'border-slate-300 dark:border-slate-700 bg-muted/20 hover:bg-muted/30 hover:border-slate-400 dark:hover:border-slate-600'
         } ${disabled || isUploading ? 'opacity-60 cursor-not-allowed' : ''}`}
       >
         <input
@@ -214,7 +214,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
             <div
               key={index}
               data-testid={`media-thumbnail-${index}`}
-              className="relative aspect-square rounded-xl overflow-hidden border border-border/60 bg-card group/item shadow-sm"
+              className="relative aspect-square rounded-xl overflow-hidden border border-slate-300/80 dark:border-slate-700 bg-card group/item shadow-sm"
             >
               {mediaType === 'video' ? (
                 <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-900 text-white p-2">

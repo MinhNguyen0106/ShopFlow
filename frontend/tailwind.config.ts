@@ -27,6 +27,19 @@ const config: Config = {
           minimize: '#FFBD2E',
           maximize: '#27C93F',
         },
+        border: '#cbd5e1', // Slate-300 clean visible border
+        card: {
+          DEFAULT: '#ffffff',
+          foreground: '#0f172a',
+        },
+        muted: {
+          DEFAULT: '#f8fafc',
+          foreground: '#64748b',
+        },
+        destructive: {
+          DEFAULT: '#ef4444',
+          foreground: '#ffffff',
+        },
       },
       fontFamily: {
         sans: ['Geist', 'Inter', 'system-ui', 'sans-serif'],

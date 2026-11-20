@@ -274,3 +274,46 @@ Tài liệu ghi nhận các quyết định kiến trúc quan trọng kèm bối
      - Cam kết chỉ số RTO (< 30 phút) và RPO (< 1 giờ).
      - Xây dựng cặp script `scripts/backup-db.sh` (tự động pg_dump nén gzip, kiểm tra tính toàn vẹn SHA256, xoay vòng lưu trữ 30 ngày) và `scripts/restore-db.sh` (phục hồi dữ liệu an toàn vào container PostgreSQL).
 - **Hệ quả:** Hoàn thành 100% mục tiêu của TASK-29 và khép lại toàn bộ Sprint 6 với chất lượng đạt chuẩn Production-ready. Mọi thay đổi mã nguồn trong tương lai đều được bảo vệ bởi rào chắn CI/CD tự động, và đội ngũ vận hành có đầy đủ kịch bản đối phó với thảm họa dữ liệu.
+
+---
+
+## ADR-023: Động Hóa Thời Hạn JWT Theo Remember Me & Thu Hồi Token Bằng Redis Blacklist
+- **Ngày quyết định:** 2026-11-19
+- **Trạng thái:** ACCEPTED
+- **Bối cảnh:** Trước đây hệ thống ShopFlow cấp phát JWT với thời hạn cố định (24h cho access token và 7d cho refresh token), chưa hỗ trợ tính năng "Ghi nhớ đăng nhập" (Remember Me) trên form đăng nhập. Đồng thời, khi người dùng bấm Đăng xuất (Logout), hệ thống mới chỉ xóa token ở phía localStorage trình duyệt mà chưa vô hiệu hóa token trên máy chủ, dẫn đến nguy cơ bảo mật nếu token còn hạn bị đánh cắp.
+- **Quyết định:**
+  1. **Động hóa thời hạn JWT Tokens:**
+     - Mở rộng hàm `generateTokens(user, rememberMe)`:
+       - Khi `rememberMe = false` (hoặc không tích chọn): Cặp Access Token và Refresh Token có thời hạn hiệu lực là **24 giờ** (`24h` / 1 ngày).
+       - Khi `rememberMe = true` (có tích chọn): Cặp Access Token và Refresh Token có thời hạn hiệu lực kéo dài **30 ngày** (`30d`).
+     - Gắn claim `remember_me` vào payload của Refresh Token để endpoint `/auth/refresh-token` tự động kế thừa đúng thời hạn 30 ngày của phiên làm việc ban đầu.
+  2. **Cơ chế thu hồi Token tức thời qua Redis Blacklist:**
+     - Xây dựng `TokenBlacklistService`: Băm token bằng SHA-256 rồi lưu vào Redis theo khóa `bl:token:<sha256_hash>` với giá trị `1` và TTL tự động bằng đúng số giây còn lại cho đến khi token tự hết hạn (`exp - now`).
+     - Bổ sung endpoint `POST /api/v1/auth/logout` được bảo vệ bởi `authenticateToken`, thu hồi cả Access Token và Refresh Token (nếu có).
+     - Cập nhật middleware `authenticateToken` kiểm tra token trong Redis Blacklist trước khi giải mã. Nếu token nằm trong blacklist, từ chối ngay lập tức với mã lỗi HTTP 401 Unauthorized.
+     - Thiết kế chịu lỗi (Graceful Fail-Open): Nếu Redis gặp sự cố kết nối, middleware ghi log cảnh báo và tiếp tục cho phép token hợp lệ theo chữ ký mật mã để không gây nghẽn toàn bộ hệ thống.
+  3. **Đồng bộ hóa Frontend:**
+     - Cập nhật form đăng nhập `login/page.tsx` và Zustand store `auth.store.ts` gửi cờ `rememberMe` lên API `/auth/login`.
+     - Cập nhật hàm `logout` trong `auth.store.ts` gọi API `POST /api/v1/auth/logout` lên máy chủ kèm refresh token trước khi dọn dẹp `localStorage`.
+- **Hệ quả:** Hoàn thành 100% yêu cầu điều chỉnh thời hạn phiên đăng nhập theo tuỳ chọn Remember Me (1 ngày vs 30 ngày) và bảo mật tuyệt đối phiên làm việc bằng cơ chế thu hồi token tức thì khi đăng xuất. Toàn bộ 83 tệp kiểm thử Backend (698 tests) và 25 tệp kiểm thử Frontend (164 tests) đều đạt 100% PASS.
+
+---
+
+## ADR-024: Cơ Chế Tự Động Đánh Dấu Đã Đọc & Xóa Huy Hiệu Chưa Đọc Live Chat Inbox (Optimistic Read Update & Realtime Badge Sync)
+- **Ngày quyết định:** 2026-11-20
+- **Trạng thái:** ACCEPTED
+- **Bối cảnh:** Khi người dùng xem tin nhắn từ khách hàng trong hộp thư Live Chat (`/inbox`), hệ thống trước đây chưa tự động đánh dấu là đã đọc, khiến các chấm xanh và số đếm tin chưa đọc (`unread_count`) vẫn hiển thị trên tab của từng cuộc hội thoại, gây khó chịu và bất tiện cho nhân viên trực chat. Đồng thời, thanh Sidebar trước đây sử dụng giá trị mock tĩnh `18` thay vì số đếm thực tế từ cơ sở dữ liệu.
+- **Quyết định:**
+  1. **Backend RESTful Endpoint & Service Layer:**
+     - Đăng ký endpoint `PATCH /api/v1/inbox/conversations/:conversationId/read` được bảo vệ bởi middleware xác thực JWT `authenticateToken`.
+     - `InboxService.markAsRead(conversationId, userId)`: Xác minh quyền sở hữu hoặc tư cách thành viên Fanpage (`page_members`), kiểm tra nếu `unread_count > 0` thì cập nhật `unread_count = 0` trong bảng `conversations` và phát sóng sự kiện WebSocket `INBOX_UPDATED` tới phòng Fanpage `room:page_<id>`.
+  2. **Frontend State Management (Optimistic UI Update):**
+     - Tại `frontend/src/lib/inbox.store.ts`, khi người dùng bấm vào một cuộc hội thoại (`selectConversation`), store lập tức gán `unreadCount = 0` và `unread_count = 0` cho cả `selectedConversation` lẫn cuộc hội thoại đó trong mảng `conversations` (Optimistic Update) giúp giao diện phản hồi tức thì mà không cần chờ mạng.
+     - Nếu cuộc hội thoại có `unread > 0`, store tự động gửi lệnh `apiClient.patch('/inbox/conversations/:id/read')` lên máy chủ.
+     - Hàm `fetchConversations` được tinh chỉnh để bảo vệ cuộc trò chuyện đang được chọn (`currentSelected`) không bị ghi đè lại số unread cũ nếu backend chưa kịp đồng bộ.
+     - Khi nhận tin nhắn mới qua WebSocket (`handleSocketNewItem`), nếu tin nhắn thuộc cuộc trò chuyện đang mở, hệ thống tự động gọi API `PATCH /read` để đảm bảo luôn ở trạng thái đã đọc.
+  3. **Đồng Bộ Huy Hiệu Giao Diện & Sidebar:**
+     - `ColumnThreads` (`column-threads.tsx`): Ẩn ngay lập tức huy hiệu số tin chưa đọc (Unread Counter Pill) và chuyển chữ tiêu đề cũng như đoạn trích tin nhắn từ in đậm (`font-bold`) về bình thường khi hội thoại được đánh dấu đã đọc.
+     - `ColumnChannels` (`column-channels.tsx`): Tự động tính toán lại `totalUnread` giảm trừ ngay lập tức và ẩn nhãn "X mới" khi toàn bộ tin nhắn đã được đọc (`totalUnread === 0`).
+     - `Sidebar` (`sidebar.tsx`): Đọc danh sách hội thoại từ `useInboxStore` để tính toán tổng số tin chưa đọc động theo thời gian thực, loại bỏ hoàn toàn giá trị mock tĩnh `18`, và tự động ẩn huy hiệu khi `totalUnread === 0`.
+- **Hệ quả:** Trải nghiệm người dùng trong hộp thư Live Chat mượt mà, trực quan và chuẩn xác theo thời gian thực. Toàn bộ 37 Backend tests và 19 Frontend tests (15 inbox + 4 sidebar) đều đạt 100% PASS; TypeScript Type-Check đạt 0 lỗi.

@@ -3,17 +3,15 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useInboxStore } from '@/lib/inbox.store';
 import {
   Zap,
-  LayoutDashboard,
   MessageSquare,
   Calendar,
   Bot,
   Layers,
   Settings,
   Edit3,
-  Gauge,
-  CheckCircle2,
   ShoppingBag,
   BarChart3,
   Users,
@@ -23,21 +21,38 @@ interface SidebarProps {
   unreadInboxCount?: number;
 }
 
-export function Sidebar({ unreadInboxCount = 18 }: SidebarProps) {
+export function Sidebar({ unreadInboxCount }: SidebarProps) {
   const pathname = usePathname();
+  const conversations = useInboxStore((state) => state.conversations);
+
+  const dynamicUnread = React.useMemo(() => {
+    return conversations.reduce(
+      (acc, c) => acc + (c.unreadCount || c.unread_count || 0),
+      0
+    );
+  }, [conversations]);
+
+  const effectiveBadge =
+    unreadInboxCount !== undefined
+      ? unreadInboxCount > 0
+        ? unreadInboxCount
+        : undefined
+      : dynamicUnread > 0
+        ? dynamicUnread
+        : undefined;
 
   const navigation = [
     {
-      name: 'Tổng quan',
-      href: '/',
-      icon: LayoutDashboard,
-      active: pathname === '/',
+      name: 'Báo cáo phân tích',
+      href: '/analytics',
+      icon: BarChart3,
+      active: pathname.startsWith('/analytics'),
     },
     {
       name: 'Hộp thư Live Chat',
       href: '/inbox',
       icon: MessageSquare,
-      badge: unreadInboxCount,
+      badge: effectiveBadge,
       active: pathname.startsWith('/inbox'),
     },
     {
@@ -51,12 +66,6 @@ export function Sidebar({ unreadInboxCount = 18 }: SidebarProps) {
       href: '/customers',
       icon: Users,
       active: pathname.startsWith('/customers'),
-    },
-    {
-      name: 'Báo cáo phân tích',
-      href: '/analytics',
-      icon: BarChart3,
-      active: pathname.startsWith('/analytics'),
     },
     {
       name: 'Lịch đăng bài',
@@ -85,11 +94,11 @@ export function Sidebar({ unreadInboxCount = 18 }: SidebarProps) {
   ];
 
   return (
-    <aside className="w-64 h-full bg-white border-r border-slate-200/80 flex flex-col justify-between p-4 select-none shrink-0">
+    <aside className="w-64 h-full bg-white border-r border-slate-200 flex flex-col p-4 select-none shrink-0 overflow-y-auto">
       <div className="flex flex-col gap-5">
         {/* Brand & Logo */}
         <div className="px-2 pt-1 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
+          <Link href="/analytics" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-blue-500/25 group-hover:scale-105 transition-transform">
               <Zap className="w-5 h-5 fill-white text-white" />
             </div>
@@ -156,57 +165,6 @@ export function Sidebar({ unreadInboxCount = 18 }: SidebarProps) {
             );
           })}
         </nav>
-      </div>
-
-      {/* Bottom Section: Meta Rate Limit & System Settings */}
-      <div className="flex flex-col gap-3 pt-4 border-t border-slate-100">
-        {/* Rate Limit Meta Gauge Widget */}
-        <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5">
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-1.5 text-slate-600 font-medium">
-              <Gauge className="w-3.5 h-3.5 text-blue-600" />
-              <span>Meta Graph API v19</span>
-            </div>
-            <span className="font-mono text-[11px] font-bold text-emerald-600">
-              24%
-            </span>
-          </div>
-          {/* Progress bar */}
-          <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-            <div className="h-full bg-emerald-500 rounded-full w-[24%]" />
-          </div>
-          <p className="text-[10px] text-slate-400">
-            Mức an toàn tuyệt đối (SLA &lt; 3.0s)
-          </p>
-        </div>
-
-        {/* Settings link */}
-        <Link
-          href="/settings"
-          className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
-            pathname.startsWith('/settings')
-              ? 'bg-blue-50 text-blue-700 font-semibold'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
-          }`}
-        >
-          <Settings className="w-4 h-4 text-slate-400" />
-          <span>Cài đặt hệ thống</span>
-        </Link>
-
-        {/* Meta Business Partner Verified Badge */}
-        <div className="p-2.5 rounded-xl bg-blue-50/60 border border-blue-100 flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-[#1877F2]/10 flex items-center justify-center text-[#1877F2] shrink-0">
-            <CheckCircle2 className="w-4 h-4 text-[#1877F2]" />
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-[11px] font-bold text-slate-900 truncate">
-              Meta Partner Verified
-            </span>
-            <span className="text-[10px] text-slate-500 font-mono">
-              AES-256 Secured
-            </span>
-          </div>
-        </div>
       </div>
     </aside>
   );

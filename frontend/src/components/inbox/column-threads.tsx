@@ -78,16 +78,16 @@ export function ColumnThreads() {
   };
 
   return (
-    <div className="flex h-full w-full flex-col border-r border-slate-200/80 bg-white">
+    <div className="flex h-full w-full flex-col border-r border-slate-300/80 bg-white">
       {/* Search Header */}
-      <div className="border-b border-slate-100 p-3">
+      <div className="border-b border-slate-200 p-3">
         <form onSubmit={handleSearchSubmit} className="relative">
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Tìm tên, SĐT, nội dung..."
-            className="w-full rounded-xl border border-slate-200 bg-slate-50/70 py-2 pl-8 pr-3 text-xs text-slate-800 placeholder-slate-400 focus:border-emerald-500 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20"
+            className="w-full rounded-xl border border-slate-300/80 bg-slate-50/70 py-2 pl-8 pr-3 text-xs text-slate-800 placeholder-slate-400 focus:border-emerald-500 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20"
           />
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 text-slate-400">
             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,6 +132,7 @@ export function ColumnThreads() {
             return (
               <div
                 key={conv.id}
+                data-testid={`thread-item-${conv.id}`}
                 onClick={() => selectConversation(conv)}
                 className={`relative flex cursor-pointer flex-col p-3 transition-colors ${
                   isSelected
@@ -195,7 +196,10 @@ export function ColumnThreads() {
 
                   {/* Unread Counter Pill */}
                   {unread > 0 && (
-                    <span className="ml-auto flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-600 px-1 text-[10px] font-bold text-white shadow-xs">
+                    <span
+                      data-testid="unread-badge"
+                      className="ml-auto flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-600 px-1 text-[10px] font-bold text-white shadow-xs"
+                    >
                       {unread}
                     </span>
                   )}

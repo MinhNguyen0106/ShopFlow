@@ -65,7 +65,7 @@ export function CustomerMetrics({ metrics, isLoading = false }: CustomerMetricsP
         return (
           <div
             key={idx}
-            className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md transition-all relative overflow-hidden group"
+            className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-300/80 dark:border-slate-800 shadow-sm hover:border-slate-400/80 dark:hover:border-slate-700 hover:shadow-md transition-all relative overflow-hidden group"
           >
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">

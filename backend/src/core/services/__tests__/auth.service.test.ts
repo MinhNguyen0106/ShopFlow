@@ -117,6 +117,32 @@ describe('AuthService — login()', () => {
 
     expect(result.user.email).toBe('active@shopflow.vn');
     expect(result.tokens.accessToken).toBeDefined();
+    expect(result.tokens.expiresIn).toBe('24h');
+  });
+
+  it('nên cấp token 30 ngày khi đăng nhập với rememberMe = true', async () => {
+    const rawPassword = 'CorrectPassword123!';
+    const passwordHash = await hashPassword(rawPassword);
+
+    const activeUser: User = {
+      id:            'user-1',
+      email:         'active@shopflow.vn',
+      password_hash: passwordHash,
+      full_name:     'Nguyễn Văn A',
+      role:          'owner',
+      status:        'active',
+      created_at:    new Date(),
+      updated_at:    new Date(),
+    };
+    vi.mocked(mockUserRepo.findByEmail).mockResolvedValueOnce(activeUser);
+
+    const result = await service.login({
+      email:      'active@shopflow.vn',
+      password:   rawPassword,
+      rememberMe: true,
+    });
+
+    expect(result.tokens.expiresIn).toBe('30d');
   });
 
   it('nên throw UnauthorizedError khi email không tồn tại', async () => {
@@ -208,7 +234,28 @@ describe('AuthService — refreshToken()', () => {
 
     expect(newTokens.accessToken).toBeDefined();
     expect(newTokens.refreshToken).toBeDefined();
+    expect(newTokens.expiresIn).toBe('24h');
     expect(mockUserRepo.findById).toHaveBeenCalledWith(activeUser.id);
+  });
+
+  it('nên kế thừa thời hạn 30 ngày khi refresh token ban đầu có rememberMe = true', async () => {
+    const activeUser: User = {
+      id:            'user-refresh-30d',
+      email:         'refresh30d@shopflow.vn',
+      password_hash: 'hash',
+      full_name:     'User 30d',
+      role:          'owner',
+      status:        'active',
+      created_at:    new Date(),
+      updated_at:    new Date(),
+    };
+
+    const initialTokens = generateTokens(activeUser, true);
+    vi.mocked(mockUserRepo.findById).mockResolvedValueOnce(activeUser);
+
+    const newTokens = await service.refreshToken(initialTokens.refreshToken);
+
+    expect(newTokens.expiresIn).toBe('30d');
   });
 
   it('nên throw UnauthorizedError nếu người dùng không còn tồn tại', async () => {

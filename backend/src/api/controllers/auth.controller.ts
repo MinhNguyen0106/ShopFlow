@@ -7,11 +7,13 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { AuthService, authService as defaultAuthService } from '../../core/services/auth.service.js';
+import { tokenBlacklistService } from '../../core/services/token-blacklist.service.js';
 import { RegisterDto, LoginDto, RefreshTokenDto } from '../dtos/auth.dto.js';
 
 export class AuthController {
   constructor(
-    private readonly service: AuthService = defaultAuthService
+    private readonly service: AuthService = defaultAuthService,
+    private readonly blacklistService = tokenBlacklistService
   ) {}
 
   /**
@@ -71,6 +73,38 @@ export class AuthController {
         success: true,
         message: 'Làm mới phiên đăng nhập thành công',
         data:    { tokens },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * POST /api/v1/auth/logout
+   * Đăng xuất & thu hồi token (đưa vào blacklist)
+   */
+  logout = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const authHeader = req.headers['authorization'];
+      if (authHeader) {
+        const parts = authHeader.split(' ');
+        if (parts.length === 2 && parts[0] === 'Bearer' && parts[1]) {
+          await this.blacklistService.blacklistToken(parts[1]);
+        }
+      }
+
+      const refreshToken = (req.body as { refreshToken?: string })?.refreshToken;
+      if (refreshToken) {
+        await this.blacklistService.blacklistToken(refreshToken);
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Đăng xuất thành công, phiên làm việc đã được thu hồi',
       });
     } catch (error) {
       next(error);

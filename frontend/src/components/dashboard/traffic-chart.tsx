@@ -32,7 +32,7 @@ export function TrafficChart({ data = DEFAULT_HOURLY_TRAFFIC }: TrafficChartProp
   const maxVal = Math.max(...data.map((d) => d.interactions), 1);
 
   return (
-    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs flex flex-col justify-between">
+    <div className="rounded-xl border border-slate-300/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs flex flex-col justify-between">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
         <div>
@@ -49,7 +49,7 @@ export function TrafficChart({ data = DEFAULT_HOURLY_TRAFFIC }: TrafficChartProp
 
         {/* Golden Hour Legend */}
         <div className="flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-semibold bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-lg border border-amber-200/60 dark:border-amber-800/60">
+          <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-semibold bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-md border border-amber-200/60 dark:border-amber-800/60">
             <Flame className="h-3.5 w-3.5" />
             <span>Khung Giờ Vàng (11:30 & 20:00)</span>
           </div>
@@ -61,7 +61,7 @@ export function TrafficChart({ data = DEFAULT_HOURLY_TRAFFIC }: TrafficChartProp
         {/* Hover Tooltip Overlay */}
         {hoveredPoint && (
           <div
-            className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10 px-3 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 text-xs shadow-lg flex items-center gap-2 pointer-events-none transition-all duration-150 animate-in fade-in"
+            className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10 px-3 py-1.5 rounded-lg bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 text-xs shadow-md flex items-center gap-2 pointer-events-none transition-all duration-150 animate-in fade-in"
           >
             <span className="font-bold">{hoveredPoint.hour}:</span>
             <span>{hoveredPoint.interactions} tương tác</span>
@@ -90,7 +90,7 @@ export function TrafficChart({ data = DEFAULT_HOURLY_TRAFFIC }: TrafficChartProp
                 <div className="w-full flex justify-center items-end h-full">
                   <div
                     style={{ height: `${Math.max(heightPercent, 8)}%` }}
-                    className={`w-full max-w-[28px] rounded-t-lg transition-all duration-200 ${
+                    className={`w-full max-w-[28px] rounded-t-sm transition-all duration-200 ${
                       point.isGoldenHour
                         ? 'bg-gradient-to-t from-amber-500 to-orange-400 group-hover:from-amber-600 group-hover:to-orange-500 shadow-xs shadow-amber-500/20'
                         : 'bg-slate-200 dark:bg-slate-700/60 group-hover:bg-blue-500 dark:group-hover:bg-blue-600'
@@ -115,7 +115,7 @@ export function TrafficChart({ data = DEFAULT_HOURLY_TRAFFIC }: TrafficChartProp
       </div>
 
       {/* Footer Info */}
-      <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 pt-3 border-t border-slate-100 dark:border-slate-800">
+      <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 pt-3 border-t border-slate-200 dark:border-slate-800">
         <span className="flex items-center gap-1">
           <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
           <span>Lưu lượng trung bình đạt đỉnh lúc 20:00 (240 tương tác/giờ)</span>

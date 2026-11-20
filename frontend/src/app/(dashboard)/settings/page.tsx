@@ -15,7 +15,6 @@ import {
   Shield,
   Gauge,
   ChevronRight,
-  Sparkles,
 } from 'lucide-react';
 import { ProfileSettingsTab } from '@/components/settings/profile-settings-tab';
 import { SecurityPasswordTab } from '@/components/settings/security-password-tab';
@@ -68,11 +67,8 @@ export default function SettingsPage() {
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-1">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2.5">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
               Cài đặt Hệ thống &amp; Hồ sơ
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary-50 text-primary-700 border border-primary-200/60">
-                <Sparkles className="w-3 h-3 text-primary-600" /> v1.0
-              </span>
             </h1>
             <p className="text-sm text-slate-500 mt-1">
               Trung tâm quản trị hồ sơ cá nhân, cập nhật mật khẩu và giám sát kỹ thuật hạn mức Meta Graph API v19.0.
@@ -82,7 +78,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Segmented Tabs Navigation Bar */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-200/80 no-scrollbar">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-200 no-scrollbar">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -94,7 +90,7 @@ export default function SettingsPage() {
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 whitespace-nowrap shrink-0 ${
                 isActive
                   ? 'bg-primary-600 text-white shadow-sm shadow-primary-600/20'
-                  : 'bg-white hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200/80'
+                  : 'bg-white hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-300/80'
               }`}
             >
               <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />

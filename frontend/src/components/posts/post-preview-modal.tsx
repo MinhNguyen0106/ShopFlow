@@ -83,12 +83,12 @@ export const FacebookPostCard: React.FC<FacebookPostPreviewProps> = ({
   return (
     <div
       data-testid="facebook-post-card"
-      className={`bg-card text-foreground border border-border/70 rounded-2xl overflow-hidden shadow-md font-sans transition-all ${
+      className={`bg-card text-foreground border border-slate-300/80 dark:border-slate-800 rounded-xl overflow-hidden shadow-md font-sans transition-all ${
         deviceMode === 'mobile' ? 'max-w-[360px] mx-auto text-xs' : 'w-full text-sm'
       }`}
     >
       {/* Post Header */}
-      <div className="p-3.5 flex items-center justify-between border-b border-border/30">
+      <div className="p-3.5 flex items-center justify-between border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-2.5">
           {/* Fanpage Avatar */}
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-bold flex items-center justify-center shrink-0 shadow-sm text-sm">
@@ -258,15 +258,15 @@ export const PostPreviewModal: React.FC<PostPreviewModalProps> = ({
       data-testid="post-preview-modal"
       className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150"
     >
-      <div className="w-full max-w-2xl bg-background border border-border/70 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+      <div className="w-full max-w-2xl bg-background border border-slate-300 dark:border-slate-800 rounded-xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
         {/* Modal Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border/50 bg-muted/20">
+        <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800 bg-muted/20">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold text-foreground">
               Xem trước bài viết trên Facebook
             </h3>
             {/* Device Switcher */}
-            <div className="inline-flex items-center p-0.5 rounded-lg bg-muted/40 border border-border/40 ml-2">
+            <div className="inline-flex items-center p-0.5 rounded-lg bg-muted/40 border border-slate-300/80 dark:border-slate-700 ml-2">
               <button
                 type="button"
                 onClick={() => setDevice('desktop')}
@@ -312,12 +312,12 @@ export const PostPreviewModal: React.FC<PostPreviewModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-3.5 border-t border-border/50 bg-muted/20 flex items-center justify-between text-xs text-muted-foreground">
+        <div className="p-3.5 border-t border-slate-200 dark:border-slate-800 bg-muted/20 flex items-center justify-between text-xs text-muted-foreground">
           <span>* Giao diện mô phỏng thuật toán hiển thị News Feed của Facebook</span>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 rounded-xl border border-border/50 bg-card hover:bg-muted/40 text-foreground transition-all"
+            className="px-4 py-1.5 rounded-xl border border-slate-300/80 dark:border-slate-700 bg-card hover:bg-muted/40 text-foreground transition-all"
           >
             Đóng
           </button>

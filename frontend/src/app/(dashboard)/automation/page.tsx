@@ -151,15 +151,9 @@ export default function AutomationPage() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-              Kịch Bản Tự Động & Ẩn SĐT
-            </h1>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-              <Zap className="h-3 w-3" />
-              Meta Engine SLA &lt; 3s
-            </span>
-          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+            Kịch Bản Tự Động & Ẩn SĐT
+          </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Tự động phản hồi bình luận, gửi tin nhắn riêng Messenger theo từ khóa và quét ẩn số điện thoại khách hàng tức thì.
           </p>
@@ -209,7 +203,7 @@ export default function AutomationPage() {
 
       {/* Overview 4 Bento Metrics Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm">
+        <div className="rounded-xl border border-slate-300/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Tổng kịch bản</span>
             <Layers className="h-4 w-4 text-blue-500" />
@@ -220,7 +214,7 @@ export default function AutomationPage() {
           <p className="text-[11px] text-slate-400 mt-1">Thiết lập trên Fanpage</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm">
+        <div className="rounded-xl border border-slate-300/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Đang kích hoạt</span>
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -231,7 +225,7 @@ export default function AutomationPage() {
           <p className="text-[11px] text-slate-400 mt-1">Sẵn sàng phản hồi</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm">
+        <div className="rounded-xl border border-slate-300/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Ẩn SĐT tự động</span>
             <ShieldCheck className="h-4 w-4 text-emerald-500" />
@@ -242,7 +236,7 @@ export default function AutomationPage() {
           <p className="text-[11px] text-slate-400 mt-1">Bảo vệ chống cướp đơn</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm">
+        <div className="rounded-xl border border-slate-300/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Phản hồi Inbox</span>
             <Radio className="h-4 w-4 text-indigo-500" />
@@ -255,7 +249,7 @@ export default function AutomationPage() {
       </div>
 
       {/* Toolbar: Fanpage Selector & Search & Filters */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300/80 dark:border-slate-800 shadow-sm">
         {/* Left: Fanpage Dropdown & Tabs */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Fanpage Selector */}

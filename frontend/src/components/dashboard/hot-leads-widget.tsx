@@ -51,17 +51,17 @@ interface HotLeadsWidgetProps {
 
 export function HotLeadsWidget({ leads = DEFAULT_HOT_LEADS }: HotLeadsWidgetProps) {
   return (
-    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs flex flex-col justify-between">
+    <div className="rounded-xl border border-slate-300/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs flex flex-col justify-between">
       <div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-50 text-orange-600 dark:bg-orange-950/60 dark:text-orange-400">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-50 text-orange-600 dark:bg-orange-950/60 dark:text-orange-400">
               <Flame className="h-4 w-4" />
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                 Hot Leads Cần Chốt Đơn Gấp
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60">
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60">
                   <ShieldCheck className="h-2.5 w-2.5" />
                   PII Masked
                 </span>
@@ -83,14 +83,14 @@ export function HotLeadsWidget({ leads = DEFAULT_HOT_LEADS }: HotLeadsWidgetProp
           {leads.map((lead) => (
             <div
               key={lead.id}
-              className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 transition-all"
+              className="flex items-center justify-between gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all"
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
                     {lead.customerName}
                   </span>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.2 rounded border border-emerald-200/50">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded-md border border-emerald-200/50">
                     <Phone className="h-2.5 w-2.5" />
                     {maskPhoneNumber(lead.phone)}
                   </span>
@@ -111,7 +111,7 @@ export function HotLeadsWidget({ leads = DEFAULT_HOT_LEADS }: HotLeadsWidgetProp
                 </div>
                 <Link
                   href="/inbox"
-                  className="px-2.5 py-1 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-xs"
+                  className="px-2.5 py-1 rounded-md text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-xs"
                 >
                   Chốt ngay
                 </Link>
@@ -121,7 +121,7 @@ export function HotLeadsWidget({ leads = DEFAULT_HOT_LEADS }: HotLeadsWidgetProp
         </div>
       </div>
 
-      <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 dark:text-slate-500 flex items-center justify-between">
+      <div className="pt-3 mt-3 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-400 dark:text-slate-500 flex items-center justify-between">
         <span className="flex items-center gap-1">
           <UserCheck className="h-3 w-3 text-emerald-500" />
           <span>Số điện thoại được che ký tự bảo vệ chống cướp khách</span>

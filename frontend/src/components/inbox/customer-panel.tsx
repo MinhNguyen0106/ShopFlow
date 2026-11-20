@@ -116,7 +116,7 @@ export function CustomerPanel() {
 
   if (!selectedConversation || !customer) {
     return (
-      <div className="flex h-full w-full flex-col items-center justify-center border-l border-slate-200/80 bg-slate-50/50 p-6 text-center select-none">
+      <div className="flex h-full w-full flex-col items-center justify-center border-l border-slate-300/80 bg-slate-50/50 p-6 text-center select-none">
         <div className="mb-2 text-2xl">👤</div>
         <p className="text-xs font-semibold text-slate-700">Hồ sơ khách hàng</p>
         <p className="mt-1 text-[11px] text-slate-400">
@@ -129,9 +129,9 @@ export function CustomerPanel() {
   const rawPhone = customer.phoneNumber || customer.phone_number;
 
   return (
-    <div className="flex h-full w-full flex-col border-l border-slate-200/80 bg-white overflow-y-auto">
+    <div className="flex h-full w-full flex-col border-l border-slate-300/80 bg-white overflow-y-auto">
       {/* Customer Header Profile */}
-      <div className="border-b border-slate-100 p-4">
+      <div className="border-b border-slate-200 p-4">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
             CRM Khách Hàng
@@ -290,7 +290,7 @@ export function CustomerPanel() {
             </div>
 
             {/* Total Amount */}
-            <div className="border-t border-slate-200/80 pt-2 flex items-center justify-between text-xs">
+            <div className="border-t border-slate-200 pt-2 flex items-center justify-between text-xs">
               <span className="font-semibold text-slate-600">Tổng tiền tạm tính:</span>
               <span className="font-bold text-emerald-700 font-mono text-sm">
                 {(extractedOrder.totalAmount || 0).toLocaleString('vi-VN')} đ

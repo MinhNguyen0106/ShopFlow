@@ -96,7 +96,7 @@ export class AuthService {
       '[AuthService] Đăng nhập thành công'
     );
 
-    const tokens = generateTokens(user);
+    const tokens = generateTokens(user, dto.rememberMe);
     return {
       user: toSafeUser(user),
       tokens,
@@ -121,7 +121,8 @@ export class AuthService {
       '[AuthService] Refresh token thành công'
     );
 
-    return generateTokens(user);
+    const rememberMe = Boolean(payload.remember_me);
+    return generateTokens(user, rememberMe);
   }
 }
 

@@ -32,7 +32,7 @@ export function ColumnChannels() {
   ];
 
   return (
-    <div className="flex h-full w-full flex-col border-r border-slate-200/80 bg-slate-50/70 p-3 select-none">
+    <div className="flex h-full w-full flex-col border-r border-slate-300/80 bg-slate-50/70 p-3 select-none">
       {/* Header & Unread Counter */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -49,7 +49,10 @@ export function ColumnChannels() {
           <span className="text-xs font-bold tracking-tight text-slate-800 uppercase">Hộp Thư</span>
         </div>
         {totalUnread > 0 && (
-          <span className="flex items-center gap-1 rounded-full bg-rose-500 px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm">
+          <span
+            data-testid="channel-total-unread"
+            className="flex items-center gap-1 rounded-full bg-rose-500 px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm"
+          >
             {totalUnread} mới
           </span>
         )}
@@ -139,24 +142,6 @@ export function ColumnChannels() {
               </button>
             );
           })}
-        </div>
-      </div>
-
-      {/* Live Connection & SLA Status Indicator */}
-      <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/50 p-2.5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-            </span>
-            <span className="text-[11px] font-semibold text-emerald-800">WebSocket Live</span>
-          </div>
-          <span className="text-[10px] font-mono text-emerald-600 font-medium">SLA &lt;3s</span>
-        </div>
-        <div className="mt-1 flex items-center justify-between text-[10px] text-slate-500">
-          <span>Meta Webhook v19.0</span>
-          <span className="font-semibold text-emerald-700">AES-256</span>
         </div>
       </div>
     </div>

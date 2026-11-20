@@ -111,7 +111,7 @@ describe('Auth DTOs Validation Schemas', () => {
   });
 
   describe('LoginDtoSchema', () => {
-    it('nên thẩm định thành công với email và password hợp lệ', () => {
+    it('nên thẩm định thành công với email và password hợp lệ (mặc định rememberMe = false)', () => {
       const payload = {
         email: 'TEST@ShopFlow.vn',
         password: 'MyPassword123',
@@ -121,6 +121,21 @@ describe('Auth DTOs Validation Schemas', () => {
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.email).toBe('test@shopflow.vn');
+        expect(result.data.rememberMe).toBe(false);
+      }
+    });
+
+    it('nên giữ nguyên rememberMe khi truyền true', () => {
+      const payload = {
+        email: 'test@shopflow.vn',
+        password: 'MyPassword123',
+        rememberMe: true,
+      };
+
+      const result = LoginDtoSchema.safeParse(payload);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.rememberMe).toBe(true);
       }
     });
 

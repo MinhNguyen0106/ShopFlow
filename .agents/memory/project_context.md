@@ -7,7 +7,7 @@ Tài liệu ngữ cảnh dự án lưu giữ kiến thức nền tảng, kiến 
 ## 1. Mục Đích & Sứ Mệnh Sản Phẩm
 
 **ShopFlow** là nền tảng tự động hóa quản lý Fanpage Facebook toàn diện dành cho các chủ shop nhỏ và cá nhân kinh doanh B2C tại Việt Nam:
-1. **Quản lý Hộp thư Tập trung (Centralized Live Chat 4-Pane Bento):** Gom toàn bộ bình luận (comment thread) và tin nhắn Messenger từ nhiều Fanpage kết nối về một màn hình điều khiển Live Chat thời gian thực duy nhất.
+1. **Quản lý Hộp thư Tập trung (Centralized Live Chat 4-Pane Bento):** Gom toàn bộ bình luận (comment thread) và tin nhắn Messenger từ nhiều Fanpage kết nối về một màn hình điều khiển Live Chat thời gian thực duy nhất. Tích hợp cơ chế tự động đánh dấu đã đọc (Optimistic Read Update qua `PATCH /api/v1/inbox/conversations/:id/read`), xóa chấm báo chưa đọc ở từng tab hội thoại, giảm trừ số đếm ở cột bộ lọc kênh và đồng bộ động lên thanh Sidebar (bỏ mock tĩnh).
 2. **Chống "Cướp Đơn" Tức Thì (< 3 giây):** Quét Regex số điện thoại ngay khi nhận sự kiện Webhook `feed`. Tự động gọi Graph API ẩn bình luận công khai để bảo vệ dữ liệu khách hàng.
 3. **Phản hồi Tự động (Auto Reply & Private Reply):** Khớp từ khóa theo quy tắc cấu hình (`automation_rules`), tự động trả lời bình luận công khai và gửi tin nhắn riêng (Private Reply trong vòng 7 ngày) kèm link trích dẫn comment.
 4. **Lên Lịch Đăng Bài Chuẩn API (Page Scheduler):** Soạn thảo bài viết, tải ảnh/video lên Cloudinary và đặt lịch xuất bản tự động qua Meta Graph API (`/{page_id}/photos`, `/{page_id}/videos`, `/{page_id}/feed`) từ 10 phút đến 30 ngày (hoặc 6 tháng cho video).
@@ -44,7 +44,7 @@ Dự án áp dụng kiến trúc **Monorepo** chia 2 thư mục gốc độc l�
 * **Bảo mật & Hiệu năng Tầng Mạng:**
   * Mã hóa **AES-256-GCM** cho toàn bộ `page_access_token` và `user_access_token` trong DB (khóa 32-byte hex ngẫu nhiên).
   * Xác thực Webhook bằng HMAC-SHA256 với `crypto.timingSafeEqual` trên raw body buffer.
-  * Xác thực người dùng bằng JWT (Access Token 24 giờ, Refresh Token 7 ngày trong HttpOnly Cookie).
+  * Xác thực người dùng bằng JWT với thời hạn động theo cờ Remember Me (1 ngày khi không tích chọn, 30 ngày khi tích chọn) và thu hồi tức thì phiên đăng nhập qua Redis Token Blacklist khi đăng xuất (`POST /api/v1/auth/logout`).
   * Nén HTTP Gzip/Deflate tự động cho payload ≥ 1KB qua `compressionMiddleware`.
   * Bộ Rate Limiting phân tầng (`globalApiLimiter`, `authLimiter`, `heavyComputationLimiter`).
   * Gia cố HTTP Headers chuẩn OWASP bằng `helmet` (HSTS 180 ngày, nosniff, no-sniff CSP).

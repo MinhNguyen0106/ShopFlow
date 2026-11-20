@@ -89,9 +89,9 @@ export function OrderTable({
   };
 
   return (
-    <div className="bg-card border border-border/60 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-card border border-slate-300/80 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden flex flex-col">
       {/* 1. Header Toolbar & Filters */}
-      <div className="p-4 border-b border-border/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Status Tabs */}
         <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
           {STATUS_TABS.map((tab) => {
@@ -120,7 +120,7 @@ export function OrderTable({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Tìm mã đơn, tên, SĐT, SKU..."
-            className="w-full pl-9 pr-4 py-1.5 text-xs bg-muted/40 border border-border/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground"
+            className="w-full pl-9 pr-4 py-1.5 text-xs bg-muted/40 border border-slate-300/80 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground"
           />
           {searchQuery && (
             <button
@@ -137,13 +137,13 @@ export function OrderTable({
       <div className="overflow-x-auto min-h-[360px]">
         <table className="w-full text-left border-collapse text-xs">
           <thead>
-            <tr className="border-b border-border/60 bg-muted/30 text-muted-foreground font-medium">
+            <tr className="border-b border-slate-200 dark:border-slate-800 bg-muted/30 text-muted-foreground font-medium">
               <th className="py-3 px-4 w-10">
                 <input
                   type="checkbox"
                   checked={orders.length > 0 && selectedIds.length === orders.length}
                   onChange={handleSelectAll}
-                  className="rounded border-border text-primary focus:ring-primary/20 w-3.5 h-3.5"
+                  className="rounded border-slate-300 dark:border-slate-700 text-primary focus:ring-primary/20 w-3.5 h-3.5"
                 />
               </th>
               <th className="py-3 px-4 font-semibold">Mã đơn hàng</th>
@@ -155,7 +155,7 @@ export function OrderTable({
               <th className="py-3 px-4 font-semibold text-right">Thao tác</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border/40">
+          <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800">
             {isLoading ? (
               <tr>
                 <td colSpan={8} className="py-16 text-center text-muted-foreground">
@@ -204,7 +204,7 @@ export function OrderTable({
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => handleSelectRow(order.id)}
-                        className="rounded border-border text-primary focus:ring-primary/20 w-3.5 h-3.5"
+                        className="rounded border-slate-300 dark:border-slate-700 text-primary focus:ring-primary/20 w-3.5 h-3.5"
                       />
                     </td>
 
@@ -338,7 +338,7 @@ export function OrderTable({
       </div>
 
       {/* 3. Pagination Footer */}
-      <div className="p-4 border-t border-border/60 bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+      <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
         <div>
           Hiển thị <span className="font-semibold text-foreground">{orders.length}</span> /{' '}
           <span className="font-semibold text-foreground">{pagination.total}</span> đơn hàng
@@ -348,7 +348,7 @@ export function OrderTable({
           <button
             onClick={() => onPageChange(pagination.page - 1)}
             disabled={pagination.page <= 1 || isLoading}
-            className="p-1.5 rounded-lg border border-border/60 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="p-1.5 rounded-lg border border-slate-300/80 dark:border-slate-700 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -360,7 +360,7 @@ export function OrderTable({
           <button
             onClick={() => onPageChange(pagination.page + 1)}
             disabled={pagination.page >= pagination.totalPages || isLoading}
-            className="p-1.5 rounded-lg border border-border/60 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="p-1.5 rounded-lg border border-slate-300/80 dark:border-slate-700 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronRight className="w-4 h-4" />
           </button>

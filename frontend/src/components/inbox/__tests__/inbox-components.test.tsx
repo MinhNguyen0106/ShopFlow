@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ColumnChannels } from '../column-channels';
 import { ColumnThreads } from '../column-threads';
 import { ChatWindow } from '../chat-window';
@@ -77,7 +77,6 @@ describe('Inbox 4-Pane Bento Components', () => {
     expect(screen.getByText(/Tất cả Fanpage/)).toBeDefined();
     expect(screen.getByText('Messenger')).toBeDefined();
     expect(screen.getByText('Bình luận Post')).toBeDefined();
-    expect(screen.getByText('WebSocket Live')).toBeDefined();
   });
 
   it('Pane 2: ColumnThreads render danh sách hội thoại và badge SĐT', () => {
@@ -113,5 +112,40 @@ describe('Inbox 4-Pane Bento Components', () => {
     expect(screen.getByText('123 Đường Cầu Giấy, Hà Nội')).toBeDefined();
     expect(screen.getByText('Trích Xuất Đơn Hàng')).toBeDefined();
     expect(screen.getByText(/1-Click Tạo Đơn Hàng Ngay/)).toBeDefined();
+  });
+
+  it('Pane 2: ColumnThreads xóa badge chưa đọc khi hội thoại được chọn (đã đọc)', () => {
+    // Ban đầu có unread_count = 1 -> hiển thị unread badge
+    const { rerender } = render(<ColumnThreads />);
+    expect(screen.getByTestId('unread-badge')).toBeDefined();
+    expect(screen.getByTestId('unread-badge').textContent).toBe('1');
+
+    // Sau khi chọn hội thoại, unread_count được cập nhật về 0
+    act(() => {
+      useInboxStore.setState({
+        conversations: [{ ...mockConversation, unread_count: 0, unreadCount: 0 } as any],
+        selectedConversation: { ...mockConversation, unread_count: 0, unreadCount: 0 } as any,
+      });
+    });
+    rerender(<ColumnThreads />);
+
+    expect(screen.queryByTestId('unread-badge')).toBeNull();
+  });
+
+  it('Pane 1: ColumnChannels ẩn nhãn số tin mới khi tất cả hội thoại đã đọc', () => {
+    // Ban đầu có totalUnread = 1 -> hiển thị "1 mới"
+    const { rerender } = render(<ColumnChannels />);
+    expect(screen.getByTestId('channel-total-unread')).toBeDefined();
+    expect(screen.getByTestId('channel-total-unread').textContent).toContain('1 mới');
+
+    // Đánh dấu đã đọc -> totalUnread = 0
+    act(() => {
+      useInboxStore.setState({
+        conversations: [{ ...mockConversation, unread_count: 0, unreadCount: 0 } as any],
+      });
+    });
+    rerender(<ColumnChannels />);
+
+    expect(screen.queryByTestId('channel-total-unread')).toBeNull();
   });
 });

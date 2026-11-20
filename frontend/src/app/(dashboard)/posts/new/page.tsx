@@ -21,7 +21,6 @@ import {
   AlertCircle,
   Loader2,
   CheckCircle2,
-  Sparkles,
 } from 'lucide-react';
 import { usePageStore } from '@/lib/page.store';
 import { apiClient } from '@/lib/api-client';
@@ -138,26 +137,20 @@ export default function NewPostPage() {
   return (
     <div className="flex-1 space-y-6 w-full">
       {/* Top Navigation Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-border/40">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-3">
           <Link
             href="/posts"
             data-testid="back-to-posts-btn"
-            className="p-2 rounded-xl border border-border/50 bg-card hover:bg-muted/40 text-muted-foreground hover:text-foreground transition-all"
+            className="p-2 rounded-xl border border-slate-300/80 dark:border-slate-700 bg-card hover:bg-muted/40 text-muted-foreground hover:text-foreground transition-all"
             title="Quay lại danh sách bài viết"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold tracking-tight text-foreground">
-                Soạn Thảo Bài Viết Mới
-              </h1>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-primary/10 text-primary border border-primary/20">
-                <Sparkles className="w-3 h-3" />
-                Chuẩn Facebook Feed
-              </span>
-            </div>
+            <h1 className="text-xl font-bold tracking-tight text-foreground">
+              Soạn Thảo Bài Viết Mới
+            </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
               Soạn thảo bài viết, tải lên hình ảnh/video và lên lịch xuất bản tự động lên Fanpage.
             </p>
@@ -170,7 +163,7 @@ export default function NewPostPage() {
             type="button"
             onClick={() => setIsPreviewModalOpen(true)}
             data-testid="open-preview-modal-btn"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border/50 bg-card hover:bg-muted/40 text-xs font-semibold text-foreground transition-all shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-300/80 dark:border-slate-700 bg-card hover:bg-muted/40 text-xs font-semibold text-foreground transition-all shadow-sm"
           >
             <Eye className="w-4 h-4 text-primary" />
             <span>Xem trước</span>
@@ -233,7 +226,7 @@ export default function NewPostPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Editor & Configuration Form (7/12) */}
         <div className="lg:col-span-7 space-y-6">
-          <div className="p-6 rounded-2xl bg-card/60 border border-border/50 backdrop-blur-md shadow-sm space-y-6">
+          <div className="p-6 rounded-xl bg-card/60 border border-slate-300/80 dark:border-slate-800 backdrop-blur-md shadow-sm space-y-6">
             {/* 1. Post Text & Fanpage Editor */}
             <PostEditor
               content={contentText}
@@ -245,7 +238,7 @@ export default function NewPostPage() {
             />
 
             {/* Divider */}
-            <hr className="border-border/40" />
+            <hr className="border-slate-200 dark:border-slate-800" />
 
             {/* 2. Media Uploader */}
             <MediaUploader
@@ -259,7 +252,7 @@ export default function NewPostPage() {
             />
 
             {/* Divider */}
-            <hr className="border-border/40" />
+            <hr className="border-slate-200 dark:border-slate-800" />
 
             {/* 3. Schedule Time Picker */}
             <SchedulePicker
@@ -294,7 +287,7 @@ export default function NewPostPage() {
           </div>
 
           {/* Facebook Post Mockup Container */}
-          <div className="rounded-2xl border border-border/50 p-2 bg-muted/20 backdrop-blur-sm shadow-sm">
+          <div className="rounded-xl border border-slate-300/80 dark:border-slate-800 p-2 bg-muted/20 backdrop-blur-sm shadow-sm">
             <FacebookPostCard
               pageName={selectedPageName}
               contentText={contentText}

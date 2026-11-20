@@ -10,6 +10,7 @@ import { Writable } from 'node:stream';
 
 vi.mock('../../../config/cloudinary.js', () => ({
   cloudinary: {
+    config: vi.fn(),
     uploader: {
       upload_stream: vi.fn(),
       destroy: vi.fn(),

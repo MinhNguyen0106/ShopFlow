@@ -171,6 +171,52 @@ describe('InboxService', () => {
     });
   });
 
+  describe('markAsRead()', () => {
+    it('ném lỗi 404 nếu không tìm thấy hội thoại', async () => {
+      mockConversationRepo.findByIdAndUserId.mockResolvedValue(null);
+
+      await expect(inboxService.markAsRead('c_none', 'u1')).rejects.toThrow(
+        'Không tìm thấy cuộc hội thoại'
+      );
+    });
+
+    it('đánh dấu đã đọc thành công và phát socket event khi unread_count > 0', async () => {
+      mockConversationRepo.findByIdAndUserId.mockResolvedValue({
+        id: 'c1',
+        page_id: 'p1',
+        page_fb_id: '123',
+        unread_count: 5,
+      });
+
+      const res = await inboxService.markAsRead('c1', 'u1');
+
+      expect(res).toBe(true);
+      expect(mockConversationRepo.markAsRead).toHaveBeenCalledWith('c1');
+      expect(mockSocketService.emitInboxUpdated).toHaveBeenCalledWith(
+        'p1',
+        expect.objectContaining({
+          event: 'INBOX_UPDATED',
+          conversation_id: 'c1',
+          updated_fields: { unread_count: 0 },
+        })
+      );
+    });
+
+    it('không gọi DB hay emit socket nếu unread_count đã bằng 0', async () => {
+      mockConversationRepo.findByIdAndUserId.mockResolvedValue({
+        id: 'c2',
+        page_id: 'p1',
+        page_fb_id: '123',
+        unread_count: 0,
+      });
+
+      const res = await inboxService.markAsRead('c2', 'u1');
+
+      expect(res).toBe(true);
+      expect(mockConversationRepo.markAsRead).not.toHaveBeenCalledWith('c2');
+    });
+  });
+
   describe('getMessages()', () => {
     it('lấy danh sách tin nhắn theo cursor pagination', async () => {
       mockConversationRepo.findByIdAndUserId.mockResolvedValue({ id: 'c1' });

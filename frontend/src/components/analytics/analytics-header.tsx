@@ -26,22 +26,17 @@ export function AnalyticsHeader() {
   ];
 
   return (
-    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-2xl p-4 md:p-5 shadow-sm">
+    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-slate-900 border border-slate-300/80 dark:border-slate-800 rounded-xl p-4 md:p-5 shadow-sm">
       {/* Tiêu đề & Icon */}
       <div className="flex items-center space-x-3.5">
         <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
           <BarChart2 className="w-6 h-6" />
         </div>
-        <div>
-          <div className="flex items-center space-x-2">
+          <div>
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">
               Báo Cáo Phân Tích Kinh Doanh
             </h1>
-            <span className="px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-200 rounded-full">
-              Realtime
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
             Theo dõi doanh thu, tỷ lệ chốt đơn và ma trận khung giờ vàng bán hàng trên Fanpage
           </p>
         </div>

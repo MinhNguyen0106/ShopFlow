@@ -54,9 +54,14 @@ describe('Auth Store (useAuthStore)', () => {
 
     const success = await useAuthStore
       .getState()
-      .login('shop@test.com', 'password123');
+      .login('shop@test.com', 'password123', true);
 
     expect(success).toBe(true);
+    expect(apiClient.post).toHaveBeenCalledWith('/auth/login', {
+      email: 'shop@test.com',
+      password: 'password123',
+      rememberMe: true,
+    });
     const state = useAuthStore.getState();
     expect(state.isAuthenticated).toBe(true);
     expect(state.user).toEqual(mockUser);
@@ -85,21 +90,27 @@ describe('Auth Store (useAuthStore)', () => {
     expect(state.error).toBe('Email hoặc mật khẩu không chính xác');
   });
 
-  it('should logout and clear localStorage', async () => {
+  it('should logout and clear localStorage and call /auth/logout API', async () => {
     localStorage.setItem('shopflow_access_token', 'token_to_remove');
+    localStorage.setItem('shopflow_refresh_token', 'refresh_to_remove');
     useAuthStore.setState({
       user: { id: 'u1', email: 'e', fullName: 'f', role: 'owner' },
       isAuthenticated: true,
       accessToken: 'token_to_remove',
+      refreshToken: 'refresh_to_remove',
     });
 
     (apiClient.post as any).mockResolvedValueOnce({ data: { success: true } });
 
     await useAuthStore.getState().logout();
 
+    expect(apiClient.post).toHaveBeenCalledWith('/auth/logout', {
+      refreshToken: 'refresh_to_remove',
+    });
     const state = useAuthStore.getState();
     expect(state.isAuthenticated).toBe(false);
     expect(state.user).toBeNull();
     expect(localStorage.getItem('shopflow_access_token')).toBeNull();
+    expect(localStorage.getItem('shopflow_refresh_token')).toBeNull();
   });
 });

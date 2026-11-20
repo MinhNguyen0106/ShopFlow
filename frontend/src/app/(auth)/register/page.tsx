@@ -80,25 +80,12 @@ export default function RegisterPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header & Branding */}
-      <div className="text-center space-y-2">
-        <div className="inline-flex items-center justify-center gap-2.5 mb-1">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-            <Zap className="w-5 h-5 fill-white text-white" />
-          </div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-bold tracking-tight text-slate-900">
-              ShopFlow
-            </span>
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-50 text-blue-600 border border-blue-200">
-              SaaS VN
-            </span>
-          </div>
-        </div>
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
           Đăng ký tài khoản mới
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto">
+        <p className="text-xs sm:text-sm text-slate-500">
           Bắt đầu tự động hóa tương tác Fanpage và bảo vệ đơn hàng chống cướp số ngay hôm nay.
         </p>
       </div>

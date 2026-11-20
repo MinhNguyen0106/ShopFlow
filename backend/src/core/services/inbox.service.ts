@@ -129,14 +129,18 @@ export class InboxService {
       conv.unread_count = 0;
 
       // Phát sự kiện socket INBOX_UPDATED
-      this.socketSvc.emitInboxUpdated(conv.page_fb_id, {
-        event: 'INBOX_UPDATED',
-        page_id: conv.page_fb_id,
+      const payload = {
+        event: 'INBOX_UPDATED' as const,
+        page_id: conv.page_id,
         conversation_id: conv.id,
         updated_fields: {
           unread_count: 0,
         },
-      });
+      };
+      this.socketSvc.emitInboxUpdated(conv.page_id, payload);
+      if (conv.page_fb_id && conv.page_fb_id !== conv.page_id) {
+        this.socketSvc.emitInboxUpdated(conv.page_fb_id, payload);
+      }
     }
 
     const isWithin24h =
@@ -166,6 +170,36 @@ export class InboxService {
       },
       is_within_24h: isWithin24h,
     };
+  }
+
+  /**
+   * Đánh dấu cuộc hội thoại đã đọc và phát sự kiện realtime INBOX_UPDATED.
+   */
+  async markAsRead(conversationId: string, userId: string): Promise<boolean> {
+    const conv = await this.conversationRepo.findByIdAndUserId(conversationId, userId);
+    if (!conv) {
+      throw new AppError('Không tìm thấy cuộc hội thoại', 404, 'NOT_FOUND');
+    }
+
+    if (conv.unread_count > 0) {
+      await this.conversationRepo.markAsRead(conversationId);
+      conv.unread_count = 0;
+
+      const payload = {
+        event: 'INBOX_UPDATED' as const,
+        page_id: conv.page_id,
+        conversation_id: conv.id,
+        updated_fields: {
+          unread_count: 0,
+        },
+      };
+      this.socketSvc.emitInboxUpdated(conv.page_id, payload);
+      if (conv.page_fb_id && conv.page_fb_id !== conv.page_id) {
+        this.socketSvc.emitInboxUpdated(conv.page_fb_id, payload);
+      }
+    }
+
+    return true;
   }
 
   /**

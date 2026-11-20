@@ -53,7 +53,7 @@ export class MessageCommentRepository {
   ): Promise<Conversation> {
     const sql = `
       INSERT INTO conversations (page_id, customer_id, type, meta_thread_id, status, window_24h_expires_at)
-      VALUES ($1, $2, $3, $4, 'open', CASE WHEN $3 = 'messenger' THEN CURRENT_TIMESTAMP + INTERVAL '24 hours' ELSE NULL END)
+      VALUES ($1, $2, $3::varchar, $4, 'open', CASE WHEN $3::text = 'messenger' THEN CURRENT_TIMESTAMP + INTERVAL '24 hours' ELSE NULL END)
       ON CONFLICT (meta_thread_id) DO UPDATE
       SET last_message_at = CURRENT_TIMESTAMP,
           window_24h_expires_at = CASE WHEN EXCLUDED.type = 'messenger' THEN CURRENT_TIMESTAMP + INTERVAL '24 hours' ELSE conversations.window_24h_expires_at END

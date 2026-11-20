@@ -28,7 +28,7 @@ export function MacWindowShell({ children }: MacWindowShellProps) {
         <Topbar onOpenCommandPalette={() => setIsCommandPaletteOpen(true)} />
 
         {/* Scrollable Main Workspace - 100% Fluid Width */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/50 w-full">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50 w-full">
           {children}
         </main>
       </div>

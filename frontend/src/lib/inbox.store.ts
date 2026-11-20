@@ -36,6 +36,7 @@ interface InboxState {
   setFilters: (newFilters: Partial<InboxFilters>) => void;
   fetchConversations: () => Promise<void>;
   selectConversation: (conversation: ConversationItem | null) => Promise<void>;
+  markConversationAsRead: (conversationId: string) => Promise<boolean>;
   fetchMessages: (conversationId: string) => Promise<void>;
   sendMessage: (content: string) => Promise<boolean>;
   sendPrivateReply: (messageId: string, content: string) => Promise<boolean>;
@@ -86,13 +87,21 @@ export const useInboxStore = create<InboxState>((set, get) => ({
           : [];
 
       const currentSelected = get().selectedConversation;
+      const normalizedConversations = conversations.map((c) => {
+        if (currentSelected && c.id === currentSelected.id) {
+          return { ...c, unreadCount: 0, unread_count: 0 };
+        }
+        return c;
+      });
+
       let nextSelected = currentSelected;
       if (currentSelected) {
-        nextSelected = conversations.find((c) => c.id === currentSelected.id) || currentSelected;
+        const found = normalizedConversations.find((c) => c.id === currentSelected.id);
+        nextSelected = found ? { ...found, unreadCount: 0, unread_count: 0 } : currentSelected;
       }
 
       set({
-        conversations,
+        conversations: normalizedConversations,
         selectedConversation: nextSelected,
         isLoadingConversations: false,
       });
@@ -106,9 +115,55 @@ export const useInboxStore = create<InboxState>((set, get) => ({
   },
 
   selectConversation: async (conversation) => {
-    set({ selectedConversation: conversation, messages: [] });
-    if (conversation) {
-      await get().fetchMessages(conversation.id);
+    if (!conversation) {
+      set({ selectedConversation: null, messages: [] });
+      return;
+    }
+
+    const unread = conversation.unreadCount || conversation.unread_count || 0;
+    const readConversation: ConversationItem = {
+      ...conversation,
+      unreadCount: 0,
+      unread_count: 0,
+    };
+
+    // Optimistic UI update: đặt unreadCount = 0 ngay lập tức trong conversations và selectedConversation
+    set((state) => ({
+      selectedConversation: readConversation,
+      messages: [],
+      conversations: state.conversations.map((c) =>
+        c.id === conversation.id
+          ? { ...c, unreadCount: 0, unread_count: 0 }
+          : c
+      ),
+    }));
+
+    void get().fetchMessages(conversation.id);
+
+    if (unread > 0) {
+      try {
+        await apiClient.patch(`/inbox/conversations/${conversation.id}/read`);
+      } catch (err) {
+        console.warn('Lỗi khi gửi API đánh dấu đã đọc:', err);
+      }
+    }
+  },
+
+  markConversationAsRead: async (conversationId: string) => {
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id === conversationId ? { ...c, unreadCount: 0, unread_count: 0 } : c
+      ),
+      selectedConversation:
+        state.selectedConversation?.id === conversationId
+          ? { ...state.selectedConversation, unreadCount: 0, unread_count: 0 }
+          : state.selectedConversation,
+    }));
+    try {
+      await apiClient.patch(`/inbox/conversations/${conversationId}/read`);
+      return true;
+    } catch {
+      return false;
     }
   },
 
@@ -309,6 +364,8 @@ export const useInboxStore = create<InboxState>((set, get) => ({
           messages: [...state.messages, typed.message!],
         };
       });
+      // Người dùng đang mở cuộc hội thoại này -> tự động đánh dấu đã đọc trên backend
+      apiClient.patch(`/inbox/conversations/${convId}/read`).catch(() => {});
     }
     // Cập nhật lại danh sách hội thoại để cập nhật unread_count và last_message
     get().fetchConversations();

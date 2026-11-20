@@ -201,4 +201,39 @@ describe('Auth Endpoints Integration (/api/v1/auth)', () => {
       expect(res.body.data.user.sub).toBe('me-user-id');
     });
   });
+
+  describe('POST /api/v1/auth/logout', () => {
+    it('nên trả về HTTP 401 khi không gửi token xác thực', async () => {
+      const res = await request(app).post('/api/v1/auth/logout');
+
+      expect(res.status).toBe(401);
+      expect(res.body.error.code).toBe('UNAUTHORIZED');
+    });
+
+    it('nên đăng xuất thành công và đưa token vào blacklist', async () => {
+      const user = {
+        id:    'logout-user-id',
+        email: 'logout@shopflow.vn',
+        role:  'owner' as const,
+      };
+      const { accessToken, refreshToken } = generateTokens(user);
+
+      const res = await request(app)
+        .post('/api/v1/auth/logout')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ refreshToken });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.message).toContain('Đăng xuất thành công');
+
+      // Thử dùng lại access token vừa bị đăng xuất
+      const meRes = await request(app)
+        .get('/api/v1/auth/me')
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      expect(meRes.status).toBe(401);
+      expect(meRes.body.error.message).toContain('đăng xuất');
+    });
+  });
 });

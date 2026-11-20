@@ -34,35 +34,43 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 
 /**
  * Tạo cặp Access Token và Refresh Token cho người dùng.
+ * Hỗ trợ thời hạn động theo cờ rememberMe (1 ngày vs 30 ngày).
  */
-export function generateTokens(user: Pick<User, 'id' | 'email' | 'role'>): AuthTokens {
+export function generateTokens(
+  user: Pick<User, 'id' | 'email' | 'role'>,
+  rememberMe: boolean = false
+): AuthTokens {
+  const expiry = rememberMe ? '30d' : '24h';
+
   const accessPayload: JwtUserPayload = {
-    sub:        user.id,
-    id:         user.id,
-    email:      user.email,
-    role:       user.role,
-    token_type: 'access',
+    sub:         user.id,
+    id:          user.id,
+    email:       user.email,
+    role:        user.role,
+    token_type:  'access',
+    remember_me: rememberMe,
   };
 
   const refreshPayload: JwtUserPayload = {
-    sub:        user.id,
-    email:      user.email,
-    role:       user.role,
-    token_type: 'refresh',
+    sub:         user.id,
+    email:       user.email,
+    role:        user.role,
+    token_type:  'refresh',
+    remember_me: rememberMe,
   };
 
   const accessToken = jwt.sign(accessPayload, env.JWT_ACCESS_SECRET, {
-    expiresIn: env.JWT_ACCESS_EXPIRY,
+    expiresIn: expiry,
   } as jwt.SignOptions);
 
   const refreshToken = jwt.sign(refreshPayload, env.JWT_REFRESH_SECRET, {
-    expiresIn: env.JWT_REFRESH_EXPIRY,
+    expiresIn: expiry,
   } as jwt.SignOptions);
 
   return {
     accessToken,
     refreshToken,
-    expiresIn: env.JWT_ACCESS_EXPIRY,
+    expiresIn: expiry,
     tokenType: 'Bearer',
   };
 }

@@ -166,4 +166,102 @@ describe('Inbox Store (useInboxStore)', () => {
     const state = useInboxStore.getState();
     expect(state.selectedConversation?.status).toBe('resolved');
   });
+
+  it('selectConversation phải Optimistic Update unreadCount = 0 và gọi PATCH /read khi có tin nhắn chưa đọc', async () => {
+    useInboxStore.setState({
+      conversations: [
+        {
+          ...mockConversations[0],
+          id: 'conv_unread',
+          unread_count: 5,
+          unreadCount: 5,
+        } as any,
+      ],
+      selectedConversation: null,
+    });
+
+    (apiClient.patch as any).mockResolvedValueOnce({
+      data: { success: true },
+    });
+    (apiClient.get as any).mockResolvedValueOnce({
+      data: { success: true, data: { messages: [] } },
+    });
+
+    const targetConv = useInboxStore.getState().conversations[0];
+    await useInboxStore.getState().selectConversation(targetConv);
+
+    const state = useInboxStore.getState();
+    expect(state.selectedConversation?.unread_count).toBe(0);
+    expect(state.selectedConversation?.unreadCount).toBe(0);
+    expect(state.conversations[0].unread_count).toBe(0);
+    expect(state.conversations[0].unreadCount).toBe(0);
+
+    expect(apiClient.patch).toHaveBeenCalledWith('/inbox/conversations/conv_unread/read');
+  });
+
+  it('selectConversation không gọi PATCH /read nếu hội thoại đã có unread = 0', async () => {
+    useInboxStore.setState({
+      conversations: [
+        {
+          ...mockConversations[0],
+          id: 'conv_read',
+          unread_count: 0,
+          unreadCount: 0,
+        } as any,
+      ],
+      selectedConversation: null,
+    });
+
+    (apiClient.get as any).mockResolvedValueOnce({
+      data: { success: true, data: { messages: [] } },
+    });
+
+    const targetConv = useInboxStore.getState().conversations[0];
+    await useInboxStore.getState().selectConversation(targetConv);
+
+    expect(apiClient.patch).not.toHaveBeenCalledWith('/inbox/conversations/conv_read/read');
+  });
+
+  it('markConversationAsRead cập nhật conversation và selectedConversation sang unread_count = 0', async () => {
+    useInboxStore.setState({
+      conversations: [
+        { ...mockConversations[0], id: 'conv_mark', unread_count: 3 } as any,
+      ],
+      selectedConversation: { ...mockConversations[0], id: 'conv_mark', unread_count: 3 } as any,
+    });
+
+    (apiClient.patch as any).mockResolvedValueOnce({
+      data: { success: true },
+    });
+
+    const success = await useInboxStore.getState().markConversationAsRead('conv_mark');
+    expect(success).toBe(true);
+
+    const state = useInboxStore.getState();
+    expect(state.conversations[0].unread_count).toBe(0);
+    expect(state.selectedConversation?.unread_count).toBe(0);
+    expect(apiClient.patch).toHaveBeenCalledWith('/inbox/conversations/conv_mark/read');
+  });
+
+  it('fetchConversations giữ nguyên unread_count = 0 cho hội thoại đang được mở', async () => {
+    useInboxStore.setState({
+      selectedConversation: { ...mockConversations[0], id: 'conv_1', unread_count: 0 } as any,
+    });
+
+    (apiClient.get as any).mockResolvedValueOnce({
+      data: {
+        success: true,
+        data: {
+          // Backend trả về conv_1 vẫn có unread_count = 2 (chưa sync kịp)
+          conversations: [{ ...mockConversations[0], id: 'conv_1', unread_count: 2 }],
+        },
+      },
+    });
+
+    await useInboxStore.getState().fetchConversations();
+
+    const state = useInboxStore.getState();
+    expect(state.conversations[0].unread_count).toBe(0);
+    expect(state.selectedConversation?.unread_count).toBe(0);
+  });
 });

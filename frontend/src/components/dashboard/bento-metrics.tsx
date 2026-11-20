@@ -20,12 +20,12 @@ export function BentoMetrics({ metrics = DEFAULT_DASHBOARD_METRICS }: BentoMetri
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* 1. Tổng hội thoại mới */}
-      <div className="group relative rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:shadow-md transition-all">
+      <div className="group relative rounded-xl border border-slate-300/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:border-slate-400/80 dark:hover:border-slate-700 transition-all">
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
             Tổng hội thoại hôm nay
           </span>
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
             <MessageSquareText className="h-4 w-4" />
           </div>
         </div>
@@ -44,12 +44,12 @@ export function BentoMetrics({ metrics = DEFAULT_DASHBOARD_METRICS }: BentoMetri
       </div>
 
       {/* 2. Bình luận chứa SĐT đã ẩn */}
-      <div className="group relative rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:shadow-md transition-all">
+      <div className="group relative rounded-xl border border-slate-300/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:border-slate-400/80 dark:hover:border-slate-700 transition-all">
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
             Tự động ẩn SĐT
           </span>
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
             <ShieldCheck className="h-4 w-4" />
           </div>
         </div>
@@ -57,7 +57,7 @@ export function BentoMetrics({ metrics = DEFAULT_DASHBOARD_METRICS }: BentoMetri
           <span className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
             {metrics.hiddenPhoneCount}
           </span>
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60">
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[11px] font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-300/60 dark:border-emerald-800/60">
             100% An toàn
           </span>
         </div>
@@ -67,12 +67,12 @@ export function BentoMetrics({ metrics = DEFAULT_DASHBOARD_METRICS }: BentoMetri
       </div>
 
       {/* 3. Bài viết đã lên lịch hôm nay */}
-      <div className="group relative rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:shadow-md transition-all">
+      <div className="group relative rounded-xl border border-slate-300/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:border-slate-400/80 dark:hover:border-slate-700 transition-all">
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
             Lịch đăng hôm nay
           </span>
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
             <CalendarClock className="h-4 w-4" />
           </div>
         </div>
@@ -89,12 +89,12 @@ export function BentoMetrics({ metrics = DEFAULT_DASHBOARD_METRICS }: BentoMetri
       </div>
 
       {/* 4. Tỷ lệ phản hồi Meta 24h Window */}
-      <div className="group relative rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:shadow-md transition-all">
+      <div className="group relative rounded-xl border border-slate-300/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:border-slate-400/80 dark:hover:border-slate-700 transition-all">
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
             Tuân thủ Cửa sổ Meta 24h
           </span>
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
             <ClockAlert className="h-4 w-4" />
           </div>
         </div>

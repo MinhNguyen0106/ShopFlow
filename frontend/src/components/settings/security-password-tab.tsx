@@ -105,7 +105,7 @@ export function SecurityPasswordTab() {
   return (
     <div className="space-y-6">
       {/* Card 1: Form Đổi Mật Khẩu */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-300/80 shadow-sm overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 bg-slate-50/80 border-b border-slate-200">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-[#FF5F56]" />
@@ -119,7 +119,7 @@ export function SecurityPasswordTab() {
         </div>
 
         <div className="p-6">
-          <div className="flex items-start gap-4 pb-5 mb-5 border-b border-slate-100">
+          <div className="flex items-start gap-4 pb-5 mb-5 border-b border-slate-200">
             <div className="p-3 bg-primary-50 text-primary-600 rounded-xl">
               <Lock className="w-6 h-6" />
             </div>
@@ -262,8 +262,8 @@ export function SecurityPasswordTab() {
       </div>
 
       {/* Card 2: Quản lý Phiên Đăng Nhập & Thiết Bị */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+      <div className="bg-white rounded-xl border border-slate-300/80 shadow-sm p-6">
+        <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
           <div>
             <h3 className="text-base font-bold text-slate-900">Thiết Bị &amp; Phiên Đăng Nhập</h3>
             <p className="text-sm text-slate-500">Các phiên làm việc đang duy trì truy cập vào tài khoản ShopFlow của bạn.</p>

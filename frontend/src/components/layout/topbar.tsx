@@ -8,7 +8,6 @@ import {
   ChevronDown,
   Plus,
   Bell,
-  Activity,
   LogOut,
   User as UserIcon,
   Check,
@@ -39,13 +38,13 @@ export function Topbar({ onOpenCommandPalette }: TopbarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-30 h-14 w-full bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between select-none">
+    <header className="sticky top-0 z-30 h-14 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between select-none">
       {/* Left: Quick Search Spotlight Trigger */}
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={onOpenCommandPalette}
-          className="flex items-center gap-2.5 h-9 w-48 sm:w-72 px-3 rounded-xl bg-slate-100/80 hover:bg-slate-200/60 border border-slate-200/60 text-slate-500 text-xs sm:text-sm transition-all focus:outline-none"
+          className="flex items-center gap-2.5 h-9 w-48 sm:w-72 px-3 rounded-xl bg-slate-100/80 hover:bg-slate-200/60 border border-slate-200 text-slate-500 text-xs sm:text-sm transition-all focus:outline-none"
         >
           <Search className="w-4 h-4 text-slate-400" />
           <span className="flex-1 text-left truncate">
@@ -64,7 +63,7 @@ export function Topbar({ onOpenCommandPalette }: TopbarProps) {
           <button
             type="button"
             onClick={() => setIsPageDropdownOpen(!isPageDropdownOpen)}
-            className="flex items-center gap-2 h-9 px-3 rounded-full bg-slate-100 hover:bg-slate-200/70 border border-slate-200/80 text-xs font-medium text-slate-800 transition-colors"
+            className="flex items-center gap-2 h-9 px-3 rounded-full bg-slate-100 hover:bg-slate-200/70 border border-slate-200 text-xs font-medium text-slate-800 transition-colors"
           >
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="max-w-[130px] sm:max-w-[180px] truncate">
@@ -146,17 +145,6 @@ export function Topbar({ onOpenCommandPalette }: TopbarProps) {
           <Plus className="w-3.5 h-3.5" />
           <span>Soạn bài mới</span>
         </Link>
-
-        {/* Sensor & Health Status */}
-        <div
-          title="Meta Graph API v19.0: Hoạt động bình thường"
-          className="hidden md:flex items-center gap-1 h-9 px-2.5 rounded-xl bg-slate-50 border border-slate-200/60 text-slate-500 text-xs"
-        >
-          <Activity className="w-3.5 h-3.5 text-emerald-500" />
-          <span className="font-mono text-[11px] text-emerald-600 font-semibold">
-            API 24%
-          </span>
-        </div>
 
         {/* Notifications */}
         <button

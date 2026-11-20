@@ -103,15 +103,10 @@ export default function CustomersPage() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-              <Users className="w-6 h-6 text-blue-600" />
-              Quản lý Khách hàng & Leads
-            </h1>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200/60">
-              macOS Bento Grid
-            </span>
-          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2 mb-1">
+            <Users className="w-6 h-6 text-blue-600" />
+            Quản lý Khách hàng & Leads
+          </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Danh bạ khách hàng tập trung, theo dõi tổng chi tiêu (LTV), gắn thẻ phân loại Leads và bảo vệ PII.
           </p>
@@ -120,7 +115,7 @@ export default function CustomersPage() {
         {/* Fanpage Switcher & Action buttons */}
         <div className="flex items-center gap-3">
           {pages.length > 0 && (
-            <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
+            <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-300/80 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
               <Layers className="w-4 h-4 text-slate-400" />
               <select
                 aria-label="Chọn Fanpage quản lý"
@@ -144,7 +139,7 @@ export default function CustomersPage() {
             type="button"
             onClick={loadData}
             disabled={isLoading}
-            className="p-2 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-sm transition-all disabled:opacity-50"
+            className="p-2 rounded-xl border border-slate-300/80 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-sm transition-all disabled:opacity-50"
             title="Làm mới dữ liệu"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-blue-600' : ''}`} />

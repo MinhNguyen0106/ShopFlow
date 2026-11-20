@@ -95,6 +95,37 @@ export class InboxController {
   };
 
   /**
+   * PATCH /api/v1/inbox/conversations/:conversationId/read
+   * Đánh dấu cuộc hội thoại đã đọc.
+   */
+  markAsRead = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const userId = req.user?.id || req.user?.sub;
+      if (!userId) {
+        throw new AppError('Chưa xác thực người dùng', 401, 'UNAUTHORIZED');
+      }
+
+      const conversationId = String(req.params.conversationId);
+      if (!conversationId) {
+        throw new AppError('Thiếu conversationId', 400, 'BAD_REQUEST');
+      }
+
+      await this.inboxSvc.markAsRead(conversationId, userId);
+
+      res.status(200).json({
+        success: true,
+        message: 'Đã đánh dấu cuộc hội thoại là đã đọc',
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
    * GET /api/v1/inbox/conversations/:conversationId/messages
    */
   getMessages = async (

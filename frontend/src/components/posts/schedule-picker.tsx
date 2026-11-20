@@ -152,7 +152,7 @@ export const SchedulePicker: React.FC<SchedulePickerProps> = ({
           className={`p-3 rounded-xl border text-left transition-all flex items-center gap-3 ${
             publishMode === 'now'
               ? 'border-primary bg-primary/10 text-foreground ring-1 ring-primary/30'
-              : 'border-border/60 bg-muted/20 hover:bg-muted/30 text-muted-foreground'
+              : 'border-slate-300/80 dark:border-slate-700 bg-muted/20 hover:bg-muted/30 text-muted-foreground'
           }`}
         >
           <div
@@ -185,7 +185,7 @@ export const SchedulePicker: React.FC<SchedulePickerProps> = ({
           className={`p-3 rounded-xl border text-left transition-all flex items-center gap-3 ${
             publishMode === 'schedule'
               ? 'border-primary bg-primary/10 text-foreground ring-1 ring-primary/30'
-              : 'border-border/60 bg-muted/20 hover:bg-muted/30 text-muted-foreground'
+              : 'border-slate-300/80 dark:border-slate-700 bg-muted/20 hover:bg-muted/30 text-muted-foreground'
           }`}
         >
           <div
@@ -206,7 +206,7 @@ export const SchedulePicker: React.FC<SchedulePickerProps> = ({
 
       {/* Schedule Picker Input and Golden Hour Presets */}
       {publishMode === 'schedule' && (
-        <div className="space-y-3 p-4 rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="space-y-3 p-4 rounded-xl border border-slate-300/80 dark:border-slate-800 bg-card/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div>
             <label className="text-xs font-medium text-foreground block mb-1.5">
               Chọn ngày và giờ:
@@ -217,7 +217,7 @@ export const SchedulePicker: React.FC<SchedulePickerProps> = ({
               onChange={handleInputChange}
               disabled={disabled}
               data-testid="schedule-datetime-input"
-              className="w-full px-3.5 py-2 rounded-xl border border-border/60 bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full px-3.5 py-2 rounded-xl border border-slate-300/80 dark:border-slate-700 bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
 

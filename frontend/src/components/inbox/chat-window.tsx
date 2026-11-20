@@ -121,7 +121,7 @@ export function ChatWindow() {
   return (
     <div className="flex h-full w-full flex-col bg-white">
       {/* Top Header */}
-      <div className="flex items-center justify-between border-b border-slate-200/80 px-4 py-3 bg-white">
+      <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 bg-white">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-sm font-bold text-slate-700">
             {customerName.charAt(0).toUpperCase()}
@@ -188,6 +188,23 @@ export function ChatWindow() {
             const privateReplySent = msg.privateReplySent || msg.private_reply_sent;
             const isComment = selectedConversation.type === 'comment_thread';
 
+            // Xử lý tệp đính kèm hình ảnh hoặc sticker
+            const rawMedia = msg.mediaPayload || msg.media_payload;
+            const mediaList: Array<{ url?: string; type?: string }> = [];
+            if (Array.isArray(rawMedia)) {
+              rawMedia.forEach((m) => {
+                const itemObj = m as Record<string, unknown> | undefined;
+                const payloadObj = (itemObj?.payload || {}) as Record<string, unknown>;
+                const url = (payloadObj.url as string) || (itemObj?.url as string);
+                if (url) {
+                  mediaList.push({
+                    url,
+                    type: (itemObj?.type as string) || (payloadObj.sticker_id ? 'sticker' : 'image'),
+                  });
+                }
+              });
+            }
+
             return (
               <div
                 key={msg.id}
@@ -222,9 +239,25 @@ export function ChatWindow() {
                 >
                   <p className="whitespace-pre-wrap leading-relaxed">{msg.content || '(Tệp đính kèm)'}</p>
 
+                  {mediaList.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {mediaList.map((media, idx) => (
+                        <img
+                          key={idx}
+                          src={media.url}
+                          alt={media.type === 'sticker' ? 'Sticker' : 'Hình ảnh'}
+                          className={`max-h-48 max-w-full rounded-lg object-contain ${
+                            media.type === 'sticker' ? 'bg-transparent' : 'bg-slate-50 border border-slate-200/60'
+                          }`}
+                          loading="lazy"
+                        />
+                      ))}
+                    </div>
+                  )}
+
                   {/* Actions for Comment messages (Hide/Unhide, Private Reply) */}
                   {isComment && !isPage && (
-                    <div className="mt-2 flex items-center gap-2 border-t border-slate-100 pt-1.5 text-[10px]">
+                    <div className="mt-2 flex items-center gap-2 border-t border-slate-200 pt-1.5 text-[10px]">
                       <button
                         onClick={() => toggleHideMessage(msg.id, !isHidden)}
                         className={`font-medium ${
@@ -267,7 +300,7 @@ export function ChatWindow() {
       )}
 
       {/* Quick Macro Bar */}
-      <div className="border-t border-slate-100 bg-slate-50/50 px-3 py-1.5 flex items-center gap-1.5 overflow-x-auto select-none">
+      <div className="border-t border-slate-200 bg-slate-50/50 px-3 py-1.5 flex items-center gap-1.5 overflow-x-auto select-none">
         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0">
           Macro:
         </span>

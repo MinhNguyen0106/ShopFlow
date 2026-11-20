@@ -62,7 +62,7 @@ export function AnalyticsMetrics() {
         return (
           <div
             key={card.id}
-            className="group relative overflow-hidden bg-white/70 backdrop-blur-md border border-slate-200/80 hover:border-slate-300 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300"
+            className="group relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-300/80 hover:border-slate-400/80 rounded-xl p-5 shadow-xs hover:shadow-sm transition-all duration-200"
           >
             {/* Top row: Icon + Growth Badge */}
             <div className="flex items-center justify-between">

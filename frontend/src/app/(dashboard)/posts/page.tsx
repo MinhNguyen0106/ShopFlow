@@ -18,7 +18,6 @@ import {
   RefreshCw,
   Filter,
   Layers,
-  Sparkles,
 } from 'lucide-react';
 import { usePostStore } from '@/lib/post.store';
 import { usePageStore } from '@/lib/page.store';
@@ -73,15 +72,9 @@ export default function PostsPage() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              Lịch Đăng Bài
-            </h1>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
-              <Sparkles className="w-3 h-3" />
-              Tự động hóa AI
-            </span>
-          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Lịch Đăng Bài
+          </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Quản lý kế hoạch nội dung, theo dõi hàng đợi hẹn giờ và điều phối xuất bản đa Fanpage.
           </p>
@@ -94,7 +87,7 @@ export default function PostsPage() {
             disabled={isLoading}
             data-testid="refresh-posts-btn"
             title="Làm mới danh sách"
-            className="p-2.5 rounded-xl border border-border/50 bg-card/60 hover:bg-muted/40 text-muted-foreground hover:text-foreground transition-all disabled:opacity-50"
+            className="p-2.5 rounded-xl border border-slate-300/80 dark:border-slate-700 bg-card/60 hover:bg-muted/40 text-muted-foreground hover:text-foreground transition-all disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
@@ -111,13 +104,13 @@ export default function PostsPage() {
       </div>
 
       {/* Control Bar: View Switcher, Fanpage Selector, Status Tabs */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 p-3 bg-card/50 border border-border/50 rounded-2xl backdrop-blur-md">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 p-3 bg-card/50 border border-slate-300/80 dark:border-slate-800 rounded-xl backdrop-blur-md">
         {/* Left: View Switcher & Fanpage Filter */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Segmented View Switcher (macOS Pill Style) */}
           <div
             data-testid="view-switcher"
-            className="inline-flex items-center p-1 rounded-xl bg-muted/40 border border-border/40"
+            className="inline-flex items-center p-1 rounded-xl bg-muted/40 border border-slate-300/80 dark:border-slate-700"
           >
             <button
               onClick={() => setViewMode('list')}
@@ -155,7 +148,7 @@ export default function PostsPage() {
               onChange={(e) => filterByPage(e.target.value)}
               data-testid="fanpage-selector"
               aria-label="Chọn Fanpage"
-              className="pl-8 pr-8 py-1.5 rounded-xl border border-border/40 bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
+              className="pl-8 pr-8 py-1.5 rounded-xl border border-slate-300/80 dark:border-slate-700 bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
             >
               <option value="all">Tất cả Fanpage</option>
               {pages.map((p) => (

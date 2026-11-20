@@ -181,7 +181,7 @@ export const PostsCalendarView: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Calendar Header Navigation */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-card/60 border border-border/50 rounded-2xl backdrop-blur-md shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-card/60 border border-slate-300/80 dark:border-slate-800 rounded-xl backdrop-blur-md shadow-sm">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
             <CalendarIcon className="w-5 h-5" />
@@ -203,16 +203,16 @@ export const PostsCalendarView: React.FC = () => {
           <button
             onClick={handleToday}
             data-testid="calendar-today-btn"
-            className="px-3 py-1.5 rounded-lg text-xs font-medium border border-border/50 bg-background hover:bg-muted/40 transition-all"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-300/80 dark:border-slate-700 bg-background hover:bg-muted/40 transition-all"
           >
             Hôm nay
           </button>
-          <div className="flex items-center border border-border/50 rounded-lg overflow-hidden bg-background">
+          <div className="flex items-center border border-slate-300/80 dark:border-slate-700 rounded-lg overflow-hidden bg-background">
             <button
               onClick={handlePrevMonth}
               data-testid="calendar-prev-month-btn"
               title="Tháng trước"
-              className="p-1.5 hover:bg-muted/40 transition-all border-r border-border/40"
+              className="p-1.5 hover:bg-muted/40 transition-all border-r border-slate-300/80 dark:border-slate-700"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -229,9 +229,9 @@ export const PostsCalendarView: React.FC = () => {
       </div>
 
       {/* Calendar Grid Container */}
-      <div className="w-full bg-card/60 border border-border/50 rounded-2xl overflow-hidden backdrop-blur-md shadow-sm">
+      <div className="w-full bg-card/60 border border-slate-300/80 dark:border-slate-800 rounded-xl overflow-hidden backdrop-blur-md shadow-sm">
         {/* Days of week header */}
-        <div className="grid grid-cols-7 border-b border-border/40 bg-muted/30 text-center text-xs font-semibold text-muted-foreground py-2.5">
+        <div className="grid grid-cols-7 border-b border-slate-200 dark:border-slate-800 bg-muted/30 text-center text-xs font-semibold text-muted-foreground py-2.5">
           {DAYS_OF_WEEK.map((dayName, idx) => (
             <div key={dayName} className={idx >= 5 ? 'text-primary/80' : ''}>
               {dayName}
@@ -240,7 +240,7 @@ export const PostsCalendarView: React.FC = () => {
         </div>
 
         {/* Days Grid */}
-        <div className="grid grid-cols-7 divide-x divide-y divide-border/30 bg-background/50">
+        <div className="grid grid-cols-7 divide-x divide-y divide-slate-200/80 dark:divide-slate-800 bg-background/50">
           {calendarDays.map((cell) => {
             const dayPosts = postsByDate.get(cell.dateKey) || [];
 
@@ -295,7 +295,7 @@ export const PostsCalendarView: React.FC = () => {
                         className={`w-full text-left p-1.5 rounded-md border text-[11px] transition-all flex items-start gap-1.5 group/post ${
                           golden
                             ? 'bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20'
-                            : 'bg-background/80 border-border/40 hover:bg-muted/40'
+                            : 'bg-background/80 border-slate-200 dark:border-slate-800 hover:bg-muted/40'
                         }`}
                       >
                         <span
@@ -339,9 +339,9 @@ export const PostsCalendarView: React.FC = () => {
           data-testid="calendar-post-modal"
           className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150"
         >
-          <div className="w-full max-w-lg bg-card border border-border/60 rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[85vh]">
+          <div className="w-full max-w-lg bg-card border border-slate-300 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden flex flex-col max-h-[85vh]">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b border-border/50 bg-muted/20">
+            <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800 bg-muted/20">
               <div className="flex items-center gap-2">
                 <PostStatusBadge status={selectedPost.status} />
                 {isGoldenHour(selectedPost.scheduledTime || selectedPost.scheduled_time || '') && (
@@ -366,7 +366,7 @@ export const PostsCalendarView: React.FC = () => {
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Nội dung bài viết
                 </span>
-                <p className="mt-1 text-foreground leading-relaxed whitespace-pre-wrap bg-muted/20 p-3 rounded-xl border border-border/30">
+                <p className="mt-1 text-foreground leading-relaxed whitespace-pre-wrap bg-muted/20 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
                   {selectedPost.contentText ||
                     selectedPost.content_text ||
                     '(Không có nội dung chữ)'}
@@ -383,7 +383,7 @@ export const PostsCalendarView: React.FC = () => {
                     {(selectedPost.mediaUrls || selectedPost.media_urls || []).map((url, idx) => (
                       <div
                         key={idx}
-                        className="aspect-square rounded-lg overflow-hidden border border-border/40 bg-muted/40"
+                        className="aspect-square rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 bg-muted/40"
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
@@ -398,7 +398,7 @@ export const PostsCalendarView: React.FC = () => {
               )}
 
               {/* Timing & Page Details */}
-              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border/40 text-xs text-muted-foreground">
+              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-200 dark:border-slate-800 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1.5">
                   <Clock className="w-4 h-4 text-primary" />
                   <span>
@@ -437,7 +437,7 @@ export const PostsCalendarView: React.FC = () => {
             </div>
 
             {/* Modal Actions */}
-            <div className="p-4 border-t border-border/50 bg-muted/20 flex items-center justify-end gap-2">
+            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-muted/20 flex items-center justify-end gap-2">
               {selectedPost.status === 'failed' && (
                 <button
                   onClick={async () => {
@@ -470,7 +470,7 @@ export const PostsCalendarView: React.FC = () => {
 
               <button
                 onClick={() => setSelectedPost(null)}
-                className="px-3 py-1.5 rounded-lg text-xs border border-border/50 hover:bg-muted/40 transition-all"
+                className="px-3 py-1.5 rounded-lg text-xs border border-slate-300/80 dark:border-slate-700 hover:bg-muted/40 transition-all"
               >
                 Đóng
               </button>

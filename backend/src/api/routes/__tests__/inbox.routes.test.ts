@@ -133,6 +133,21 @@ describe('Inbox Routes (/api/v1/inbox)', () => {
     });
   });
 
+  describe('PATCH /api/v1/inbox/conversations/:conversationId/read', () => {
+    it('trả về HTTP 200 khi đánh dấu đã đọc thành công', async () => {
+      vi.spyOn(inboxService, 'markAsRead').mockResolvedValue(true);
+
+      const res = await request(app)
+        .patch('/api/v1/inbox/conversations/c1/read')
+        .set('Authorization', `Bearer ${validToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.message).toBe('Đã đánh dấu cuộc hội thoại là đã đọc');
+      expect(inboxService.markAsRead).toHaveBeenCalledWith('c1', 'user_test_uuid');
+    });
+  });
+
   describe('GET /api/v1/inbox/conversations/:conversationId/messages', () => {
     it('trả về HTTP 200 kèm danh sách tin nhắn', async () => {
       vi.spyOn(inboxService, 'getMessages').mockResolvedValue({

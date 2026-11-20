@@ -61,7 +61,7 @@ export function OrderMetrics({ metrics, isLoading = false }: OrderMetricsProps) 
         return (
           <div
             key={idx}
-            className="p-4 rounded-2xl bg-card border border-border/60 shadow-sm hover:border-border hover:shadow transition-all relative overflow-hidden group"
+            className="p-4 rounded-2xl bg-card border border-slate-300/80 dark:border-slate-800 shadow-sm hover:border-slate-400/80 dark:hover:border-slate-700 hover:shadow transition-all relative overflow-hidden group"
           >
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-medium text-muted-foreground">
